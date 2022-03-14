@@ -22,6 +22,8 @@ from numpy.linalg import solve as solveLinEq
 # load stopper
 from mod_stopper import CHECK_FORCE_QUIT
 
+def cmp(a, b):
+    return (a > b) - (a < b) 
 
 # DATA RE-CALIBRATION
 # -------------------

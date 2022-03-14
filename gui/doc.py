@@ -134,7 +134,7 @@ class document():
         buff = []
         for item in self.annotations:
             buff.append((item.mz, item))
-        buff.sort()
+        buff.sort(key = lambda y: y[0])
         
         # remove formula duplicates
         #formulas = []
@@ -328,9 +328,9 @@ class document():
     def report(self, image=None):
         """Get HTML report."""
         
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        intFormat = '%0.' + `config.main['intDigits']` + 'f'
-        ppmFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        intFormat = '%0.' + str(config.main['intDigits']) + 'f'
+        ppmFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         
         # add header
         buff = REPORT_HEADER
@@ -604,7 +604,7 @@ class document():
         
         buff = []
         
-        format = '%0.' + `config.main['mzDigits']` + 'f'
+        format = '%0.' + str(config.main['mzDigits']) + 'f'
         for mod in sequence.modifications:
             name = mod[0]
             
@@ -1096,7 +1096,6 @@ class parseMSD():
             # sort annotations by mz
             self.document.sortAnnotations()
     # ----
-    
     
     def handleSequences(self):
         """Get sequences."""

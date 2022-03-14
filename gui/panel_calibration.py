@@ -38,7 +38,7 @@ class panelCalibration(wx.MiniFrame):
     """Calibration tool."""
     
     def __init__(self, parent, tool='references'):
-        wx.MiniFrame.__init__(self, parent, -1, 'Calibration', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Calibration', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.MAXIMIZE_BOX))
         
         self.parent = parent
         self.processing = None
@@ -555,7 +555,7 @@ class panelCalibration(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # empty references
@@ -590,8 +590,8 @@ class panelCalibration(wx.MiniFrame):
             return
         
         # add new data
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        ppmFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        ppmFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         fontSkipped = wx.Font(mwx.SMALL_FONT_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_ITALIC, wx.NORMAL)
         fontUsed = wx.SMALL_FONT
         for row, item in enumerate(self.currentReferences):

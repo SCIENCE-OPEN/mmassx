@@ -35,7 +35,7 @@ class panelDocumentExport(wx.MiniFrame):
     """Document export tools."""
     
     def __init__(self, parent, tool='image'):
-        wx.MiniFrame.__init__(self, parent, -1, 'Export', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Export', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.MAXIMIZE_BOX))
         
         self.parent = parent
         self.processing = None
@@ -156,11 +156,11 @@ class panelDocumentExport(wx.MiniFrame):
         
         imageFontsScale_label = wx.StaticText(panel, -1, "Font scale:")
         self.imageFontsScale_slider = wx.Slider(panel, -1, config.export['imageFontsScale'], 1, 10, size=(140, -1), style=mwx.SLIDER_STYLE)
-        self.imageFontsScale_slider.SetTickFreq(1,1)
+        self.imageFontsScale_slider.SetTickFreq(1)
         
         imageDrawingsScale_label = wx.StaticText(panel, -1, "Line scale:")
         self.imageDrawingsScale_slider = wx.Slider(panel, -1, config.export['imageDrawingsScale'], 1, 10, size=(140, -1), style=mwx.SLIDER_STYLE)
-        self.imageDrawingsScale_slider.SetTickFreq(1,1)
+        self.imageDrawingsScale_slider.SetTickFreq(1)
         
         # pack elements
         grid = wx.GridBagSizer(mwx.GRIDBAG_VSPACE, mwx.GRIDBAG_HSPACE)
@@ -562,7 +562,7 @@ class panelDocumentExport(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # hide processing gauge
@@ -597,7 +597,7 @@ class panelDocumentExport(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # hide processing gauge

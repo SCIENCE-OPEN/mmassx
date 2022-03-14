@@ -52,7 +52,7 @@ class parseMZML():
         
         # check path
         if not os.path.exists(path):
-            raise IOError, 'File not found! --> ' + self.path
+            raise IOError('File not found! --> ' + self.path)
     # ----
     
     
@@ -66,7 +66,7 @@ class parseMZML():
         
         # parse document
         try:
-            document = file(self.path)
+            document = open(self.path)
             parser.parse(document)
             document.close()
             self._scans = handler.data
@@ -100,7 +100,7 @@ class parseMZML():
         
         # parse document
         try:
-            document = file(self.path)
+            document = open(self.path)
             parser.parse(document)
             document.close()
         except stopParsing:
@@ -126,7 +126,7 @@ class parseMZML():
         
         # parse document
         try:
-            document = file(self.path)
+            document = open(self.path)
             parser.parse(document)
             document.close()
             self._scanlist = handler.data

@@ -39,7 +39,7 @@ class panelCompoundsSearch(wx.MiniFrame):
     """Compounds search tool."""
     
     def __init__(self, parent, tool='compounds'):
-        wx.MiniFrame.__init__(self, parent, -1, 'Compounds Search', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Compounds Search', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.MAXIMIZE_BOX))
         
         self.parent = parent
         self.matchPanel = None
@@ -108,7 +108,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         self.tool_label.SetFont(wx.SMALL_FONT)
         
         choices = libs.compounds.keys()
-        choices.sort()
+        choices = sorted(choices)
         choices.insert(0,'Compounds lists')
         self.compounds_choice = wx.Choice(panel, -1, choices=choices, size=(250, mwx.SMALL_CHOICE_HEIGHT))
         self.compounds_choice.Select(0)
@@ -326,10 +326,10 @@ class panelCompoundsSearch(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(3)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(3)
             self.processing = None
             mspy.start()
@@ -345,7 +345,7 @@ class panelCompoundsSearch(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
+        if self.processing and self.processing.is_alive():
             mspy.stop()
         else:
             wx.Bell()
@@ -576,7 +576,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update compounds list
@@ -713,10 +713,10 @@ class panelCompoundsSearch(wx.MiniFrame):
             return
         
         # add new data
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        errFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        errFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         if config.match['units'] == 'ppm':
-            errFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+            errFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         fontMatched = wx.Font(mwx.SMALL_FONT_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         
         row = -1
@@ -762,7 +762,7 @@ class panelCompoundsSearch(wx.MiniFrame):
                 self.compoundsList.SetItemFont(row, fontMatched)
         
         # sort data
-        self.compoundsList.sort()
+        self.compoundsList.sort
         
         # scroll top
         if self.compoundsList.GetItemCount():

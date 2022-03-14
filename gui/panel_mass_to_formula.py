@@ -38,7 +38,7 @@ class panelMassToFormula(wx.MiniFrame):
     """Mass to formula tool."""
     
     def __init__(self, parent):
-        wx.MiniFrame.__init__(self, parent, -1, 'Mass To Formula', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Mass To Formula', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.MAXIMIZE_BOX))
         
         self.parent = parent
         
@@ -108,7 +108,7 @@ class panelMassToFormula(wx.MiniFrame):
         
         tolerance_label = wx.StaticText(panel, -1, "Tolerance:")
         tolerance_label.SetFont(wx.SMALL_FONT)
-        self.tolerance_value = wx.TextCtrl(panel, -1, str(config.massToFormula['tolerance']), size=(50, -1), validator=mwx.validator('floatPos'))
+        self.tolerance_value = wx.TextCtrl(panel, -1, str(config.massToFormula['tolerance']), size=(50, -1), style=wx.TE_PROCESS_ENTER, validator=mwx.validator('floatPos'))
         self.tolerance_value.Bind(wx.EVT_TEXT_ENTER, self.onGenerate)
         
         self.unitsDa_radio = wx.RadioButton(panel, -1, "Da", style=wx.RB_GROUP)
@@ -328,10 +328,10 @@ class panelMassToFormula(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(4)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(4)
             self.processing = None
             mspy.start()
@@ -347,7 +347,7 @@ class panelMassToFormula(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
+        if self.processing and self.processing.is_alive():
             mspy.stop()
         else:
             wx.Bell()
@@ -552,7 +552,7 @@ class panelMassToFormula(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update gui
@@ -800,11 +800,11 @@ class panelMassToFormula(wx.MiniFrame):
             return
         
         # add new data
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        errFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        errFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         
         if config.massToFormula['units'] == 'ppm':
-            errFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+            errFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         
         row = -1
         for index, item in enumerate(self.currentFormulae):

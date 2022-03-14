@@ -29,7 +29,7 @@ import re
 import random
 import mspy
 import socket
-import httplib
+import http.client
 import webbrowser
 import tempfile
 import wx
@@ -781,13 +781,13 @@ class mainFrame(wx.Frame):
         
         # set frame manager properties
         artProvider = self.AUIManager.GetArtProvider()
-        artProvider.SetColor(wx.aui.AUI_DOCKART_SASH_COLOUR, self.documentsPanel.GetBackgroundColour())
-        artProvider.SetColor(wx.aui.AUI_DOCKART_INACTIVE_CAPTION_COLOUR, self.documentsPanel.GetBackgroundColour())
+        artProvider.SetColour(wx.aui.AUI_DOCKART_SASH_COLOUR, self.documentsPanel.GetBackgroundColour())
+        artProvider.SetColour(wx.aui.AUI_DOCKART_INACTIVE_CAPTION_COLOUR, self.documentsPanel.GetBackgroundColour())
         artProvider.SetMetric(wx.aui.AUI_DOCKART_SASH_SIZE, mwx.SASH_SIZE)
         artProvider.SetMetric(wx.aui.AUI_DOCKART_GRIPPER_SIZE, mwx.GRIPPER_SIZE)
         if mwx.SASH_COLOUR:
             self.SetOwnBackgroundColour(mwx.SASH_COLOUR)
-            artProvider.SetColor(wx.aui.AUI_DOCKART_SASH_COLOUR, mwx.SASH_COLOUR)
+            artProvider.SetColour(wx.aui.AUI_DOCKART_SASH_COLOUR, mwx.SASH_COLOUR)
         
         # set last layout
         self.onWindowLayout(layout=config.main['layout'])
@@ -882,7 +882,6 @@ class mainFrame(wx.Frame):
         # clear visibility history
         self.documentsSoloCurrent = None
         self.documentsSoloPrevious = {}
-        
         # append document
         self.spectrumPanel.appendLastSpectrum()
         self.documentsPanel.appendLastDocument()
@@ -1542,7 +1541,7 @@ class mainFrame(wx.Frame):
         # get document XML
         process = threading.Thread(target=self.runDocumentSave, kwargs={'docIndex':docIndex})
         process.start()
-        while process.isAlive():
+        while process.is_alive():
             gauge.pulse()
         
         # save file
@@ -1550,7 +1549,7 @@ class mainFrame(wx.Frame):
         if self.currentDocumentXML:
             gauge.setLabel('Saving data...')
             try:
-                save = file(path, 'w')
+                save = open(path, 'w')
                 save.write(self.currentDocumentXML.encode("utf-8"))
                 save.close()
                 failed = False
@@ -3230,7 +3229,7 @@ class mainFrame(wx.Frame):
         # run process
         process = threading.Thread(target=self.runLibrarySave, kwargs={'library':library})
         process.start()
-        while process.isAlive():
+        while process.is_alive():
             gauge.pulse()
         gauge.close()
         
@@ -3509,7 +3508,7 @@ class mainFrame(wx.Frame):
             # load document
             process = threading.Thread(target=self.runDocumentParser, kwargs={'path':path, 'docType':docType, 'scan':scan})
             process.start()
-            while process.isAlive():
+            while process.is_alive():
                 gauge.pulse()
             
             # append document
@@ -3542,7 +3541,7 @@ class mainFrame(wx.Frame):
     
     def importDocumentFromClipboard(self, rawData, dataType='profile'):
         """Parse data and make new document."""
-        
+
         before = len(self.documents)
         
         # init processing gauge
@@ -3552,7 +3551,7 @@ class mainFrame(wx.Frame):
         # load document
         process = threading.Thread(target=self.runDocumentXYParser, kwargs={'rawData':rawData, 'dataType':dataType})
         process.start()
-        while process.isAlive():
+        while process.is_alive():
             gauge.pulse()
         
         # append document
@@ -3584,7 +3583,7 @@ class mainFrame(wx.Frame):
         gauge.show()
         process = threading.Thread(target=self.runCompassXport, kwargs={'path':path})
         process.start()
-        while process.isAlive():
+        while process.is_alive():
             gauge.pulse()
         gauge.close()
         
@@ -3916,7 +3915,7 @@ class mainFrame(wx.Frame):
         gauge.show()
         process = threading.Thread(target=self.getDocumentScanList, kwargs={'path':path, 'docType':docType})
         process.start()
-        while process.isAlive():
+        while process.is_alive():
             gauge.pulse()
         gauge.close()
         
@@ -3953,7 +3952,7 @@ class mainFrame(wx.Frame):
         gauge.show()
         process = threading.Thread(target=self.getDocumentSequences, kwargs={'path':path, 'docType':docType})
         process.start()
-        while process.isAlive():
+        while process.is_alive():
             gauge.pulse()
         gauge.close()
         
@@ -4193,7 +4192,7 @@ class mainFrame(wx.Frame):
         
         # get latest version available
         socket.setdefaulttimeout(5)
-        conn = httplib.HTTPConnection('www.mmass.org')
+        conn = http.client.HTTPConnection('www.mmass.org')
         try:
             conn.connect()
             url = '/update.php?version=%s&platform=%s' % (config.version, platform.platform())

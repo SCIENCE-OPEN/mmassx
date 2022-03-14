@@ -38,7 +38,7 @@ def load(path, scanID=None, dataType='continuous'):
     
     # check path
     if not os.path.exists(path):
-        raise IOError, 'File not found! --> ' + path
+        raise IOError('File not found! --> ' + path)
     
     # get filename and extension
     dirName, fileName = os.path.split(path)
@@ -68,10 +68,11 @@ def load(path, scanID=None, dataType='continuous'):
         elif '<mzML' in data:
             docType = 'mzML'
         doc.close()
-    
+    raise TypeError
+   
     # check document type
     if not docType:
-        raise ValueError, 'Unknown document type! --> ' + path
+        raise ValueError('Unknown document type! --> ' + path)
     
     # load document data
     if docType == 'mzData':

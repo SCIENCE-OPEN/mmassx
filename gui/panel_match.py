@@ -36,7 +36,7 @@ class panelMatch(wx.MiniFrame):
     """Data match tool."""
     
     def __init__(self, parentTool, mainFrame, module):
-        wx.MiniFrame.__init__(self, parentTool, -1, 'Match Data', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parentTool, -1, 'Match Data', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.MAXIMIZE_BOX))
         
         self.parentTool = parentTool
         self.mainFrame = mainFrame
@@ -364,10 +364,10 @@ class panelMatch(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(4)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(4)
             self.processing = None
             mspy.start()
@@ -383,7 +383,7 @@ class panelMatch(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
+        if self.processing and self.processing.is_alive():
             mspy.stop()
         else:
             wx.Bell()
@@ -469,7 +469,7 @@ class panelMatch(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update gui
@@ -640,7 +640,7 @@ class panelMatch(wx.MiniFrame):
             self.currentErrors = []
             self.currentCalibrationPoints = []
             
-            digits = '%0.' + `config.main['mzDigits']` + 'f'
+            digits = '%0.' + str(config.main['mzDigits']) + 'f'
             for pIndex, peak in enumerate(self.currentPeaklist):
                 for x, item in enumerate(self.currentData):
                     

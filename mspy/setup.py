@@ -1,7 +1,10 @@
 import sys
 import numpy
-from distutils.core import setup
-from distutils.extension import Extension
+# from distutils.core import setup
+# from distutils.extension import Extension
+
+from setuptools import setup, Extension
+
 
 # Build on WIN using MinGW:
 # python setup.py build --compiler=mingw32
@@ -15,6 +18,7 @@ from distutils.extension import Extension
 # make include paths
 numpyInclude = numpy.get_include() + '/numpy'
 pythonInclude = sys.prefix + '/include'
+gyInclude = 'C:\Xilinx\Vivado\2019.1\msys64\mingw64\lib\gcc\x86_64-w64-mingw32\6.2.0\include'
 
 # make setup
 setup(
@@ -25,8 +29,8 @@ setup(
     description = "Fast calculations for mspy.",
     ext_modules=[
         Extension('calculations', ['calculations.c'],
-            include_dirs=[numpyInclude, pythonInclude],
-            libraries=['m']
+            include_dirs=[numpyInclude, pythonInclude, gyInclude]
+            # ,libraries=['m']
         )
     ],
 )

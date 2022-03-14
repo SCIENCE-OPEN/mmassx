@@ -322,7 +322,7 @@ class panelComparePeaklists(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
+        if self.processing and self.processing.is_alive():
             mspy.stop()
         else:
             wx.Bell()
@@ -475,7 +475,7 @@ class panelComparePeaklists(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update gui
@@ -519,7 +519,7 @@ class panelComparePeaklists(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update gui
@@ -617,7 +617,7 @@ class panelComparePeaklists(wx.MiniFrame):
                     self.documentsGrid.SetColLabelValue(x, 'm/z')
         
         # set formats
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         defaultColour = self.documentsGrid.GetDefaultCellBackgroundColour()
         
         # add data
@@ -679,7 +679,7 @@ class panelComparePeaklists(wx.MiniFrame):
                 self.peaklistGrid.SetColSize(x, 20)
         
         # set formats
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         defaultColour = self.peaklistGrid.GetDefaultCellBackgroundColour()
         
         # add data
@@ -733,10 +733,10 @@ class panelComparePeaklists(wx.MiniFrame):
         self.matchesGrid.SetColSize(0, 20)
         
         # set formats
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        errFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        errFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         if config.comparePeaklists['units'] == 'ppm':
-            errFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+            errFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         
         # add data
         for i, match in enumerate(self.currentMatches):

@@ -42,7 +42,7 @@ class parseMGF():
         
         # check path
         if not os.path.exists(path):
-            raise IOError, 'File not found! --> ' + self.path
+            raise IOError('File not found! --> ' + self.path)
     # ----
     
     
@@ -114,7 +114,7 @@ class parseMGF():
         
         # open document
         try:
-            document = file(self.path)
+            document = open(self.path)
             rawData = document.readlines()
             document.close()
         except IOError:
@@ -184,7 +184,7 @@ class parseMGF():
                 try: point[0] = float(parts[0])
                 except ValueError: continue
                 try: point[1] = float(parts[1])
-                except ValueError, IndexError: pass
+                except (ValueError, IndexError) as target: pass
                 self._scans[currentID]['data'].append(point)
                 self._scans[currentID]['pointsCount'] += 1
                 continue

@@ -70,7 +70,7 @@ def pattern(compound, fwhm=0.1, threshold=0.01, charge=0, agentFormula='H', agen
     composition = compound.composition()
     for atom in composition:
         if composition[atom] < 0:
-            raise ValueError, 'Pattern cannot be calculated for this formula! --> ' + compound.formula()
+            raise ValueError('Pattern cannot be calculated for this formula! --> ' + compound.formula())
     
     # set internal thresholds
     internalThreshold = threshold/100.
@@ -259,11 +259,11 @@ def matchpattern(signal, pattern, pickingHeight=0.75, baseline=None):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     
    # check baseline type
     if baseline != None and not isinstance(baseline, numpy.ndarray):
-        raise TypeError, "Baseline must be NumPy array!"
+        raise TypeError("Baseline must be NumPy array!")
     
     # check signal data
     if len(signal) == 0:

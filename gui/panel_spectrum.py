@@ -595,12 +595,12 @@ class panelSpectrum(wx.Panel):
         distance = self.spectrumCanvas.getDistance()
         
         # format numbers
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        intFormat = '%0.' + `config.main['intDigits']` + 'f'
-        distFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        ppmFormat = '%0.' + `config.main['ppmDigits']` + 'f'
-        areaFormat = '%0.' + `config.main['intDigits']` + 'f'
-        chargeFormat = '%0.' + `config.main['chargeDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        intFormat = '%0.' + str(config.main['intDigits']) + 'f'
+        distFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        ppmFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
+        areaFormat = '%0.' + str(config.main['intDigits']) + 'f'
+        chargeFormat = '%0.' + str(config.main['chargeDigits']) + 'f'
         
         if position and abs(position[1]) > 10000:
             intFormat = '%.2e'

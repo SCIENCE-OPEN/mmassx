@@ -26,6 +26,10 @@ import images
 import config
 import mspy
 
+def cmp(a, b):
+    try: return (a > b) - (a < b) 
+    except: return 0
+
 
 # GUI CONSTANTS
 # -------------
@@ -184,7 +188,7 @@ def appInit():
     
     # set MAC
     if wx.Platform == '__WXMAC__':
-        wx.SystemOptions.SetOptionInt("mac.listctrl.always_use_generic", config.main['macListCtrlGeneric'])
+        wx.SystemOptions.SetOption("mac.listctrl.always_use_generic", config.main['macListCtrlGeneric'])
         wx.ToolTip.SetDelay(1500)
         if config.main['reverseScrolling']:
             global SCROLL_DIRECTION
@@ -601,7 +605,7 @@ class scrollTextCtrl(wx.TextCtrl):
         if new > 10000 or new < -10000:
             format = '%0.1e'
         else:
-            format = '%0.' + `self._digits` + 'f'
+            format = '%0.' + str(self._digits) + 'f'
         new = format % new
         
         # set new value
@@ -747,7 +751,7 @@ class gaugePanel(wx.Dialog):
         """Show panel."""
         
         self.Center()
-        self.MakeModal(True)
+        #self.MakeModal(True)
         self.Show()
         
         try: wx.Yield()
@@ -758,7 +762,7 @@ class gaugePanel(wx.Dialog):
     def close(self):
         """Hide panel"""
         
-        self.MakeModal(False)
+        #self.MakeModal(False)
         self.Destroy()
     # ----
     

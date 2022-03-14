@@ -298,7 +298,7 @@ class panelPeaklist(wx.Panel):
         buttons.Add(self.peakReplace_butt, 0)
         
         mainSizer = wx.BoxSizer(wx.VERTICAL)
-        mainSizer.Add(grid, 0, wx.EXPAND|wx.ALIGN_CENTER|wx.ALL, 10)
+        mainSizer.Add(grid, 0, wx.EXPAND|wx.ALL, 10)
         mainSizer.Add(buttons, 0, wx.ALIGN_CENTER|wx.RIGHT|wx.LEFT|wx.BOTTOM, 10)
         
         # fit layout
@@ -764,9 +764,9 @@ class panelPeaklist(wx.Panel):
         """Refresh item data in the list."""
         
         # set formats
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        intFormat = '%0.' + `config.main['intDigits']` + 'f'
-        fwhmFormat = '%0.' + `max(config.main['mzDigits'],3)` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        intFormat = '%0.' + str(config.main['intDigits']) + 'f'
+        fwhmFormat = '%0.' + str(max(config.main['mzDigits'],3)) + 'f'
         
         # insert data
         x = 0

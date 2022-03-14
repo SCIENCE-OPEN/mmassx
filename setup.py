@@ -7,7 +7,8 @@ if nightbuild:
 
 # make win32 distribution
 if sys.platform == 'win32':
-    from distutils.core import setup
+    #from distutils.core import setup
+    from setuptools import setup
     import py2exe
     
     # list additional files

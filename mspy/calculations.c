@@ -32,6 +32,11 @@ typedef struct {
     double width;
 } m_noise;
 
+#if PY_MAJOR_VERSION >= 3
+  #define PyInt_FromLong               PyLong_FromLong
+  #define PyInt_AsLong                 PyLong_AsLong
+  #define PyInt_AS_LONG                PyLong_AS_LONG
+#endif
 
 #define ELEM_SWAP(a,b) { register double t=(a);(a)=(b);(b)=t; }
 
@@ -621,7 +626,8 @@ m_arrayd *signal_smooth_ma( m_arrayd *p_signal, int window, int cycles )
     // make kernel
     ksize = window + 1;
     ksum = window + 1;
-    double kernel[ksize];
+    // double kernel[ksize];
+	double kernel[501]; // gy changed for VS compatibility
     for ( i = 0; i <= ksize; ++i ) {
         kernel[i] = 1/ksum;
     }
@@ -680,7 +686,8 @@ m_arrayd *signal_smooth_ga( m_arrayd *p_signal, int window, int cycles )
     // make kernel
     ksize = window + 1;
     ksum = 0;
-    double kernel[ksize];
+    // double kernel[ksize];
+	double kernel[501]; // gy changed for VS compatibility
     for ( i = 0; i <= ksize; ++i ) {
         r = (i - (ksize-1)/2.0);
         k = exp(-(r*r/(ksize*ksize/16.0)));
@@ -2556,7 +2563,22 @@ static PyMethodDef calculations_methods[] = {
    {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC initcalculations(void) {
-    Py_InitModule3("calculations", calculations_methods,"");
+// PyMODINIT_FUNC initcalculations(void) {
+//     Py_InitModule3("calculations", calculations_methods,"");
+//     import_array();
+// }
+
+static struct PyModuleDef calculations = 
+{
+    PyModuleDef_HEAD_INIT,
+    "calculations", 
+    "", /* docs */
+    -1,
+    calculations_methods
+};
+
+PyMODINIT_FUNC PyInit_calculations(void)
+{
     import_array();
+    return PyModule_Create(&calculations);
 }

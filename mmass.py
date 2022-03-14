@@ -16,15 +16,31 @@
 # -------------------------------------------------------------------------
 
 # load main config and libs
+# gy addition for paths
+import sys
+import os
+#sys.path.append('D:/Documents/mMass-gySources')
+#sys.path.append('D:/Documents/mMass-gySources/gui')
+#sys.path.append('D:/Documents/mMass-gySources/mspy')
+
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),'gui')))
+sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),'mspy')))
+
+
+
+
+# end gy
 from gui import config
 from gui import libs
 
 # load libs
-import sys
+# import sys
 import os
 import threading
 import socket
-import SocketServer
+import socketserver
+
+
 import wx
 
 # load modules
@@ -89,13 +105,13 @@ class mMass(wx.App):
     
     
 
-class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+class TCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     """TCP communication server."""
     
     def __init__(self, server_address, RequestHandlerClass):
         self.allow_reuse_address = True
         self.stopped = False
-        SocketServer.TCPServer.__init__(self, server_address, RequestHandlerClass, False)
+        socketserver.TCPServer.__init__(self, server_address, RequestHandlerClass, False)
     # ----
     
     
@@ -112,7 +128,7 @@ class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     
     
 
-class TCPServerHandler(SocketServer.BaseRequestHandler):
+class TCPServerHandler(socketserver.BaseRequestHandler):
     """TCP communication server handler."""
     
     def handle(self):

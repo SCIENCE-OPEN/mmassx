@@ -19,7 +19,7 @@
 import re
 import threading
 import wx
-import httplib
+import http.client
 import socket
 import webbrowser
 import tempfile
@@ -42,7 +42,7 @@ class panelMascot(wx.MiniFrame):
     """Mascot search tool."""
     
     def __init__(self, parent, tool=config.mascot['common']['searchType']):
-        wx.MiniFrame.__init__(self, parent, -1, 'Mascot Tools', size=(300, -1), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Mascot Tools', size=(300, -1), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.MAXIMIZE_BOX))
         
         self.parent = parent
         self.processing = None
@@ -955,7 +955,7 @@ class panelMascot(wx.MiniFrame):
         # get data from the server
         socket.setdefaulttimeout(5)
         try:
-            conn = httplib.HTTPConnection(server['host'])
+            conn = http.client.HTTPConnection(server['host'])
             conn.connect()
             conn.request('GET', server['path'] + server['params'])
             response = conn.getresponse()
@@ -1240,7 +1240,7 @@ class panelMascot(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # hide processing gauge

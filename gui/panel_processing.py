@@ -38,7 +38,7 @@ class panelProcessing(wx.MiniFrame):
     """Data processing tools."""
     
     def __init__(self, parent, tool='peakpicking'):
-        wx.MiniFrame.__init__(self, parent, -1, 'Processing', size=(300, -1), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Processing', size=(300, -1), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.MAXIMIZE_BOX))
         
         self.parent = parent
         
@@ -301,12 +301,12 @@ class panelProcessing(wx.MiniFrame):
         # make elements
         baselinePrecision_label = wx.StaticText(panel, -1, "Precision:")
         self.baselinePrecision_slider = wx.Slider(panel, -1, config.processing['baseline']['precision'], 1, 100, size=(150, -1), style=mwx.SLIDER_STYLE)
-        self.baselinePrecision_slider.SetTickFreq(10,1)
+        self.baselinePrecision_slider.SetTickFreq(10)
         self.baselinePrecision_slider.Bind(wx.EVT_SCROLL, self.onBaselineChanged)
         
         baselineOffset_label = wx.StaticText(panel, -1, "Relative offset:")
         self.baselineOffset_slider = wx.Slider(panel, -1, config.processing['baseline']['offset']*100, 0, 100, size=(150, -1), style=mwx.SLIDER_STYLE)
-        self.baselineOffset_slider.SetTickFreq(10,1)
+        self.baselineOffset_slider.SetTickFreq(10)
         self.baselineOffset_slider.Bind(wx.EVT_SCROLL, self.onBaselineChanged)
         
         # pack elements
@@ -349,7 +349,7 @@ class panelProcessing(wx.MiniFrame):
         
         smoothingCycles_label = wx.StaticText(panel, -1, "Cycles:")
         self.smoothingCycles_slider = wx.Slider(panel, -1, config.processing['smoothing']['cycles'], 1, 5, size=(150, -1), style=mwx.SLIDER_STYLE)
-        self.smoothingCycles_slider.SetTickFreq(1,1)
+        self.smoothingCycles_slider.SetTickFreq(1)
         self.smoothingCycles_slider.Bind(wx.EVT_SCROLL, self.onSmoothingChanged)
         
         # pack elements
@@ -394,7 +394,7 @@ class panelProcessing(wx.MiniFrame):
         
         peakpickingHeight_label = wx.StaticText(panel, -1, "Picking height:")
         self.peakpickingHeight_slider = wx.Slider(panel, -1, config.processing['peakpicking']['pickingHeight']*100, 1, 100, size=(150, -1), style=mwx.SLIDER_STYLE)
-        self.peakpickingHeight_slider.SetTickFreq(10,1)
+        self.peakpickingHeight_slider.SetTickFreq(10)
         self.peakpickingHeight_slider.Bind(wx.EVT_SCROLL, self.onPeakpickingChanged)
         
         peakpickingBaseline_label = wx.StaticText(panel, -1, "Apply baseline:")
@@ -806,10 +806,10 @@ class panelProcessing(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(9)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(9)
             self.processing = None
             mspy.start()
@@ -825,7 +825,7 @@ class panelProcessing(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
+        if self.processing and self.processing.is_alive():
             mspy.stop()
         else:
             wx.Bell()
@@ -1133,7 +1133,7 @@ class panelProcessing(wx.MiniFrame):
         
         # pulse gauge while working
         self.processing.start()
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # send tmp spectrum to plot canvas
@@ -1208,7 +1208,7 @@ class panelProcessing(wx.MiniFrame):
         
         # pulse gauge while working
         self.processing.start()
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update gui

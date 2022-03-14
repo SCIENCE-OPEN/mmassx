@@ -148,7 +148,7 @@ class scan:
         """
         
         # calculate baseline
-        if self._baseline == None \
+        if isinstance(self._baseline, type(None)) \
             or self._baselineParams['window'] != window \
             or self._baselineParams['offset'] != offset:
             
@@ -368,7 +368,7 @@ class scan:
         
         # check scan
         if not isinstance(other, scan):
-            raise TypeError, "Cannot combine with non-scan object!"
+            raise TypeError("Cannot combine with non-scan object!")
         
         # use profiles only
         if len(self.profile) or len(other.profile):
@@ -395,7 +395,7 @@ class scan:
         
         # check scan
         if not isinstance(other, scan):
-            raise TypeError, "Cannot overlay with non-scan object!"
+            raise TypeError("Cannot overlay with non-scan object!")
         
         # use profiles only
         if len(self.profile) or len(other.profile):
@@ -418,7 +418,7 @@ class scan:
         
         # check scan
         if not isinstance(other, scan):
-            raise TypeError, "Cannot subtract non-scan object!"
+            raise TypeError("Cannot subtract non-scan object!")
         
         # use profiles only
         if len(self.profile) and len(other.profile):

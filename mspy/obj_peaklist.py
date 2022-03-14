@@ -145,7 +145,13 @@ class peaklist:
         else:
             raise StopIteration
     # ----
+
+    def __next__(self):  # added gy
+        
+        return self.next()
     
+    # ----
+        
     
     def append(self, item):
         """Append new peak.
@@ -569,7 +575,7 @@ class peaklist:
             return obj_peak.peak(item[0], item[1])
         
         # not valid peak data
-        raise TypeError, 'Item must be a peak object or list/tuple of two floats!'
+        raise TypeError('Item must be a peak object or list/tuple of two floats!')
     # ----
     
     

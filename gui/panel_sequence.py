@@ -39,7 +39,7 @@ class panelSequence(wx.MiniFrame):
     """Sequence tools."""
     
     def __init__(self, parent, tool='editor'):
-        wx.MiniFrame.__init__(self, parent, -1, 'Sequence', size=(500, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Sequence', size=(500, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.MAXIMIZE_BOX))
         
         self.parent = parent
         self.matchPanel = None
@@ -978,7 +978,7 @@ class panelSequence(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
+        if self.processing and self.processing.is_alive():
             mspy.stop()
         else:
             wx.Bell()
@@ -1755,7 +1755,7 @@ class panelSequence(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update digest list
@@ -1811,7 +1811,7 @@ class panelSequence(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update digest list
@@ -1860,7 +1860,7 @@ class panelSequence(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update search list
@@ -2148,7 +2148,7 @@ class panelSequence(wx.MiniFrame):
         
         # get mass
         if len(self.currentSequence):
-            format = '%0.' + `config.main['mzDigits']` + 'f'
+            format = '%0.' + str(config.main['mzDigits']) + 'f'
             mass = self.currentSequence.mass()
             label += 'Mo. mass: '+format % mass[0]
             label += '     Av. mass: '+format % mass[1]
@@ -2272,7 +2272,7 @@ class panelSequence(wx.MiniFrame):
             return
         
         currentMods = []
-        format = '%0.' + `config.main['mzDigits']` + 'f'
+        format = '%0.' + str(config.main['mzDigits']) + 'f'
         
         # get modifications
         for mod in self.currentSequence.modifications:
@@ -2379,10 +2379,10 @@ class panelSequence(wx.MiniFrame):
             return
         
         # add new data
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        errFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        errFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         if config.match['units'] == 'ppm':
-            errFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+            errFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         fontMatched = wx.Font(mwx.SMALL_FONT_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         
         row = -1
@@ -2438,10 +2438,10 @@ class panelSequence(wx.MiniFrame):
             return
         
         # add new data
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        errFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        errFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         if config.match['units'] == 'ppm':
-            errFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+            errFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         fontMatched = wx.Font(mwx.SMALL_FONT_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         fontFiltered = wx.Font(mwx.SMALL_FONT_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_ITALIC, wx.NORMAL)
         
@@ -2504,10 +2504,10 @@ class panelSequence(wx.MiniFrame):
             return
         
         # add new data
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        errFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        errFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         if config.sequence['search']['units'] == 'ppm':
-            errFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+            errFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         
         row = -1
         for index, item in enumerate(self.currentSearch):
@@ -3405,7 +3405,7 @@ class sequenceCanvas(wx.TextCtrl):
         
         # check sequence
         if not isinstance(sequence, mspy.sequence):
-            raise TypeError, 'Sequence must be mspy.sequence object!'
+            raise TypeError('Sequence must be mspy.sequence object!')
         
         # update gui
         self.enable(True)
@@ -3618,7 +3618,7 @@ class sequenceGrid(wx.StaticBoxSizer):
         
         # check sequence
         if not isinstance(sequence, mspy.sequence):
-            raise TypeError, 'Sequence must be mspy.sequence object!'
+            raise TypeError('Sequence must be mspy.sequence object!')
         
         # check number of items
         while len(self.currentSequence) - len(self.items) > 0:
