@@ -1668,6 +1668,7 @@ class mainFrame(wx.Frame):
             
             # make report file
             reportHTML = self.documents[self.currentDocument].report(image=imagePath)
+            self.documents[self.currentDocument].annotationsAsDataFrame().to_clipboard(index=False)
             reportFile = open(reportPath, 'wb')
             reportFile.write(reportHTML.encode("utf-8"))
             reportFile.close()

@@ -523,6 +523,21 @@ class document():
         return buff
     # ----
     
+    def annotationsAsDataFrame(self):
+        """converts annotations to DataFrame"""
+        import pandas as pd
+        if isinstance(self.annotations, type(None)):
+            return NULL
+        
+        annot_array = numpy.array([i.asArray() for i in self.annotations])
+        df = pd.DataFrame(numpy.array(annot_array),columns=annotation.col_titles())
+        basePeak = self.spectrum.peaklist.basepeak
+        #if basePeak:
+        #    basePeak = basePeak.intensity
+        #    df['int%'] = 100*(df['int']/basePeak)
+        return df
+    # ----
+ 
     
     def _escape(self, text):
         """Clear special characters such as <> etc."""
@@ -738,6 +753,20 @@ class annotation():
             return None
     # ----
     
+    def asArray(self):
+        """return array for Pandas conversion"""
+        return [self.mz,self.theoretical,self.delta('Da'),self.delta('ppm'),\
+                self.ai,'',self.charge,self.label,self.formula]
+       # return [self.label,self.mz,self.ai,self.base,self.charge,self.radical,\
+       #         self.theoretical,self.formula]
+            
+    @classmethod
+    def col_titles(self):
+        """column titles for Pandas DataFrame"""
+        return ['meas m/z','calc m/z','d(Da)','d(ppm)','int','int%','z','annotation','formula']
+        #return ['label','mz','int','base','chg','radical','mzTheor','formula']
+    
+
     
 
 
