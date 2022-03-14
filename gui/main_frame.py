@@ -37,49 +37,49 @@ import wx.aui
 import numpy
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
-import doc
+from .ids import *
+from . import mwx
+from . import images
+from gui import config
+from gui import libs
+from . import doc
 
-from panel_about import panelAbout
-from panel_calibration import panelCalibration
-from panel_compare_peaklists import panelComparePeaklists
-from panel_compounds_search import panelCompoundsSearch
-from panel_document_info import panelDocumentInfo
-from panel_document_export import panelDocumentExport
-from panel_documents import panelDocuments
-from panel_envelope_fit import panelEnvelopeFit
-from panel_mascot import panelMascot
-from panel_mass_calculator import panelMassCalculator
-from panel_mass_filter import panelMassFilter
-from panel_mass_to_formula import panelMassToFormula
-from panel_mass_defect_plot import panelMassDefectPlot
-from panel_peak_differences import panelPeakDifferences
-from panel_periodic_table import panelPeriodicTable
-from panel_peaklist import panelPeaklist
-from panel_processing import panelProcessing
-from panel_profound import panelProfound
-from panel_prospector import panelProspector
-from panel_sequence import panelSequence
-from panel_spectrum import panelSpectrum, dlgViewRange, dlgSpectrumOffset
-from panel_spectrum_generator import panelSpectrumGenerator
+from .panel_about import panelAbout
+from .panel_calibration import panelCalibration
+from .panel_compare_peaklists import panelComparePeaklists
+from .panel_compounds_search import panelCompoundsSearch
+from .panel_document_info import panelDocumentInfo
+from .panel_document_export import panelDocumentExport
+from .panel_documents import panelDocuments
+from .panel_envelope_fit import panelEnvelopeFit
+from .panel_mascot import panelMascot
+from .panel_mass_calculator import panelMassCalculator
+from .panel_mass_filter import panelMassFilter
+from .panel_mass_to_formula import panelMassToFormula
+from .panel_mass_defect_plot import panelMassDefectPlot
+from .panel_peak_differences import panelPeakDifferences
+from .panel_periodic_table import panelPeriodicTable
+from .panel_peaklist import panelPeaklist
+from .panel_processing import panelProcessing
+from .panel_profound import panelProfound
+from .panel_prospector import panelProspector
+from .panel_sequence import panelSequence
+from .panel_spectrum import panelSpectrum, dlgViewRange, dlgSpectrumOffset
+from .panel_spectrum_generator import panelSpectrumGenerator
 
-from dlg_compounds_editor import dlgCompoundsEditor
-from dlg_enzymes_editor import dlgEnzymesEditor
-from dlg_mascot_editor import dlgMascotEditor
-from dlg_modifications_editor import dlgModificationsEditor
-from dlg_monomers_editor import dlgMonomersEditor
-from dlg_presets_editor import dlgPresetsEditor
-from dlg_references_editor import dlgReferencesEditor
+from .dlg_compounds_editor import dlgCompoundsEditor
+from .dlg_enzymes_editor import dlgEnzymesEditor
+from .dlg_mascot_editor import dlgMascotEditor
+from .dlg_modifications_editor import dlgModificationsEditor
+from .dlg_monomers_editor import dlgMonomersEditor
+from .dlg_presets_editor import dlgPresetsEditor
+from .dlg_references_editor import dlgReferencesEditor
 
-from dlg_error import dlgError
-from dlg_preferences import dlgPreferences
-from dlg_select_scans import dlgSelectScans
-from dlg_select_sequences import dlgSelectSequences
-from dlg_clipboard_editor import dlgClipboardEditor
+from .dlg_error import dlgError
+from .dlg_preferences import dlgPreferences
+from .dlg_select_scans import dlgSelectScans
+from .dlg_select_sequences import dlgSelectSequences
+from .dlg_clipboard_editor import dlgClipboardEditor
 
 
 # MAIN FRAME
@@ -2522,9 +2522,9 @@ class mainFrame(wx.Frame):
             
             # try to approximate intensity and baseline
             if self.currentDocument != None and charge != None and self.documents[self.currentDocument].spectrum.hasprofile():
-                compound = mspy.compound(formula)
+                compound = mspy.obj_compound.compound(formula)
                 mz = compound.mz(charge=charge, agentFormula=agentFormula, agentCharge=agentCharge)[0]
-                peak = mspy.labelpeak(
+                peak = mspy.mod_peakpicking.labelpeak(
                     signal = self.documents[self.currentDocument].spectrum.profile,
                     mz = mz,
                     pickingHeight = 0.95
@@ -2980,7 +2980,7 @@ class mainFrame(wx.Frame):
         
         # create new sequence
         if not seqData:
-            seqData = mspy.sequence('', title='Untitled Sequence')
+            seqData = mspy.obj_sequence.sequence('', title='Untitled Sequence')
             seqData.matches = []
         
         # append sequence
@@ -3757,9 +3757,9 @@ class mainFrame(wx.Frame):
         
         # finalize data
         if dataType == 'peaklist':
-            spectrum = mspy.scan(peaklist=data)
+            spectrum = mspy.obj_scan.scan(peaklist=data)
         else:
-            spectrum = mspy.scan(profile=data)
+            spectrum = mspy.obj_scan.scan(profile=data)
         
         # add new document
         document = doc.document()
@@ -3796,11 +3796,11 @@ class mainFrame(wx.Frame):
         if library == 'compounds':
             self.tmpLibrarySaved = libs.saveCompounds()
         elif library == 'modifications':
-            self.tmpLibrarySaved = mspy.saveModifications(os.path.join(config.confdir,'modifications.xml'))
+            self.tmpLibrarySaved = mspy.blocks.saveModifications(os.path.join(config.confdir,'modifications.xml'))
         elif library == 'monomers':
-            self.tmpLibrarySaved = mspy.saveMonomers(os.path.join(config.confdir,'monomers.xml'))
+            self.tmpLibrarySaved = mspy.blocks.saveMonomers(os.path.join(config.confdir,'monomers.xml'))
         elif library == 'enzymes':
-            self.tmpLibrarySaved = mspy.saveEnzymes(os.path.join(config.confdir,'enzymes.xml'))
+            self.tmpLibrarySaved = mspy.blocks.saveEnzymes(os.path.join(config.confdir,'enzymes.xml'))
         elif library == 'references':
             self.tmpLibrarySaved = libs.saveReferences()
         elif library == 'mascot':
@@ -4190,7 +4190,7 @@ class mainFrame(wx.Frame):
     
     def getAvailableUpdates(self):
         """Check for available updates."""
-        
+        return False
         # get latest version available
         socket.setdefaulttimeout(5)
         conn = http.client.HTTPConnection('www.mmass.org')
@@ -4232,7 +4232,7 @@ class mainFrame(wx.Frame):
         # get current view selection
         if currentView:
             minX, maxX = self.spectrumPanel.getCurrentRange()
-            points = mspy.crop(points, minX, maxX)
+            points = mspy.mod_signal.crop(points, minX, maxX)
         
         return points
     # ----
@@ -4276,7 +4276,7 @@ class mainFrame(wx.Frame):
                 peaklist.append(peak)
         
         # finalize peaklist
-        peaklist = mspy.peaklist(peaklist)
+        peaklist = mspy.obj_peaklist.peaklist(peaklist)
         
         return peaklist
     # ----

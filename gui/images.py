@@ -19,7 +19,7 @@
 import wx
 from wx.tools import img2py
 
-import ids
+from . import ids
 
 
 # IMAGES
@@ -32,11 +32,11 @@ def loadImages():
     
     # load image library
     if wx.Platform == '__WXMAC__':
-        import images_lib_mac as images_lib
+        import gui.images_lib_mac as images_lib
     elif wx.Platform == '__WXMSW__':
-        import images_lib_msw as images_lib
+        import gui.images_lib_msw as images_lib
     else:
-        import images_lib_gtk as images_lib
+        import gui.images_lib_gtk as images_lib
     
     # common
     lib['icon16'] = images_lib.getIcon16Icon()

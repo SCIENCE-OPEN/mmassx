@@ -19,15 +19,15 @@
 import os.path
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load parsers
-from parser_xy import parseXY
-from parser_mzxml import parseMZXML
-from parser_mzdata import parseMZDATA
-from parser_mzml import parseMZML
-from parser_mgf import parseMGF
-from parser_fasta import parseFASTA
+from .parser_xy import parseXY
+from .parser_mzxml import parseMZXML
+from .parser_mzdata import parseMZDATA
+from .parser_mzml import parseMZML
+from .parser_mgf import parseMGF
+from .parser_fasta import parseFASTA
 
 
 # UTILITIES

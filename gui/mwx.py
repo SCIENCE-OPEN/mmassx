@@ -21,9 +21,9 @@ import copy
 import wx
 
 # load modules
-from ids import *
-import images
-import config
+from .ids import *
+from . import images
+from gui import config
 import mspy
 
 def cmp(a, b):
@@ -665,7 +665,7 @@ class formulaCtrl(wx.TextCtrl):
         """Check current formula."""
         
         try:
-            formula = mspy.compound(self.GetValue())
+            formula = mspy.obj_compound.compound(self.GetValue())
             self.SetBackgroundColour(wx.NullColour)
         except:
             self.SetBackgroundColour((250,100,100))

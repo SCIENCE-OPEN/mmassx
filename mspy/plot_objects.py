@@ -21,8 +21,8 @@ import numpy
 import copy
 
 # load modules
-import mod_signal
-import calculations
+from . import mod_signal
+from . import calculations
 
 
 # MAIN PLOT OBJECTS

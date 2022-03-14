@@ -20,10 +20,10 @@ import wx
 import webbrowser
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
+from .ids import *
+from . import mwx
+from . import images
+from . import config
 import mspy
 
 
@@ -156,7 +156,7 @@ class panelPeriodicTable(wx.MiniFrame):
             buttonID = wx.NewId()
             button = wx.BitmapButton(panel, buttonID, images.lib['periodicTable'+element+'Off'], style=wx.NO_BORDER)
             button.Bind(wx.EVT_BUTTON, self.onElementSelected)
-            button.SetToolTip(wx.ToolTip(mspy.elements[element].name))
+            button.SetToolTip(wx.ToolTip(mspy.blocks.elements[element].name))
             
             self.elementsIDs[buttonID] = element
             self.elementsButtons[element] = button
@@ -243,8 +243,8 @@ class panelPeriodicTable(wx.MiniFrame):
             self.elementsButtons[element].SetBitmapLabel(images.lib['periodicTable'+element+'On'])
             
             # show element info
-            self.elementName.SetLabel('%s %s (%s)' % (mspy.elements[element].name, element, mspy.elements[element].atomicNumber))
-            self.elementMass.SetLabel('Mo. mass: %.6f Da\nAv. mass: %.6f Da' % mspy.elements[element].mass)
+            self.elementName.SetLabel('%s %s (%s)' % (mspy.blocks.elements[element].name, element, mspy.blocks.elements[element].atomicNumber))
+            self.elementMass.SetLabel('Mo. mass: %.6f Da\nAv. mass: %.6f Da' % mspy.blocks.elements[element].mass)
             
             # enable buttons
             self.isotopes_butt.Enable(True)
@@ -267,7 +267,7 @@ class panelPeriodicTable(wx.MiniFrame):
         
         # show selected element
         if self.currentElement:
-            link = 'http://en.wikipedia.org/wiki/%s' % mspy.elements[self.currentElement].name
+            link = 'http://en.wikipedia.org/wiki/%s' % mspy.blocks.elements[self.currentElement].name
         
         # show selected group
         elif self.currentGroup:
@@ -305,7 +305,7 @@ class panelPeriodicTable(wx.MiniFrame):
         
         # show selected element
         if self.currentElement:
-            link = 'http://www.periodictable.com/Elements/%0.3d/index.html' % mspy.elements[self.currentElement].atomicNumber
+            link = 'http://www.periodictable.com/Elements/%0.3d/index.html' % mspy.blocks.elements[self.currentElement].atomicNumber
             try: webbrowser.open(link, autoraise=1)
             except: pass
         else:

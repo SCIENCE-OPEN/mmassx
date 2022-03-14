@@ -21,17 +21,17 @@ import numpy
 from numpy.linalg import solve as solveLinEq
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load objects
-import obj_compound
-import obj_peaklist
+from . import obj_compound
+from . import obj_peaklist
 
 # load modules
-import mod_pattern
-import mod_signal
-import mod_peakpicking
-import mod_calibration
+from . import mod_pattern
+from . import mod_signal
+from . import mod_peakpicking
+from . import mod_calibration
 
 
 # ENVELOPE FIT

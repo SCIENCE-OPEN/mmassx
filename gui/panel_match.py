@@ -20,13 +20,13 @@ import threading
 import wx
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
+from .ids import *
+from . import mwx
+from . import images
+from . import config
 import mspy
 import mspy.plot
-import doc
+from . import doc
 
 
 # FLOATING PANEL WITH MATCH TOOLS
@@ -370,7 +370,7 @@ class panelMatch(wx.MiniFrame):
             #self.MakeModal(False)
             self.mainSizer.Hide(4)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.Layout()
@@ -384,7 +384,7 @@ class panelMatch(wx.MiniFrame):
         """Cancel current processing."""
         
         if self.processing and self.processing.is_alive():
-            mspy.stop()
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -644,13 +644,13 @@ class panelMatch(wx.MiniFrame):
             for pIndex, peak in enumerate(self.currentPeaklist):
                 for x, item in enumerate(self.currentData):
                     
-                    mspy.CHECK_FORCE_QUIT()
+                    mspy.mod_stopper.CHECK_FORCE_QUIT()
                     
                     # check charge
                     if (chargeCol==None or peak.charge==None or config.match['ignoreCharge'] or peak.charge==item[chargeCol]):
                         
                         # check mass tolerance
-                        error = mspy.delta(peak.mz, item[massCol], config.match['units'])
+                        error = mspy.mod_basics.delta(peak.mz, item[massCol], config.match['units'])
                         if abs(error) <= config.match['tolerance']:
                             
                             # create new match object
@@ -674,7 +674,7 @@ class panelMatch(wx.MiniFrame):
             self.makeMatchSummary()
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             self.currentErrors = []
             self.currentCalibrationPoints = []
             self.currentSummary = []
@@ -713,7 +713,7 @@ class panelMatch(wx.MiniFrame):
         # make peaklist object
         if self.currentPeaklist:
             peaks = self.makeCurrentPeaklist()
-            peaklist = mspy.plot.spectrum(mspy.scan(peaklist=peaks), tickColour=(170,170,170), showLabels=False)
+            peaklist = mspy.plot.spectrum(mspy.obj_scan.scan(peaklist=peaks), tickColour=(170,170,170), showLabels=False)
             container.append(peaklist)
         
         # set units
@@ -770,10 +770,10 @@ class panelMatch(wx.MiniFrame):
         f = abs(maxY - minY) / basePeak.intensity
         for peak in self.currentPeaklist:
             intensity = (peak.intensity * f) + minY
-            peaklist.append(mspy.peak(mz=peak.mz, ai=intensity, base=minY))
+            peaklist.append(mspy.obj_peak.peak(mz=peak.mz, ai=intensity, base=minY))
         
         # convert to mspy.peaklist
-        return mspy.peaklist(peaklist)
+        return mspy.obj_peaklist.peaklist(peaklist)
     # ----
     
     
@@ -833,7 +833,7 @@ class panelMatch(wx.MiniFrame):
             for item in self.currentData:
                 if item[-1]:
                     sumPeptides.append([item[6].history[-1][1]+1, item[6].history[-1][2]])
-            coverage = mspy.coverage(sumPeptides, self.currentSummaryData['sequenceLength'])
+            coverage = mspy.mod_proteo.coverage(sumPeptides, self.currentSummaryData['sequenceLength'])
             value = '%0.f %s' % (coverage, '%')
             self.currentSummary.append(('Sequence length', self.currentSummaryData['sequenceLength']))
             self.currentSummary.append(('Sequence coverage', value))

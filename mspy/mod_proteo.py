@@ -20,13 +20,13 @@ import re
 import itertools
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load building blocks
-import blocks
+from . import blocks
 
 # load objects
-import obj_sequence
+from . import obj_sequence
 
 
 # SEQUENCE DIGESTION

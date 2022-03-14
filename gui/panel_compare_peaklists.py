@@ -21,9 +21,9 @@ import wx
 import wx.grid
 
 # load modules
-import mwx
-import images
-import config
+from . import mwx
+from . import images
+from . import config
 import mspy
 
 
@@ -301,13 +301,13 @@ class panelComparePeaklists(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(2)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(2)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.documentsGrid.SetMinSize(self.documentsGrid.GetSize())
@@ -323,7 +323,7 @@ class panelComparePeaklists(wx.MiniFrame):
         """Cancel current processing."""
         
         if self.processing and self.processing.is_alive():
-            mspy.stop()
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -817,7 +817,7 @@ class panelComparePeaklists(wx.MiniFrame):
             self.currentPeaklist.sort()
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             self.currentPeaklist = []
             self._maxSize = 0
             return
@@ -851,7 +851,7 @@ class panelComparePeaklists(wx.MiniFrame):
                         continue
                     
                     # check error
-                    error = mspy.delta(p1[0], p2[0], config.comparePeaklists['units'])
+                    error = mspy.mod_basics.delta(p1[0], p2[0], config.comparePeaklists['units'])
                     if abs(error) <= config.comparePeaklists['tolerance']:
                         matched = True
                     elif error < 0:
@@ -875,7 +875,7 @@ class panelComparePeaklists(wx.MiniFrame):
                         p2[-1][p1[1]] = True
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             return
     # ----
     
@@ -896,7 +896,7 @@ class panelComparePeaklists(wx.MiniFrame):
                 continue
             
             # check error
-            error = mspy.delta(p1[0], p2[0], config.comparePeaklists['units'])
+            error = mspy.mod_basics.delta(p1[0], p2[0], config.comparePeaklists['units'])
             if abs(error) <= config.comparePeaklists['tolerance']:
                 ratio1 = p1[3]/p2[3]
                 ratio2 = 1/ratio1

@@ -21,11 +21,11 @@ import wx
 import numpy
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import libs
 import mspy
 
 from gui.panel_match import panelMatch
@@ -48,7 +48,7 @@ class panelSequence(wx.MiniFrame):
         self.processing = None
         
         self.currentTool = tool
-        self.currentSequence = mspy.sequence('')
+        self.currentSequence = mspy.obj_sequence.sequence('')
         self.currentDigest = None
         self.currentFragments = None
         self.currentSearch = None
@@ -511,7 +511,7 @@ class panelSequence(wx.MiniFrame):
         digestEnzyme_label = wx.StaticText(ctrlPanel, -1, "Enzyme:")
         digestEnzyme_label.SetFont(wx.SMALL_FONT)
         
-        enzymes = mspy.enzymes.keys()
+        enzymes = mspy.blocks.enzymes.keys()
         enzymes.sort()
         self.digestEnzyme_choice = wx.Choice(ctrlPanel, -1, choices=enzymes, size=(140, mwx.SMALL_CHOICE_HEIGHT))
         if config.sequence['digest']['enzyme'] in enzymes:
@@ -733,7 +733,7 @@ class panelSequence(wx.MiniFrame):
         searchEnzyme_label = wx.StaticText(ctrlPanel, -1, "Enzyme:")
         searchEnzyme_label.SetFont(wx.SMALL_FONT)
         
-        enzymes = mspy.enzymes.keys()
+        enzymes = mspy.blocks.enzymes.keys()
         enzymes.sort()
         self.searchEnzyme_choice = wx.Choice(ctrlPanel, -1, choices=enzymes, size=(150, mwx.SMALL_CHOICE_HEIGHT))
         if config.sequence['search']['enzyme'] in enzymes:
@@ -959,13 +959,13 @@ class panelSequence(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(6)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(6)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.Layout()
@@ -979,7 +979,7 @@ class panelSequence(wx.MiniFrame):
         """Cancel current processing."""
         
         if self.processing and self.processing.is_alive():
-            mspy.stop()
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -2187,7 +2187,7 @@ class panelSequence(wx.MiniFrame):
         # get residues
         residues = []
         for monomer in self.currentSequence:
-            name = '%s (%s)' % (mspy.monomers[monomer].name, monomer)
+            name = '%s (%s)' % (mspy.blocks.monomers[monomer].name, monomer)
             if not name in residues:
                 residues.append(name)
         
@@ -2248,11 +2248,11 @@ class panelSequence(wx.MiniFrame):
         # get corresponding modifications
         mods = []
         if residue:
-            for mod in mspy.modifications:
+            for mod in mspy.blocks.modifications:
                 if not checkSpecifity \
-                    or (residue == 'N-terminus' and mspy.modifications[mod].termSpecifity == 'N') \
-                    or (residue == 'C-terminus' and mspy.modifications[mod].termSpecifity == 'C') \
-                    or residue[-2] in mspy.modifications[mod].aminoSpecifity:
+                    or (residue == 'N-terminus' and mspy.blocks.modifications[mod].termSpecifity == 'N') \
+                    or (residue == 'C-terminus' and mspy.blocks.modifications[mod].termSpecifity == 'C') \
+                    or residue[-2] in mspy.blocks.modifications[mod].aminoSpecifity:
                         mods.append(mod)
         
         # update modifications
@@ -2295,13 +2295,13 @@ class panelSequence(wx.MiniFrame):
                 modtype = 'variable'
             
             # format masses
-            massMo = format % mspy.modifications[name].mass[0]
-            massAv = format % mspy.modifications[name].mass[1]
+            massMo = format % mspy.blocks.modifications[name].mass[0]
+            massAv = format % mspy.blocks.modifications[name].mass[1]
             
             # format formula
-            formula = mspy.modifications[name].gainFormula
-            if mspy.modifications[name].lossFormula:
-                formula += ' - ' + mspy.modifications[name].lossFormula
+            formula = mspy.blocks.modifications[name].gainFormula
+            if mspy.blocks.modifications[name].lossFormula:
+                formula += ' - ' + mspy.blocks.modifications[name].lossFormula
             
             # append data
             currentMods.append((position, name, modtype, massMo, massAv, formula))
@@ -2570,8 +2570,8 @@ class panelSequence(wx.MiniFrame):
                 matchedRanges.append(section)
         
         # get coverages
-        totalCoverage = mspy.coverage(totalRanges, len(self.currentSequence))
-        matchedCoverage = mspy.coverage(matchedRanges, len(self.currentSequence))
+        totalCoverage = mspy.mod_proteo.coverage(totalRanges, len(self.currentSequence))
+        matchedCoverage = mspy.mod_proteo.coverage(matchedRanges, len(self.currentSequence))
         
         # set new label
         label = 'Coverage: %0.0f/%0.0f' % (matchedCoverage, totalCoverage)
@@ -2596,7 +2596,7 @@ class panelSequence(wx.MiniFrame):
         
         # check modifications
         for mod in presets:
-            if not mod[0] in mspy.modifications:
+            if not mod[0] in mspy.blocks.modifications:
                 wx.Bell()
                 message = 'Modification entitled "%s" was not found in your database.' % mod[0]
                 dlg = mwx.dlgMessage(self, title="Unknown modification found.", message=message)
@@ -2775,7 +2775,7 @@ class panelSequence(wx.MiniFrame):
             self.currentDigest = []
             
             # digest sequence
-            peptides = mspy.digest(
+            peptides = mspy.mod_proteo.digest(
                 sequence = self.currentSequence,
                 enzyme = config.sequence['digest']['enzyme'],
                 miscleavage = config.sequence['digest']['miscl'],
@@ -2810,7 +2810,7 @@ class panelSequence(wx.MiniFrame):
             for peptide in peptides:
                 for z in range(1, maxCharge):
                     
-                    mspy.CHECK_FORCE_QUIT()
+                    mspy.mod_stopper.CHECK_FORCE_QUIT()
                     
                     mz = peptide.mz(z*polarity)[config.sequence['digest']['massType']]
                     if mz >= config.sequence['digest']['lowMass'] and mz <= config.sequence['digest']['highMass']:
@@ -2828,7 +2828,7 @@ class panelSequence(wx.MiniFrame):
             self.currentDigest = buff
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             return
     # ----
     
@@ -2900,14 +2900,14 @@ class panelSequence(wx.MiniFrame):
                 maxLosses = config.sequence['fragment']['maxLosses']
             
             # generate basic fragments
-            fragments = mspy.fragment(
+            fragments = mspy.mod_proteo.fragment(
                 sequence = self.currentSequence,
                 series = series,
                 scrambling = scrambling
             )
             
             # apply neutral losses
-            fragments += mspy.fragmentlosses(
+            fragments += mspy.mod_proteo.fragmentlosses(
                 fragments = fragments,
                 losses = userLosses,
                 defined = definedLosses,
@@ -2915,7 +2915,7 @@ class panelSequence(wx.MiniFrame):
             )
             
             # apply neutral gains
-            fragments += mspy.fragmentgains(
+            fragments += mspy.mod_proteo.fragmentgains(
                 fragments = fragments,
                 gains = userGains,
             )
@@ -2942,7 +2942,7 @@ class panelSequence(wx.MiniFrame):
             for fragment in fragments:
                 for z in range(1, maxCharge):
                     
-                    mspy.CHECK_FORCE_QUIT()
+                    mspy.mod_stopper.CHECK_FORCE_QUIT()
                     
                     if not config.sequence['fragment']['filterFragments'] or not fragment.fragmentFiltered:
                         buff.append([
@@ -2959,7 +2959,7 @@ class panelSequence(wx.MiniFrame):
             self.currentFragments = buff
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             return
     # ----
     
@@ -2998,14 +2998,14 @@ class panelSequence(wx.MiniFrame):
                     mz,
                     config.sequence['search']['charge'],
                     peptide.format(template),
-                    mspy.delta(mz, config.sequence['search']['mass'], config.sequence['search']['units']),
+                    mspy.mod_basics.delta(mz, config.sequence['search']['mass'], config.sequence['search']['units']),
                     peptide,
                 ])
             
             self.currentSearch = buff
             
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             return
     # ----
     
@@ -3077,15 +3077,15 @@ class sequenceCanvas(wx.TextCtrl):
         self.modified = False
         
         # make sequence
-        if isinstance(sequence, mspy.sequence):
+        if isinstance(sequence, mspy.obj_sequence.sequence):
             self.currentSequence = sequence
         elif sequence == None:
-            self.currentSequence = mspy.sequence('')
+            self.currentSequence = mspy.obj_sequence.sequence('')
         
         # get regular amino acids
         self._aminoacids = []
-        for abbr in mspy.monomers:
-            if mspy.monomers[abbr].category == '_InternalAA':
+        for abbr in mspy.blocks.monomers:
+            if mspy.blocks.monomers[abbr].category == '_InternalAA':
                 self._aminoacids.append(abbr)
         
         # set events
@@ -3199,7 +3199,7 @@ class sequenceCanvas(wx.TextCtrl):
         seqSelection = self._positionEditorToSequence(curSelection)
         
         if char in self._aminoacids:
-            self.currentSequence[seqSelection[0]:seqSelection[1]] = mspy.sequence(char)
+            self.currentSequence[seqSelection[0]:seqSelection[1]] = mspy.obj_sequence.sequence(char)
             self.refresh()
             self.setInsertionPoint(seqSelection[0]+1)
             self.modified = True
@@ -3381,7 +3381,7 @@ class sequenceCanvas(wx.TextCtrl):
             
             # make sequence object
             try:
-                sequence = mspy.sequence(data)
+                sequence = mspy.obj_sequence.sequence(data)
                 return sequence
             except:
                 pass
@@ -3404,7 +3404,7 @@ class sequenceCanvas(wx.TextCtrl):
             return
         
         # check sequence
-        if not isinstance(sequence, mspy.sequence):
+        if not isinstance(sequence, mspy.obj_sequence.sequence):
             raise TypeError('Sequence must be mspy.sequence object!')
         
         # update gui
@@ -3472,10 +3472,10 @@ class sequenceGrid(wx.StaticBoxSizer):
         self.items = []
         
         # make sequence
-        if isinstance(sequence, mspy.sequence):
+        if isinstance(sequence, mspy.obj_sequence.sequence):
             self.currentSequence = sequence
         elif sequence == None:
-            self.currentSequence = mspy.sequence('')
+            self.currentSequence = mspy.obj_sequence.sequence('')
         
         # make items grid
         items = max(items, len(self.currentSequence))
@@ -3497,7 +3497,7 @@ class sequenceGrid(wx.StaticBoxSizer):
             if not monomer:
                 gap = True
                 item.SetBackgroundColour(wx.NullColour)
-            elif not monomer in mspy.monomers:
+            elif not monomer in mspy.blocks.monomers:
                 gap = True
                 item.SetBackgroundColour((250,100,100))
             elif not gap:
@@ -3509,7 +3509,7 @@ class sequenceGrid(wx.StaticBoxSizer):
             item.Refresh()
         
         # update sequence
-        self.currentSequence[:] = mspy.sequence(sequence, chainType='custom')
+        self.currentSequence[:] = mspy.obj_sequence.sequence(sequence, chainType='custom')
         
         # lock items
         self._lockItems()
@@ -3617,7 +3617,7 @@ class sequenceGrid(wx.StaticBoxSizer):
             return
         
         # check sequence
-        if not isinstance(sequence, mspy.sequence):
+        if not isinstance(sequence, mspy.obj_sequence.sequence):
             raise TypeError('Sequence must be mspy.sequence object!')
         
         # check number of items

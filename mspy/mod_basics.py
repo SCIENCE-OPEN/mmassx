@@ -20,13 +20,13 @@ import math
 import re
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load blocks
-import blocks
+from . import blocks
 
 # load objects
-import obj_compound
+from . import obj_compound
 
 
 # BASIC CONSTANTS

@@ -22,9 +22,9 @@ import numpy
 import wx
 
 # load modules
-import mwx
-import config
-import images
+from . import mwx
+from . import config
+from . import images
 
 
 # SYSTEM ERROR

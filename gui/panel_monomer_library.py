@@ -19,11 +19,11 @@
 import wx
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import libs
 import mspy
 
 
@@ -190,7 +190,7 @@ class panelMonomerLibrary(wx.MiniFrame):
         search = self.search_value.GetValue().lower().split()
         
         # make map
-        for abbr, monomer in sorted(mspy.monomers.items()):
+        for abbr, monomer in sorted(mspy.blocks.monomers.items()):
             
             # check filters
             if self.filterIn and not monomer.category in self.filterIn:

@@ -20,7 +20,7 @@ import os.path
 import xml.dom.minidom
 
 # load objects
-import obj_compound
+from . import obj_compound
 
 # set default blocks path
 blocksdir = '.'

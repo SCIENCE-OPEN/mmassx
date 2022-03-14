@@ -29,8 +29,8 @@ import numpy
 import wx
 
 # load modules
-import images
-import config
+from . import images
+from gui import config
 import mspy
 
 
@@ -53,7 +53,7 @@ class document():
         self.instrument = ''
         self.notes = ''
         
-        self.spectrum = mspy.scan()
+        self.spectrum = mspy.obj_scan.scan()
         self.annotations = []
         self.sequences = []
         
@@ -278,7 +278,7 @@ class document():
                     for abbr in sequence.chain:
                         if not abbr in savedMonomers:
                             savedMonomers.append(abbr)
-                            formula = mspy.monomers[abbr].formula
+                            formula = mspy.blocks.monomers[abbr].formula
                             buff += '        <monomer abbr="%s" formula="%s" />\n' % (abbr, formula)
                     buff += '      </monomers>\n'
                 
@@ -286,8 +286,8 @@ class document():
                 if len(sequence.modifications):
                     buff += '      <modifications>\n'
                     for mod in sequence.modifications:
-                        gainFormula = mspy.modifications[mod[0]].gainFormula
-                        lossFormula = mspy.modifications[mod[0]].lossFormula
+                        gainFormula = mspy.blocks.modifications[mod[0]].gainFormula
+                        lossFormula = mspy.blocks.modifications[mod[0]].lossFormula
                         modtype = 'fixed'
                         if mod[2] == 'v':
                             modtype = 'variable'
@@ -640,14 +640,14 @@ class document():
                 modtype = 'variable'
             
             # format masses
-            mass = mspy.modifications[name].mass
+            mass = mspy.blocks.modifications[name].mass
             massMo = format % mass[0]
             massAv = format % mass[1]
             
             # format formula
-            formula = mspy.modifications[name].gainFormula
-            if mspy.modifications[name].lossFormula:
-                formula += ' - ' + mspy.modifications[name].lossFormula
+            formula = mspy.blocks.modifications[name].gainFormula
+            if mspy.blocks.modifications[name].lossFormula:
+                formula += ' - ' + mspy.blocks.modifications[name].lossFormula
             
             # append data
             buff.append((position, name, modtype, massMo, massAv, formula))
@@ -666,7 +666,7 @@ class document():
                 ranges.append(m.sequenceRange)
         
         # get coverage
-        coverage = mspy.coverage(ranges, len(sequence))
+        coverage = mspy.mod_proteo.coverage(ranges, len(sequence))
         coverage = '%.1f ' % coverage
         coverage += '%'
         
@@ -748,7 +748,7 @@ class annotation():
         """Get error in specified units."""
         
         if self.theoretical != None:
-            return mspy.delta(self.mz, self.theoretical, units)
+            return mspy.mod_basics.delta(self.mz, self.theoretical, units)
         else:
             return None
     # ----
@@ -797,7 +797,7 @@ class match():
         """Get error in specified units."""
         
         if self.theoretical != None :
-            return mspy.delta(self.mz, self.theoretical, units)
+            return mspy.mod_basics.delta(self.mz, self.theoretical, units)
         else:
             return None
     # ----
@@ -1069,11 +1069,11 @@ class parseMSD():
                     continue
                 
                 # make peak
-                peak = mspy.peak(mz=mz, ai=ai, base=base, sn=sn, charge=charge, isotope=isotope, fwhm=fwhm, group=group)
+                peak = mspy.obj_peak.peak(mz=mz, ai=ai, base=base, sn=sn, charge=charge, isotope=isotope, fwhm=fwhm, group=group)
                 peaklist.append(peak)
         
         # add peaklist to document
-        peaklist = mspy.peaklist(peaklist)
+        peaklist = mspy.obj_peaklist.peaklist(peaklist)
         self.document.spectrum.setpeaklist(peaklist)
     # ----
     
@@ -1174,12 +1174,12 @@ class parseMSD():
         for monomerTag in monomerTags:
             abbr = monomerTag.getAttribute('abbr')
             formula = monomerTag.getAttribute('formula')
-            if not abbr in mspy.monomers:
+            if not abbr in mspy.blocks.monomers:
                 self._addMonomer(abbr, formula)
         
         # make sequence
         try:
-            sequence = mspy.sequence(chain, title=title, accession=accession, chainType=chainType, cyclic=cyclic)
+            sequence = mspy.obj_sequence.sequence(chain, title=title, accession=accession, chainType=chainType, cyclic=cyclic)
             sequence.matches = []
         except:
             self.errors.append('Unknown monomers in sequence data.')
@@ -1201,7 +1201,7 @@ class parseMSD():
             if modificationTag.getAttribute('type') == 'variable':
                 modtype = 'v'
             
-            if name in mspy.modifications:
+            if name in mspy.blocks.modifications:
                 sequence.modify(name, position, modtype)
             else:
                 if self._addModification(name, gainFormula, lossFormula):
@@ -1295,7 +1295,7 @@ class parseMSD():
                     continue
                 
                 # make peak
-                peak = mspy.peak(mz=mz, ai=ai)
+                peak = mspy.obj_peak.peak(mz=mz, ai=ai)
                 peaklist.append(peak)
                 
                 # make annotation
@@ -1303,7 +1303,7 @@ class parseMSD():
                     self.document.annotations.append(annotation(label=annot, mz=mz, ai=ai))
         
         # add peaklist to document
-        peaklist = mspy.peaklist(peaklist)
+        peaklist = mspy.obj_peaklist.peaklist(peaklist)
         self.document.spectrum.setpeaklist(peaklist)
     # ----
     
@@ -1339,7 +1339,7 @@ class parseMSD():
         
         # make sequence
         try:
-            sequence = mspy.sequence(chain, title=title)
+            sequence = mspy.obj_sequence.sequence(chain, title=title)
             sequence.matches = []
         except:
             self.errors.append('Unknown monomers in sequence data.')
@@ -1360,7 +1360,7 @@ class parseMSD():
             else:
                 position = amino
             
-            if name in mspy.modifications:
+            if name in mspy.blocks.modifications:
                 sequence.modify(name, position)
             else:
                 if self._addModification(name, gainFormula, lossFormula):
@@ -1440,9 +1440,9 @@ class parseMSD():
         
         # add new monomer
         try:
-            monomer = mspy.monomer(abbr=abbr, formula=formula, losses=losses, name=name, category=category)
-            mspy.monomers[abbr] = monomer
-            mspy.saveMonomers(os.path.join(config.confdir,'monomers.xml'))
+            monomer = mspy.blocks.monomer(abbr=abbr, formula=formula, losses=losses, name=name, category=category)
+            mspy.blocks.monomers[abbr] = monomer
+            mspy.blocks.saveMonomers(os.path.join(config.confdir,'monomers.xml'))
             return True
         except:
             return False
@@ -1458,9 +1458,9 @@ class parseMSD():
         
         # add new modification
         try:
-            modification = mspy.modification(name=name, gainFormula=gainFormula, lossFormula=lossFormula, aminoSpecifity=aminoSpecifity)
-            mspy.modifications[name] = modification
-            mspy.saveModifications(os.path.join(config.confdir,'modifications.xml'))
+            modification = mspy.blocks.modification(name=name, gainFormula=gainFormula, lossFormula=lossFormula, aminoSpecifity=aminoSpecifity)
+            mspy.blocks.modifications[name] = modification
+            mspy.blocks.saveModifications(os.path.join(config.confdir,'modifications.xml'))
             return True
         except:
             return False

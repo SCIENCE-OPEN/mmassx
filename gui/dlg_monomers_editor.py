@@ -20,8 +20,8 @@ import re
 import wx
 
 # load modules
-import mwx
-import config
+from . import mwx
+from . import config
 import mspy
 
 
@@ -48,8 +48,8 @@ class dlgMonomersEditor(wx.Dialog):
         
         # get regular amino acids
         self._aminoacids = []
-        for abbr in mspy.monomers:
-            if mspy.monomers[abbr].category == '_InternalAA':
+        for abbr in mspy.blocks.monomers:
+            if mspy.blocks.monomers[abbr].category == '_InternalAA':
                 self._aminoacids.append(abbr)
         
         # get used monomers
@@ -197,7 +197,7 @@ class dlgMonomersEditor(wx.Dialog):
         
         # get selected item
         abbr = evt.GetText()
-        monomer = mspy.monomers[abbr]
+        monomer = mspy.blocks.monomers[abbr]
         
         # update item editor
         self.itemAbbr_value.SetValue(abbr)
@@ -229,7 +229,7 @@ class dlgMonomersEditor(wx.Dialog):
             return
         
         # check name
-        if itemData.abbr in mspy.monomers:
+        if itemData.abbr in mspy.blocks.monomers:
             wx.Bell()
             title = 'Monomer with the same abbreviation already exists.\nDo you want to replace it?'
             message = 'Old monomer definition will be lost.'
@@ -242,7 +242,7 @@ class dlgMonomersEditor(wx.Dialog):
                 dlg.Destroy()
         
         # add/replace item
-        mspy.monomers[itemData.abbr] = itemData
+        mspy.blocks.monomers[itemData.abbr] = itemData
         
         # update gui
         self.updateItemsList()
@@ -269,7 +269,7 @@ class dlgMonomersEditor(wx.Dialog):
             index = self.itemsList.GetItemData(i)
             name = self.itemsMap[index][0]
             if not name in self.used:
-                del mspy.monomers[name]
+                del mspy.blocks.monomers[name]
             else:
                 wx.Bell()
                 dlg = mwx.dlgMessage(self, title='Monomer "'+name+'" is currently used\nand cannot be removed.', message='Remove the monomer from all of your documents first.')
@@ -316,7 +316,7 @@ class dlgMonomersEditor(wx.Dialog):
         search = self.itemSearch_value.GetValue().lower().split()
         
         # make map
-        for abbr, monomer in sorted(mspy.monomers.items()):
+        for abbr, monomer in sorted(mspy.blocks.monomers.items()):
             
             # skip regular amino acids
             if monomer.category == '_InternalAA':
@@ -385,7 +385,7 @@ class dlgMonomersEditor(wx.Dialog):
         
         # show formula masses
         try:
-            formula = mspy.compound(formula)
+            formula = mspy.obj_compound.compound(formula)
             mass = formula.mass()
             self.itemMoMass_value.SetValue(str(mass[0]))
             self.itemAvMass_value.SetValue(str(mass[1]))
@@ -410,7 +410,7 @@ class dlgMonomersEditor(wx.Dialog):
             if item is focus:
                 try:
                     formula = item.GetValue()
-                    formula = mspy.compound(formula)
+                    formula = mspy.obj_compound.compound(formula)
                     mass = formula.mass()
                     self.itemLossMoMass_value.SetValue(str(mass[0]))
                 except:
@@ -455,7 +455,7 @@ class dlgMonomersEditor(wx.Dialog):
         
         # make monomer
         try:
-            monomer = mspy.monomer(
+            monomer = mspy.blocks.monomer(
                 abbr = abbr,
                 name = name,
                 formula = formula,

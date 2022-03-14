@@ -19,8 +19,8 @@
 import wx
 
 # load modules
-import mwx
-import config
+from . import mwx
+from gui import config
 import mspy
 
 
@@ -188,7 +188,7 @@ class dlgNotation(wx.Dialog):
         # get formula
         if formula:
             try:
-                mspy.compound(formula)
+                mspy.obj_compound.compound(formula)
                 self.notation.formula = formula
             except:
                 wx.Bell()
@@ -258,7 +258,7 @@ class dlgNotation(wx.Dialog):
         
         # get m/z from formula
         try:
-            compound = mspy.compound(formula)
+            compound = mspy.obj_compound.compound(formula)
             charge = int(charge)
             if radical:
                 mz = compound.mz(charge=charge, agentFormula='e', agentCharge=-1)

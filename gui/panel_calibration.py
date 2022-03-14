@@ -22,11 +22,11 @@ import wx
 import numpy
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import libs
 import mspy
 import mspy.plot
 
@@ -410,8 +410,8 @@ class panelCalibration(wx.MiniFrame):
         if self.currentReferences:
             for x, item in enumerate(self.currentReferences):
                 if item[2] != None and item[3] != None:
-                    self.currentReferences[x][4] = mspy.delta(item[2], item[1], config.calibration['units'])
-                    self.currentReferences[x][5] = mspy.delta(item[3], item[1], config.calibration['units'])
+                    self.currentReferences[x][4] = mspy.mod_basics.delta(item[2], item[1], config.calibration['units'])
+                    self.currentReferences[x][5] = mspy.mod_basics.delta(item[3], item[1], config.calibration['units'])
         
         # update GUI
         self.updateReferencesList()
@@ -704,7 +704,7 @@ class panelCalibration(wx.MiniFrame):
         # make peaklist
         if self.currentDocument and self.currentDocument.spectrum.peaklist:
             peaks = self.makeCurrentPeaklist(minY, maxY)
-            obj = mspy.plot.spectrum(mspy.scan(peaklist=peaks), tickColour=(170,170,170), showLabels=False)
+            obj = mspy.plot.spectrum(mspy.obj_scan.scan(peaklist=peaks), tickColour=(170,170,170), showLabels=False)
             container.append(obj)
         
         # set units
@@ -745,7 +745,7 @@ class panelCalibration(wx.MiniFrame):
             # set references
             self.currentReferences = []
             for ref in references:
-                delta = mspy.delta(ref[2], ref[1], config.calibration['units'])
+                delta = mspy.mod_basics.delta(ref[2], ref[1], config.calibration['units'])
                 self.currentReferences.append([ref[0], ref[1], ref[2], None, delta, None, True])
             
             # get calibration
@@ -783,7 +783,7 @@ class panelCalibration(wx.MiniFrame):
         # get calibration
         model = config.calibration['fitting']
         if (model=='linear' and len(points)>=1) or (model=='quadratic' and len(points)>=3):
-            self.currentCalibration = mspy.calibration(points, model)
+            self.currentCalibration = mspy.mod_calibration.calibration(points, model)
             model = self.currentCalibration[0]
             params = self.currentCalibration[1]
             
@@ -792,7 +792,7 @@ class panelCalibration(wx.MiniFrame):
                 if item[2]!=None:
                     calibrated = model(params, item[2])
                     self.currentReferences[x][3] = calibrated
-                    self.currentReferences[x][5] = mspy.delta(calibrated, item[1], config.calibration['units'])
+                    self.currentReferences[x][5] = mspy.mod_basics.delta(calibrated, item[1], config.calibration['units'])
             
             # enable buttons
             self.apply_butt.Enable(True)
@@ -826,7 +826,7 @@ class panelCalibration(wx.MiniFrame):
         # find peaks within tolerance
         for x, item in enumerate(self.currentReferences):
             for peak in peaklist:
-                delta = mspy.delta(peak.mz, item[1], config.calibration['units'])
+                delta = mspy.mod_basics.delta(peak.mz, item[1], config.calibration['units'])
                 if abs(delta) <= config.calibration['tolerance']:
                     if self.currentReferences[x][2]==None or abs(delta) < abs(self.currentReferences[x][4]):
                         self.currentReferences[x][2] = peak.mz
@@ -864,7 +864,7 @@ class panelCalibration(wx.MiniFrame):
                 theoretical -= 1
             
             title = 'Peak %.2f' % (peak.mz)
-            delta = mspy.delta(peak.mz, theoretical, config.calibration['units'])
+            delta = mspy.mod_basics.delta(peak.mz, theoretical, config.calibration['units'])
             self.currentReferences.append([title, theoretical, peak.mz, None, delta, None, True])
         
         # get calibration
@@ -908,7 +908,7 @@ class panelCalibration(wx.MiniFrame):
         points = []
         for x in range(100):
             mz = minX+step*x
-            error = mspy.delta(mz, fn(params, mz), config.calibration['units'])
+            error = mspy.mod_basics.delta(mz, fn(params, mz), config.calibration['units'])
             points.append((mz, error))
         
         return points
@@ -928,10 +928,10 @@ class panelCalibration(wx.MiniFrame):
         f = abs(maxY - minY) / basePeak.intensity
         for peak in self.currentDocument.spectrum.peaklist:
             intensity = (peak.intensity * f) + minY
-            peaklist.append(mspy.peak(mz=peak.mz, ai=intensity, base=minY))
+            peaklist.append(mspy.mod_basics.peak(mz=peak.mz, ai=intensity, base=minY))
         
         # convert to mspy.peaklist
-        return mspy.peaklist(peaklist)
+        return mspy.obj_peaklist.peaklist(peaklist)
     # ----
     
     

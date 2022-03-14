@@ -24,10 +24,10 @@ import os.path
 import numpy
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
+from .ids import *
+from . import mwx
+from . import images
+from . import config
 import mspy
 
 
@@ -334,7 +334,7 @@ class panelMassToFormula(wx.MiniFrame):
             #self.MakeModal(False)
             self.mainSizer.Hide(4)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.Layout()
@@ -348,7 +348,7 @@ class panelMassToFormula(wx.MiniFrame):
         """Cancel current processing."""
         
         if self.processing and self.processing.is_alive():
-            mspy.stop()
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -582,7 +582,7 @@ class panelMassToFormula(wx.MiniFrame):
         # recalculate errors
         if self.currentFormulae:
             for x, item in enumerate(self.currentFormulae):
-                self.currentFormulae[x][3] = mspy.delta(self.currentMass, item[2], config.massToFormula['units'])
+                self.currentFormulae[x][3] = mspy.mod_basics.delta(self.currentMass, item[2], config.massToFormula['units'])
         
         # update GUI
         self.updateFormulaeList()
@@ -705,7 +705,7 @@ class panelMassToFormula(wx.MiniFrame):
                 agentCharge = -1
             
             # approximate CHNO composition from neutral mass
-            mass = mspy.mz(
+            mass = mspy.mod_basics.mz(
                 mass = self.currentMass,
                 charge = 0,
                 currentCharge = config.massToFormula['charge'],
@@ -725,14 +725,14 @@ class panelMassToFormula(wx.MiniFrame):
                     composition = {'C':[0,180], 'H':[0,300], 'N':[0,60], 'O':[0,90]}
             
             # add user-specified compositions
-            minComposition = mspy.compound(config.massToFormula['formulaMin']).composition()
+            minComposition = mspy.obj_compound.compound(config.massToFormula['formulaMin']).composition()
             for el in minComposition:
                 if el in composition:
                     composition[el][0] = minComposition[el]
                 else:
                     composition[el] = [minComposition[el], minComposition[el]]
             
-            maxComposition = mspy.compound(config.massToFormula['formulaMax']).composition()
+            maxComposition = mspy.obj_compound.compound(config.massToFormula['formulaMax']).composition()
             for el in maxComposition:
                 if el in composition:
                     composition[el][1] = maxComposition[el]
@@ -740,7 +740,7 @@ class panelMassToFormula(wx.MiniFrame):
                     composition[el] = [0, maxComposition[el]]
             
             # calculate formulae
-            formulae = mspy.formulator(
+            formulae = mspy.mod_formulator.formulator(
                 mz = self.currentMass,
                 charge = config.massToFormula['charge'],
                 tolerance = config.massToFormula['tolerance'],
@@ -756,11 +756,11 @@ class panelMassToFormula(wx.MiniFrame):
             for formula in formulae:
                 
                 # make compound
-                cmpd = mspy.compound(formula)
+                cmpd = mspy.obj_compound.compound(formula)
                 mass = cmpd.mass(0)
                 mz = cmpd.mz(config.massToFormula['charge'], config.massToFormula['ionization'], 1)[0]
-                error = mspy.delta(self.currentMass, mz, config.massToFormula['units'])
-                errorDa = mspy.delta(self.currentMass, mz, 'Da')
+                error = mspy.mod_basics.delta(self.currentMass, mz, config.massToFormula['units'])
+                errorDa = mspy.mod_basics.delta(self.currentMass, mz, 'Da')
                 
                 # compare isotopic pattern
                 similarity = None
@@ -783,7 +783,7 @@ class panelMassToFormula(wx.MiniFrame):
             self.currentFormulae = buff
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             return
     # ----
     
@@ -868,7 +868,7 @@ class panelMassToFormula(wx.MiniFrame):
         # approximate fwhm
         fwhm = 0.1
         mz = compound.mz(charge, ionization, 1)[0]
-        peak = mspy.labelpeak(
+        peak = mspy.mod_peakpicking.labelpeak(
             signal = self.currentDocument.spectrum.profile,
             mz = mz+shift,
             pickingHeight = config.processing['peakpicking']['pickingHeight'],
@@ -892,7 +892,7 @@ class panelMassToFormula(wx.MiniFrame):
             pattern[x][0] += shift
         
         # match pattern to signal
-        rms = mspy.matchpattern(
+        rms = mspy.mod_pattern.matchpattern(
             signal = self.currentDocument.spectrum.profile,
             pattern = pattern,
             pickingHeight = config.processing['peakpicking']['pickingHeight'],
@@ -1025,7 +1025,7 @@ class panelMassToFormula(wx.MiniFrame):
             agentCharge = -1
         
         # approximate CHNO composition from neutral mass
-        mass = mspy.mz(
+        mass = mspy.mod_basics.mz(
             mass = self.currentMass,
             charge = 0,
             currentCharge = config.massToFormula['charge'],

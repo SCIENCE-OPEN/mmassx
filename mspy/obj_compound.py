@@ -16,14 +16,14 @@
 # -------------------------------------------------------------------------
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load objects
-import blocks
+from . import blocks
 
 # load modules
-import mod_basics
-import mod_pattern
+from . import mod_basics
+from . import mod_pattern
 
 
 # COMPOUND OBJECT DEFINITION

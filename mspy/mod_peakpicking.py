@@ -22,19 +22,19 @@ import numpy
 import time
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load blocks
-import blocks
+from . import blocks
 
 # load objects
-import obj_compound
-import obj_peak
-import obj_peaklist
+from . import obj_compound
+from . import obj_peak
+from . import obj_peaklist
 
 # load modules
-import mod_basics
-import mod_signal
+from . import mod_basics
+from . import mod_signal
 
 
 # BASIC CONSTANTS

@@ -21,13 +21,13 @@ import re
 import copy
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load objects
-import obj_peak
+from . import obj_peak
 
 # load modules
-import mod_peakpicking
+from . import mod_peakpicking
 
 
 # PEAKLIST OBJECT DEFINITION

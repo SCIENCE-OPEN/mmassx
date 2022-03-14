@@ -19,14 +19,14 @@
 import wx
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
+from .ids import *
+from . import mwx
+from . import images
+from . import config
 import mspy
-import doc
+from . import doc
 
-from dlg_notation import dlgNotation
+from .dlg_notation import dlgNotation
 
 
 # DOCUMENTS PANEL
@@ -1033,7 +1033,7 @@ class documentsTree(wx.TreeCtrl):
             return 'annotations'
         elif isinstance(data, doc.annotation):
             return 'annotation'
-        elif isinstance(data, mspy.sequence):
+        elif isinstance(data, mspy.obj_sequence.sequence):
             return 'sequence'
         elif isinstance(data, doc.match):
             return 'match'

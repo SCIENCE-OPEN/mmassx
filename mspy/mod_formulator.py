@@ -16,14 +16,14 @@
 # -------------------------------------------------------------------------
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load objects
-import obj_compound
+from . import obj_compound
 
 # load modules
-import mod_basics
-import calculations
+from . import mod_basics
+from . import calculations
 
 
 # MASS TO FORMULA FUNCTIONS

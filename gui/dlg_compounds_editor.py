@@ -21,10 +21,10 @@ import copy
 import xml.dom.minidom
 
 # load modules
-from ids import *
-import mwx
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import config
+from . import libs
 import mspy
 
 
@@ -533,7 +533,7 @@ class dlgCompoundsEditor(wx.Dialog):
         
         # show formula masses
         try:
-            formula = mspy.compound(formula)
+            formula = mspy.obj_compound.compound(formula)
             mass = formula.mass()
             self.itemMoMass_value.SetValue(str(mass[0]))
             self.itemAvMass_value.SetValue(str(mass[1]))
@@ -569,7 +569,7 @@ class dlgCompoundsEditor(wx.Dialog):
         
         # make compound
         try:
-            compound = mspy.compound(formula)
+            compound = mspy.obj_compound.compound(formula)
             compound.name = name
             compound.description = description
         except:
@@ -605,7 +605,7 @@ class dlgCompoundsEditor(wx.Dialog):
                     for compoundTag in compoundTags:
                         try:
                             name = compoundTag.getAttribute('name')
-                            compound = mspy.compound(compoundTag.getAttribute('formula'))
+                            compound = mspy.obj_compound.compound(compoundTag.getAttribute('formula'))
                             compound.description = self._getNodeText(compoundTag)
                             compounds[groupName][name] = compound
                         except:

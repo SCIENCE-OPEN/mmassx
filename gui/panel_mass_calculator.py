@@ -21,11 +21,11 @@ import numpy
 import copy
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import doc
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import doc
 import mspy
 import mspy.plot
 
@@ -528,7 +528,7 @@ class panelMassCalculator(wx.MiniFrame):
         """Shift tmp profile."""
         
         # check pattern
-        if self.currentPattern == None:
+        if self.currentPattern is None:
             return
         
         # get all params
@@ -580,12 +580,12 @@ class panelMassCalculator(wx.MiniFrame):
         """Save current pattern as doument."""
         
         # check data
-        if self.currentPatternScan == None or self.currentCompound == None:
+        if self.currentPatternScan is None or self.currentCompound is None:
             wx.Bell()
             return
         
         # get ion
-        if self.currentIon != None:
+        if not(self.currentIon is None):
             charge = self.currentIon[3]
             ion = self.currentIon[4]
         else:
@@ -743,7 +743,7 @@ class panelMassCalculator(wx.MiniFrame):
         
         # check compound
         try:
-            self.currentCompound = mspy.compound(compound)
+            self.currentCompound = mspy.obj_compound.compound(compound)
         except:
             return False
         
@@ -754,7 +754,7 @@ class panelMassCalculator(wx.MiniFrame):
         # check charging agent
         try:
             if ionseriesAgent != 'e':
-                agent = mspy.compound(ionseriesAgent)
+                agent = mspy.obj_compound.compound(ionseriesAgent)
             config.massCalculator['ionseriesAgent'] = ionseriesAgent
         except:
             return False
@@ -783,7 +783,7 @@ class panelMassCalculator(wx.MiniFrame):
         """Calculate summary for curent compound."""
         
         # check current compound
-        if self.currentCompound == None:
+        if self.currentCompound is None:
             self.summaryFormula_value.SetValue('')
             self.summaryMono_value.SetValue('')
             self.summaryAverage_value.SetValue('')
@@ -810,7 +810,7 @@ class panelMassCalculator(wx.MiniFrame):
         self.ionsList.setDataMap(self.currentIons)
         
         # check data
-        if self.currentIons == None:
+        if self.currentIons is None:
             return
         
         # add new data
@@ -843,7 +843,7 @@ class panelMassCalculator(wx.MiniFrame):
         container = mspy.plot.container([])
         
         # check data
-        if self.currentPatternScan == None:
+        if self.currentPatternScan is None:
             self.patternCanvas.draw(container)
             return
         
@@ -905,12 +905,12 @@ class panelMassCalculator(wx.MiniFrame):
         """Show current profile in the main canvas."""
         
         # check data
-        if self.currentPatternProfile == None:
+        if self.currentPatternProfile is None:
             self.parent.updateTmpSpectrum(None)
             return
         
         # apply current shift
-        profile = mspy.offset(self.currentPatternProfile, x=config.massCalculator['patternShift'])
+        profile = mspy.mod_signal.offset(self.currentPatternProfile, x=config.massCalculator['patternShift'])
         
         # draw tmp spectrum
         self.parent.updateTmpSpectrum(profile)
@@ -953,7 +953,7 @@ class panelMassCalculator(wx.MiniFrame):
                     iontype = '[M-%d%s] %d-' % (i, config.massCalculator['ionseriesAgent'], abs(charge))
                 
                 # get mz
-                mz = mspy.mz(mass, charge=charge, agentFormula=config.massCalculator['ionseriesAgent'], agentCharge=config.massCalculator['ionseriesAgentCharge'])
+                mz = mspy.mod_basics.mz(mass, charge=charge, agentFormula=config.massCalculator['ionseriesAgent'], agentCharge=config.massCalculator['ionseriesAgentCharge'])
                 
                 # add to list
                 self.currentIons.append((abs(charge), mz[0], mz[1], charge, iontype))
@@ -967,7 +967,7 @@ class panelMassCalculator(wx.MiniFrame):
                     break
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             self.currentIons = None
             self.currentIon = None
     # ----
@@ -1003,7 +1003,7 @@ class panelMassCalculator(wx.MiniFrame):
             self.makeProfile()
             
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             self.currentPattern = None
             self.currentPatternProfile = None
             self.currentPatternPeaks = None
@@ -1019,7 +1019,7 @@ class panelMassCalculator(wx.MiniFrame):
         self.currentPatternScan = None
         
         # check pattern
-        if self.currentPattern == None:
+        if self.currentPattern is None:
             return
         
         # get selected charge
@@ -1028,7 +1028,7 @@ class panelMassCalculator(wx.MiniFrame):
             charge = self.currentIon[3]
         
         # make profile
-        self.currentPatternProfile = mspy.profile(
+        self.currentPatternProfile = mspy.mod_pattern.profile(
             peaklist = self.currentPattern,
             fwhm = config.massCalculator['patternFwhm'],
             points = 20,
@@ -1036,29 +1036,29 @@ class panelMassCalculator(wx.MiniFrame):
         )
         
         # get scale and shift for specified intensity and baseline
-        basepeak = mspy.basepeak(self.currentPatternProfile)
+        basepeak = mspy.mod_signal.basepeak(self.currentPatternProfile)
         scale = (config.massCalculator['patternIntensity'] - config.massCalculator['patternBaseline']) / self.currentPatternProfile[basepeak][1]
         shift = config.massCalculator['patternBaseline']
         
         # rescale profile
-        self.currentPatternProfile = mspy.multiply(self.currentPatternProfile, y=scale)
-        self.currentPatternProfile = mspy.offset(self.currentPatternProfile, y=shift)
+        self.currentPatternProfile = mspy.mod_signal.multiply(self.currentPatternProfile, y=scale)
+        self.currentPatternProfile = mspy.mod_signal.offset(self.currentPatternProfile, y=shift)
         
         # make real peaklist from profile
         peaklist = []
-        for isotope in mspy.maxima(self.currentPatternProfile):
+        for isotope in mspy.mod_signal.maxima(self.currentPatternProfile):
             mz = isotope[0]
-            centroid = mspy.centroid(self.currentPatternProfile, isotope[0], isotope[1]*0.99)
+            centroid = mspy.mod_signal.centroid(self.currentPatternProfile, isotope[0], isotope[1]*0.99)
             if abs(mz-centroid) < config.massCalculator['patternFwhm']/20:
                 mz = centroid
-            peak = mspy.peak(
+            peak = mspy.obj_peak.peak(
                 mz = mz,
                 ai = isotope[1],
                 base = shift,
                 charge = charge
             )
             peaklist.append(peak)
-        peaklist = mspy.peaklist(peaklist)
+        peaklist = mspy.obj_peaklist.peaklist(peaklist)
         
         # make individual peak shapes
         self.currentPatternPeaks = []
@@ -1067,7 +1067,7 @@ class panelMassCalculator(wx.MiniFrame):
             # gaussian shape
             if config.massCalculator['patternPeakShape'] == 'gaussian':
                 for isotope in self.currentPattern:
-                    peak = mspy.gaussian(
+                    peak = mspy.mod_pattern.gaussian(
                         x = isotope[0],
                         minY = shift,
                         maxY = isotope[1]*scale+shift,
@@ -1078,7 +1078,7 @@ class panelMassCalculator(wx.MiniFrame):
             # lorentzian shape
             elif config.massCalculator['patternPeakShape'] == 'lorentzian':
                 for isotope in self.currentPattern:
-                    peak = mspy.lorentzian(
+                    peak = mspy.mod_pattern.lorentzian(
                         x = isotope[0],
                         minY = shift,
                         maxY = isotope[1]*scale+shift,
@@ -1089,7 +1089,7 @@ class panelMassCalculator(wx.MiniFrame):
             # gauss-lorentzian shape
             elif config.massCalculator['patternPeakShape'] == 'gausslorentzian':
                 for isotope in self.currentPattern:
-                    peak = mspy.gausslorentzian(
+                    peak = mspy.mod_pattern.gausslorentzian(
                         x = isotope[0],
                         minY = shift,
                         maxY = isotope[1]*scale+shift,
@@ -1098,6 +1098,6 @@ class panelMassCalculator(wx.MiniFrame):
                     self.currentPatternPeaks.append(peak)
         
         # make scan object
-        self.currentPatternScan = mspy.scan(profile=self.currentPatternProfile, peaklist=peaklist)
+        self.currentPatternScan = mspy.obj_scan.scan(profile=self.currentPatternProfile, peaklist=peaklist)
     # ----
     

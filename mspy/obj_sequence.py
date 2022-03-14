@@ -20,17 +20,17 @@ import re
 import copy
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load blocks
-import blocks
+from . import blocks
 
 # load objects
-import obj_compound
+from . import obj_compound
 
 # load modules
-import mod_basics
-import mod_pattern
+from . import mod_basics
+from . import mod_pattern
 
 
 # SEQUENCE OBJECT DEFINITION

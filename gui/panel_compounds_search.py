@@ -21,13 +21,13 @@ import math
 import wx
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import libs
 import mspy
-import doc
+from . import doc
 
 from gui.panel_match import panelMatch
 
@@ -332,7 +332,7 @@ class panelCompoundsSearch(wx.MiniFrame):
             #self.MakeModal(False)
             self.mainSizer.Hide(3)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.Layout()
@@ -346,7 +346,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         """Cancel current processing."""
         
         if self.processing and self.processing.is_alive():
-            mspy.stop()
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -552,11 +552,12 @@ class panelCompoundsSearch(wx.MiniFrame):
             group = self.compounds_choice.GetStringSelection()
             if group and group in libs.compounds:
                 compounds = libs.compounds[group]
+                
         else:
             formula = self.formula_value.GetValue()
             if formula:
                 try:
-                    compounds[formula] = mspy.compound(formula)
+                    compounds[formula] = mspy.obj_compound.compound(formula)
                 except:
                     wx.Bell()
         
@@ -831,7 +832,7 @@ class panelCompoundsSearch(wx.MiniFrame):
                         mz = compound.mz(z*polarity, agentFormula='e', agentCharge=-1)[config.compoundsSearch['massType']]
                         self.currentCompounds.append([name, mz, z*polarity, 'radical', compound.expression, None, []])
                     
-                    mspy.CHECK_FORCE_QUIT()
+                    mspy.mod_stopper.CHECK_FORCE_QUIT()
                     
                     # add adducts
                     for item in config.compoundsSearch['adducts']:
@@ -841,12 +842,12 @@ class panelCompoundsSearch(wx.MiniFrame):
                         elif item in ('-H2O'):
                             formula = '%s(%s)' % (compound.expression, adducts[item])
                         
-                        formula = mspy.compound(formula)
+                        formula = mspy.obj_compound.compound(formula)
                         if formula.isvalid():
                             mz = formula.mz(z*polarity)[config.compoundsSearch['massType']]
                             self.currentCompounds.append([name, mz, z*polarity, item, formula.expression, None, []])
                     
-                    mspy.CHECK_FORCE_QUIT()
+                    mspy.mod_stopper.CHECK_FORCE_QUIT()
                     
                     # add combinations
                     for item1 in ('Na', 'K', 'Li', 'NH4'):
@@ -861,13 +862,13 @@ class panelCompoundsSearch(wx.MiniFrame):
                                         adduct = '%s%s' % (item1, item2)
                                         formula = '%s(%s)(%s)(H-1)' % (compound.expression, adducts[item1], adducts[item2])
                                     
-                                    formula = mspy.compound(formula)
+                                    formula = mspy.obj_compound.compound(formula)
                                     if formula.isvalid():
                                         mz = formula.mz(z*polarity)[config.compoundsSearch['massType']]
                                         self.currentCompounds.append([name, mz, z*polarity, adduct, formula.expression, None, []])
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             self.currentCompounds = []
             return
     # ----

@@ -23,7 +23,7 @@ import xml.dom.minidom
 import copy
 
 # load modules
-import config
+from . import config
 import mspy
 
 
@@ -39,14 +39,14 @@ if sys.platform == 'darwin':
 # LOAD USER'S LIBS INTO MSPY
 # --------------------------
 
-try: mspy.loadMonomers(os.path.join(config.confdir,'monomers.xml'), clear=False)
-except: mspy.saveMonomers(os.path.join(config.confdir,'monomers.xml'))
+try: mspy.blocks.loadMonomers(os.path.join(config.confdir,'monomers.xml'), clear=False)
+except: mspy.blocks.saveMonomers(os.path.join(config.confdir,'monomers.xml'))
 
-try: mspy.loadModifications(os.path.join(config.confdir,'modifications.xml'), clear=False)
-except: mspy.saveModifications(os.path.join(config.confdir,'modifications.xml'))
+try: mspy.blocks.loadModifications(os.path.join(config.confdir,'modifications.xml'), clear=False)
+except: mspy.blocks.saveModifications(os.path.join(config.confdir,'modifications.xml'))
 
-try: mspy.loadEnzymes(os.path.join(config.confdir,'enzymes.xml'), clear=False)
-except: mspy.saveEnzymes(os.path.join(config.confdir,'enzymes.xml'))
+try: mspy.blocks.loadEnzymes(os.path.join(config.confdir,'enzymes.xml'), clear=False)
+except: mspy.blocks.saveEnzymes(os.path.join(config.confdir,'enzymes.xml'))
 
 
 # INIT DEFAULT VALUES
@@ -716,7 +716,7 @@ def loadCompounds(path=os.path.join(config.confdir, 'compounds.xml'), clear=True
                 for compoundTag in compoundTags:
                     try:
                         name = compoundTag.getAttribute('name')
-                        compound = mspy.compound(compoundTag.getAttribute('formula'))
+                        compound = mspy.obj_compound.compound(compoundTag.getAttribute('formula'))
                         compound.description = _getNodeText(compoundTag)
                         container[groupName][name] = compound
                     except:

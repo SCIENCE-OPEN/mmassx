@@ -19,8 +19,8 @@
 import wx
 
 # load modules
-import mwx
-import config
+from . import mwx
+from . import config
 import mspy
 
 
@@ -176,7 +176,7 @@ class dlgModificationsEditor(wx.Dialog):
         
         # get selected item
         name = evt.GetText()
-        mod = mspy.modifications[name]
+        mod = mspy.blocks.modifications[name]
         
         # update item editor
         self.itemName_value.SetValue(name)
@@ -203,7 +203,7 @@ class dlgModificationsEditor(wx.Dialog):
             return
         
         # check name
-        if itemData.name in mspy.modifications:
+        if itemData.name in mspy.blocks.modifications:
             wx.Bell()
             title = 'Modification with the same name already exists.\nDo you want to replace it?'
             message = 'Old modification definition will be lost.'
@@ -216,7 +216,7 @@ class dlgModificationsEditor(wx.Dialog):
                 dlg.Destroy()
         
         # add/replace item
-        mspy.modifications[itemData.name] = itemData
+        mspy.blocks.modifications[itemData.name] = itemData
         
         # update gui
         self.updateItemsList()
@@ -243,7 +243,7 @@ class dlgModificationsEditor(wx.Dialog):
             index = self.itemsList.GetItemData(i)
             name = self.itemsMap[index][0]
             if not name in self.used:
-                del mspy.modifications[name]
+                del mspy.blocks.modifications[name]
             else:
                 wx.Bell()
                 dlg = mwx.dlgMessage(self, title='Modification "'+name+'" is currently applied\nand cannot be removed.', message='Remove the modification from all of your documents first.')
@@ -269,7 +269,7 @@ class dlgModificationsEditor(wx.Dialog):
         self.itemsMap = []
         
         # make map
-        for name, mod in sorted(mspy.modifications.items()):
+        for name, mod in sorted(mspy.blocks.modifications.items()):
             self.itemsMap.append((
                 mod.name,
                 mod.gainFormula,
@@ -328,8 +328,8 @@ class dlgModificationsEditor(wx.Dialog):
         
         # show formula masses
         try:
-            gain = mspy.compound(gain)
-            loss = mspy.compound(loss)
+            gain = mspy.obj_compound.compound(gain)
+            loss = mspy.obj_compound.compound(loss)
             gainMass = gain.mass()
             lossMass = loss.mass()
             self.itemMoMass_value.SetValue(str(gainMass[0] - lossMass[0]))
@@ -382,7 +382,7 @@ class dlgModificationsEditor(wx.Dialog):
         
         # make compound
         try:
-            modification = mspy.modification(
+            modification = mspy.blocks.modification(
                     name = name,
                     gainFormula = gainFormula,
                     lossFormula = lossFormula,

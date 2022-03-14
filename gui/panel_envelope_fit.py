@@ -20,11 +20,11 @@ import threading
 import wx
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import libs
 import mspy
 
 
@@ -326,7 +326,7 @@ class panelEnvelopeFit(wx.MiniFrame):
         """Close panel."""
         
         # check processing
-        if self.processing != None:
+        if not(self.processing is None):
             wx.Bell()
             return
         
@@ -344,13 +344,13 @@ class panelEnvelopeFit(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(3)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(3)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.spectrumCanvas.SetMinSize(self.spectrumCanvas.GetSize())
@@ -366,7 +366,7 @@ class panelEnvelopeFit(wx.MiniFrame):
         """Cancel current processing."""
         
         if self.processing and self.processing.is_alive():
-            mspy.stop()
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -520,9 +520,9 @@ class panelEnvelopeFit(wx.MiniFrame):
             if not formula or not loss or not gain:
                 raise ValueError
             
-            self.currentCompound = mspy.compound(formula)
-            lossCmpd = mspy.compound(loss)
-            gainCmpd = mspy.compound(gain)
+            self.currentCompound = mspy.obj_compound.compound(formula)
+            lossCmpd = mspy.obj_compound.compound(loss)
+            gainCmpd = mspy.obj_compound.compound(gain)
             
             config.envelopeFit['loss'] = str(loss)
             config.envelopeFit['gain'] = str(gain)
@@ -552,7 +552,7 @@ class panelEnvelopeFit(wx.MiniFrame):
         
         # get label
         label = "Average X: "
-        if self.currentFit != None:
+        if not(self.currentFit is None):
             label += '%0.1f' % (self.currentFit.average)
         
         # set label
@@ -595,7 +595,7 @@ class panelEnvelopeFit(wx.MiniFrame):
         self.spectrumContainer.empty()
         
         # check fit
-        if self.currentFit == None:
+        if self.currentFit is None:
             self.spectrumCanvas.draw(self.spectrumContainer)
             self.parent.updateTmpSpectrum(None)
             return
@@ -624,7 +624,7 @@ class panelEnvelopeFit(wx.MiniFrame):
         """Update results list."""
         
         # make data map
-        if self.currentFit == None:
+        if self.currentFit is None:
             data = []
         else:
             data = self.currentFit.ncomposition.items()
@@ -665,7 +665,7 @@ class panelEnvelopeFit(wx.MiniFrame):
             scales = [(x) for x in range(scaleMin, scaleMax+1)]
             
             # init module
-            self.currentFit = mspy.envfit(
+            self.currentFit = mspy.mod_envfit.envfit(
                 formula = self.currentCompound.formula(),
                 charge = config.envelopeFit['charge'],
                 scales = scales,
@@ -716,7 +716,7 @@ class panelEnvelopeFit(wx.MiniFrame):
                 self.currentFit = False
             
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             self.currentFit = None
             return
     # ----

@@ -20,10 +20,10 @@ import wx
 import numpy
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
+from .ids import *
+from . import mwx
+from . import images
+from . import config
 import mspy
 import mspy.plot
 
@@ -265,7 +265,7 @@ class panelSpectrum(wx.Panel):
         """Process selected mouse function."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             evt.Skip()
             if self.currentTool not in ('ruler'):
                 wx.Bell()
@@ -449,7 +449,7 @@ class panelSpectrum(wx.Panel):
         """Set spectrum properties."""
         
         # check document
-        if docIndex == None:
+        if docIndex is None:
             return
         
         # get document
@@ -613,7 +613,7 @@ class panelSpectrum(wx.Panel):
         # isotope ruler
         elif self.currentTool == 'labelenvelope' and position:
             charge = self.spectrumCanvas.getCharge()
-            mass = mspy.mz(position[0], charge=0, currentCharge=charge*polarity)
+            mass = mspy.mod_basics.mz(position[0], charge=0, currentCharge=charge*polarity)
             format = 'm/z: %s   z: %s   mass: %s' % (mzFormat, '%d', mzFormat)
             label = format % (position[0] , charge*polarity, mass)
         
@@ -623,16 +623,16 @@ class panelSpectrum(wx.Panel):
             # get charge and mass from distance
             if distance[0] != 0 and abs(distance[0]) <= 2:
                 charge = abs(1/distance[0])
-                cmass = mspy.mz(position[0], 0, round(charge)*polarity)
-                pmass = mspy.mz(position[0]-distance[0], 0, round(charge)*polarity)
+                cmass = mspy.mod_basics.mz(position[0], 0, round(charge)*polarity)
+                pmass = mspy.mod_basics.mz(position[0]-distance[0], 0, round(charge)*polarity)
             elif distance[0] > 10:
                 charge = abs(((position[0]-distance[0]) - 1.00728) / distance[0])
-                cmass = mspy.mz(position[0], 0, round(charge)*polarity)
-                pmass = mspy.mz(position[0]-distance[0], 0, round(charge+1)*polarity)
+                cmass = mspy.mod_basics.mz(position[0], 0, round(charge)*polarity)
+                pmass = mspy.mod_basics.mz(position[0]-distance[0], 0, round(charge+1)*polarity)
             elif distance[0] < -10:
                 charge = abs((position[0] - 1.00728) / distance[0])
-                cmass = mspy.mz(position[0], 0, round(charge+1)*polarity)
-                pmass = mspy.mz(position[0]-distance[0], 0, round(charge)*polarity)
+                cmass = mspy.mod_basics.mz(position[0], 0, round(charge+1)*polarity)
+                pmass = mspy.mod_basics.mz(position[0]-distance[0], 0, round(charge)*polarity)
             else:
                 charge = 0
                 cmass = 0
@@ -697,7 +697,7 @@ class panelSpectrum(wx.Panel):
         self.currentTmpSpectrumFlip = flipped
         
         # check spectrum
-        if points == None:
+        if points is None:
             points = []
         
         # snap to current spectrum
@@ -755,7 +755,7 @@ class panelSpectrum(wx.Panel):
         self.currentNotationMarks = notations
         
         # check spectrum and view option
-        if notations == None or not config.spectrum['showNotations']:
+        if notations is None or not config.spectrum['showNotations']:
             notations = []
         
         # snap data to current spectrum
@@ -922,7 +922,7 @@ class panelSpectrum(wx.Panel):
         """Label peak in selection."""
         
         # check document
-        if self.currentDocument == None or not self.documents[self.currentDocument].spectrum.hasprofile():
+        if self.currentDocument is None or not self.documents[self.currentDocument].spectrum.hasprofile():
             return
         
         # get baseline window
@@ -937,7 +937,7 @@ class panelSpectrum(wx.Panel):
         )
         
         # label peak
-        peak = mspy.labelpeak(
+        peak = mspy.mod_peakpicking.labelpeak(
             signal = self.documents[self.currentDocument].spectrum.profile,
             minX = selection[0],
             maxX = selection[2],
@@ -962,7 +962,7 @@ class panelSpectrum(wx.Panel):
         """Label point at position."""
         
         # check document
-        if self.currentDocument == None or not self.documents[self.currentDocument].spectrum.hasprofile():
+        if self.currentDocument is None or not self.documents[self.currentDocument].spectrum.hasprofile():
             return
         
         # get baseline window
@@ -977,7 +977,7 @@ class panelSpectrum(wx.Panel):
         )
         
         # label point
-        peak = mspy.labelpoint(
+        peak = mspy.mod_peakpicking.labelpoint(
             signal = self.documents[self.currentDocument].spectrum.profile,
             mz = mz,
             baseline = baseline
@@ -1000,7 +1000,7 @@ class panelSpectrum(wx.Panel):
         """Label isotopes."""
         
         # check document
-        if self.currentDocument == None or not self.documents[self.currentDocument].spectrum.hasprofile():
+        if self.currentDocument is None or not self.documents[self.currentDocument].spectrum.hasprofile():
             return
         
         # get baseline window
@@ -1018,7 +1018,7 @@ class panelSpectrum(wx.Panel):
         peaks = []
         buff = []
         for isotope in isotopes:
-            peak = mspy.labelpeak(
+            peak = mspy.mod_peakpicking.labelpeak(
                 signal = self.documents[self.currentDocument].spectrum.profile,
                 mz = isotope,
                 pickingHeight = config.processing['peakpicking']['pickingHeight'],
@@ -1064,7 +1064,7 @@ class panelSpectrum(wx.Panel):
                 ai = base + sumIntensity / len(isotopes)
                 sn = (ai - base) * basepeak.sn / (basepeak.ai - basepeak.base)
             
-            peak = mspy.peak(
+            peak = mspy.obj_peak.peak(
                 mz = peaks[0].mz,
                 ai = ai,
                 base = base,
@@ -1078,14 +1078,14 @@ class panelSpectrum(wx.Panel):
         
         # label monoisotopic peak
         elif config.processing['deisotoping']['labelEnvelope'] == 'monoisotope':
-            peak = mspy.envmono(peaks, charge=charge*polarity, intensity=config.processing['deisotoping']['envelopeIntensity'])
+            peak = mspy.mod_peakpicking.envmono(peaks, charge=charge*polarity, intensity=config.processing['deisotoping']['envelopeIntensity'])
             if peak:
                 peak.setcharge(charge*polarity)
                 self.documents[self.currentDocument].spectrum.peaklist.append(peak)
         
         # label envelope centroid
         elif config.processing['deisotoping']['labelEnvelope'] == 'centroid':
-            peak = mspy.envcentroid(peaks, pickingHeight=0.5, intensity=config.processing['deisotoping']['envelopeIntensity'])
+            peak = mspy.mod_peakpicking.envcentroid(peaks, pickingHeight=0.5, intensity=config.processing['deisotoping']['envelopeIntensity'])
             if peak:
                 peak.setcharge(charge*polarity)
                 self.documents[self.currentDocument].spectrum.peaklist.append(peak)
@@ -1108,7 +1108,7 @@ class panelSpectrum(wx.Panel):
         """Delete all labels within selection."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             return
         
         # remove peaks

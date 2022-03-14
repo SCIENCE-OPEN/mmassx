@@ -22,13 +22,13 @@ import wx
 import copy
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import libs
 import mspy
-import doc
+from . import doc
 
 
 # FLOATING PANEL WITH PROCESSING TOOLS
@@ -812,7 +812,7 @@ class panelProcessing(wx.MiniFrame):
             #self.MakeModal(False)
             self.mainSizer.Hide(9)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.Layout()
@@ -826,7 +826,7 @@ class panelProcessing(wx.MiniFrame):
         """Cancel current processing."""
         
         if self.processing and self.processing.is_alive():
-            mspy.stop()
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -1366,7 +1366,7 @@ class panelProcessing(wx.MiniFrame):
             return False
         
         # apply isotope shift to spectrum canvas
-        distance = mspy.ISOTOPE_DISTANCE + config.processing['deisotoping']['isotopeShift']
+        distance = mspy.mod_peakpicking.ISOTOPE_DISTANCE + config.processing['deisotoping']['isotopeShift']
         self.parent.spectrumPanel.spectrumCanvas.setProperties(isotopeDistance=distance)
         
         return True
@@ -1457,41 +1457,41 @@ class panelProcessing(wx.MiniFrame):
             
             # process spectrum
             if config.processing['math']['operation'] == 'normalize':
-                self.previewData = mspy.normalize(self.previewData)
-                self.previewData = mspy.multiply(self.previewData, y=100)
+                self.previewData = mspy.mod_signal.normalize(self.previewData)
+                self.previewData = mspy.mod_signal.multiply(self.previewData, y=100)
             
             elif config.processing['math']['operation'] == 'combine':
-                self.previewData = mspy.combine(self.previewData, spectrumB)
+                self.previewData = mspy.mod_signal.combine(self.previewData, spectrumB)
             
             elif config.processing['math']['operation'] == 'overlay':
-                self.previewData = mspy.overlay(self.previewData, spectrumB)
+                self.previewData = mspy.mod_signal.overlay(self.previewData, spectrumB)
             
             elif config.processing['math']['operation'] == 'subtract':
-                self.previewData = mspy.subtract(self.previewData, spectrumB)
+                self.previewData = mspy.mod_signal.subtract(self.previewData, spectrumB)
             
             elif config.processing['math']['operation'] == 'multiply':
-                self.previewData = mspy.multiply(self.previewData, y=config.processing['math']['multiplier'])
+                self.previewData = mspy.mod_signal.multiply(self.previewData, y=config.processing['math']['multiplier'])
             
             elif config.processing['math']['operation'] == 'averageall':
                 count = 0
                 for item in self.parent.documents:
                     if item.visible:
-                        self.previewData = mspy.combine(self.previewData, item.spectrum.profile)
+                        self.previewData = mspy.mod_signal.combine(self.previewData, item.spectrum.profile)
                         count += 1
-                self.previewData = mspy.multiply(self.previewData, y=1./count)
+                self.previewData = mspy.mod_signal.multiply(self.previewData, y=1./count)
             
             elif config.processing['math']['operation'] == 'combineall':
                 for item in self.parent.documents:
                     if item.visible:
-                        self.previewData = mspy.combine(self.previewData, item.spectrum.profile)
+                        self.previewData = mspy.mod_signal.combine(self.previewData, item.spectrum.profile)
             
             elif config.processing['math']['operation'] == 'overlayall':
                 for item in self.parent.documents:
                     if item.visible:
-                        self.previewData = mspy.overlay(self.previewData, item.spectrum.profile)
+                        self.previewData = mspy.mod_signal.overlay(self.previewData, item.spectrum.profile)
             
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             return
     # ----
     
@@ -1514,13 +1514,13 @@ class panelProcessing(wx.MiniFrame):
             )
             
             # correct baseline
-            self.previewData = mspy.subbase(
+            self.previewData = mspy.mod_signal.subbase(
                 signal = self.currentDocument.spectrum.profile,
                 baseline = baseline
             )
             
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             return
     # ----
     
@@ -1537,7 +1537,7 @@ class panelProcessing(wx.MiniFrame):
         try:
             
             # smooth data
-            self.previewData = mspy.smooth(
+            self.previewData = mspy.mod_signal.smooth(
                 signal = self.currentDocument.spectrum.profile,
                 method = config.processing['smoothing']['method'],
                 window = config.processing['smoothing']['windowSize'],
@@ -1545,7 +1545,7 @@ class panelProcessing(wx.MiniFrame):
             )
             
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             return
     # ----
     
@@ -1574,8 +1574,8 @@ class panelProcessing(wx.MiniFrame):
                 del sequence.matches[:]
             
         # task canceled
-        except mspy.ForceQuit:
-            if batch: mspy.stop()
+        except mspy.mod_stopper.ForceQuit:
+            if batch: mspy.mod_stopper.stop()
             return
     # ----
     
@@ -1673,8 +1673,8 @@ class panelProcessing(wx.MiniFrame):
                     del sequence.matches[:]
         
         # task canceled
-        except mspy.ForceQuit:
-            if batch: mspy.stop()
+        except mspy.mod_stopper.ForceQuit:
+            if batch: mspy.mod_stopper.stop()
             return
     # ----
     
@@ -1717,8 +1717,8 @@ class panelProcessing(wx.MiniFrame):
                     del sequence.matches[x]
             
         # task canceled
-        except mspy.ForceQuit:
-            if batch: mspy.stop()
+        except mspy.mod_stopper.ForceQuit:
+            if batch: mspy.mod_stopper.stop()
             return
     # ----
     
@@ -1750,8 +1750,8 @@ class panelProcessing(wx.MiniFrame):
                 del sequence.matches[:]
             
         # task canceled
-        except mspy.ForceQuit:
-            if batch: mspy.stop()
+        except mspy.mod_stopper.ForceQuit:
+            if batch: mspy.mod_stopper.stop()
             return
     # ----
     
@@ -1784,8 +1784,8 @@ class panelProcessing(wx.MiniFrame):
                 del sequence.matches[:]
             
         # task canceled
-        except mspy.ForceQuit:
-            if batch: mspy.stop()
+        except mspy.mod_stopper.ForceQuit:
+            if batch: mspy.mod_stopper.stop()
             return
     # ----
     
@@ -1855,8 +1855,8 @@ class panelProcessing(wx.MiniFrame):
                 del sequence.matches[:]
             
         # task canceled
-        except mspy.ForceQuit:
-            if batch: mspy.stop()
+        except mspy.mod_stopper.ForceQuit:
+            if batch: mspy.mod_stopper.stop()
             return
     # ----
     
@@ -1898,8 +1898,8 @@ class panelProcessing(wx.MiniFrame):
                 del sequence.matches[:]
             
         # task canceled
-        except mspy.ForceQuit:
-            if batch: mspy.stop()
+        except mspy.mod_stopper.ForceQuit:
+            if batch: mspy.mod_stopper.stop()
             return
     # ----
     
@@ -1942,8 +1942,8 @@ class panelProcessing(wx.MiniFrame):
             self.parent.onDocumentNew(document=docData, select=False)
             
         # task canceled
-        except mspy.ForceQuit:
-            if batch: mspy.stop()
+        except mspy.mod_stopper.ForceQuit:
+            if batch: mspy.mod_stopper.stop()
             return
     # ----
     
@@ -2009,7 +2009,7 @@ class panelProcessing(wx.MiniFrame):
             self.currentDocument = current
             
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             self.currentDocument = current
             return
     # ----
@@ -2076,7 +2076,7 @@ class panelProcessing(wx.MiniFrame):
         )
         
         # get basepeak (approx. only)
-        index = mspy.basepeak(self.currentDocument.spectrum.profile)
+        index = mspy.mod_signal.basepeak(self.currentDocument.spectrum.profile)
         basepeak = self.currentDocument.spectrum.profile[index]
         
         # apply threshold
