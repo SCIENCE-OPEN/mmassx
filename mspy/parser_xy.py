@@ -86,7 +86,9 @@ class parseXY():
         except IOError:
             return False
         
-        pattern = re.compile('^([-0-9\.eE+]+)[ \t]*(;|,)?[ \t]*([-0-9\.eE+]*)$')
+        #pattern = re.compile('^([-0-9\.eE+]+)[ \t]*(;|,)?[ \t]*([-0-9\.eE+]*)$')
+        # new version to absorb junk at the end
+        pattern = re.compile('^([-0-9\.eE+]+)[ \t]*(;|,)?[ \t]*([-0-9\.eE+]*).*$')
         
         # read lines
         data = []

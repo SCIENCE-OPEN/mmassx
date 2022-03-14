@@ -56,7 +56,7 @@ def load(path, scanID=None, dataType='continuous'):
         docType = 'mzML'
     elif extension == '.mgf':
         docType = 'MGF'
-    elif extension in ('.xy', '.txt', '.asc'):
+    elif extension in ('.xy', '.txt', '.asc', '.csv'):
         docType = 'XY'
     elif extension == '.xml':
         doc = open(path, 'r')

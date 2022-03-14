@@ -1293,7 +1293,7 @@ class mainFrame(wx.Frame):
             lastDir = ''
             if os.path.exists(config.main['lastDir']):
                 lastDir = config.main['lastDir']
-            wildcard =  "All supported formats|fid;*.msd;*.baf;*.yep;*.mzData;*.mzdata*;*.mzXML;*.mzxml;*.mzML;*.mzml;*.xml;*.XML;*.mgf;*.MGF;*.txt;*.xy;*.asc|All files|*.*"
+            wildcard =  "All supported formats|fid;*.msd;*.baf;*.yep;*.mzData;*.mzdata*;*.mzXML;*.mzxml;*.mzML;*.mzml;*.xml;*.XML;*.mgf;*.MGF;*.txt;*.xy;*.asc;*.csv|All files|*.*"
             dlg = wx.FileDialog(self, "Open Document", lastDir, "", wildcard=wildcard, style=wx.FD_OPEN|wx.FD_MULTIPLE|wx.FD_FILE_MUST_EXIST)
             if dlg.ShowModal() == wx.ID_OK:
                 paths = dlg.GetPaths()
@@ -1525,7 +1525,7 @@ class mainFrame(wx.Frame):
             
             # ask for name
             fileName = document.title+'.msd'
-            dlg = wx.FileDialog(self, "Save", config.main['lastDir'], fileName, "mMass Spectrum Document|*.msd", wx.SAVE|wx.OVERWRITE_PROMPT)
+            dlg = wx.FileDialog(self, "Save", config.main['lastDir'], fileName, "mMass Spectrum Document|*.msd", wx.FD_SAVE|wx.OVERWRITE_PROMPT)
             if dlg.ShowModal() == wx.ID_OK:
                 path = dlg.GetPath()
                 config.main['lastDir'] = os.path.split(path)[0]
@@ -1668,7 +1668,7 @@ class mainFrame(wx.Frame):
             
             # make report file
             reportHTML = self.documents[self.currentDocument].report(image=imagePath)
-            reportFile = file(reportPath, 'w')
+            reportFile = open(reportPath, 'wb')
             reportFile.write(reportHTML.encode("utf-8"))
             reportFile.close()
             
@@ -3832,7 +3832,7 @@ class mainFrame(wx.Frame):
             return 'mzML'
         elif extension == '.mgf':
             return 'MGF'
-        elif extension in ('.xy', '.txt', '.asc'):
+        elif extension in ('.xy', '.txt', '.asc', '.csv'):
             return 'XY'
         elif extension in ('.fa', '.fsa', '.faa', '.fasta'):
             return 'FASTA'
