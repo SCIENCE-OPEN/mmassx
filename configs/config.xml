@@ -20,7 +20,7 @@
     <param name="chargeDigits" value="2" type="int" />
     <param name="lastDir" value="" type="unicode" />
     <param name="lastSeqDir" value="" type="unicode" />
-    <param name="errorUnits" value="Da" type="str" />
+    <param name="errorUnits" value="ppm" type="str" />
     <param name="printQuality" value="5" type="int" />
     <param name="useServer" value="1" type="int" />
     <param name="serverPort" value="65456" type="int" />
@@ -115,8 +115,8 @@
   </spectrum>
 
   <match>
-    <param name="tolerance" value="0.200000" type="float" />
-    <param name="units" value="Da" type="str" />
+    <param name="tolerance" value="10.00000" type="float" />
+    <param name="units" value="ppm" type="str" />
     <param name="ignoreCharge" value="0" type="int" />
     <param name="filterAnnotations" value="0" type="int" />
     <param name="filterMatches" value="0" type="int" />
@@ -127,8 +127,8 @@
 
   <processing>
     <crop>
-      <param name="lowMass" value="500" type="int" />
-      <param name="highMass" value="5000" type="int" />
+      <param name="lowMass" value="90" type="int" />
+      <param name="highMass" value="1000" type="int" />
     </crop>
     <baseline>
       <param name="precision" value="15" type="int" />
@@ -145,8 +145,8 @@
       <param name="relIntThreshold" value="0.000000" type="float" />
       <param name="pickingHeight" value="0.750000" type="float" />
       <param name="baseline" value="1" type="int" />
-      <param name="smoothing" value="1" type="int" />
-      <param name="deisotoping" value="1" type="int" />
+      <param name="smoothing" value="0" type="int" />
+      <param name="deisotoping" value="0" type="int" />
       <param name="removeShoulders" value="0" type="int" />
     </peakpicking>
     <deisotoping>
@@ -233,7 +233,7 @@
     <param name="massLimit" value="3000" type="int" />
     <param name="charge" value="1" type="int" />
     <param name="ionization" value="H" type="str" />
-    <param name="tolerance" value="1.000000" type="float" />
+    <param name="tolerance" value="10.00000" type="float" />
     <param name="units" value="ppm" type="str" />
     <param name="formulaMin" value="" type="str" />
     <param name="formulaMax" value="" type="str" />
@@ -262,9 +262,9 @@
 
   <compoundsSearch>
     <param name="massType" value="0" type="int" />
-    <param name="maxCharge" value="1" type="int" />
+    <param name="maxCharge" value="-1" type="int" />
     <param name="radicals" value="0" type="int" />
-    <param name="adducts" value="Na;K" type="str" />
+    <param name="adducts" value="" type="str" />
   </compoundsSearch>
 
   <peakDifferences>
@@ -276,8 +276,8 @@
   </peakDifferences>
 
   <comparePeaklists>
-    <param name="tolerance" value="0.200000" type="float" />
-    <param name="units" value="Da" type="str" />
+    <param name="tolerance" value="10.0000" type="float" />
+    <param name="units" value="ppm" type="str" />
     <param name="ignoreCharge" value="0" type="int" />
     <param name="ratioCheck" value="0" type="int" />
     <param name="ratioDirection" value="1" type="int" />

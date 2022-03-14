@@ -211,7 +211,7 @@ processing={
         'multiplier': 1,
     },
     'crop':{
-        'lowMass': 500,
+        'lowMass': 90,
         'highMass': 5000,
     },
     'baseline':{
@@ -229,8 +229,8 @@ processing={
         'relIntThreshold': 0.0,
         'pickingHeight': 0.75,
         'baseline': 1,
-        'smoothing': 1,
-        'deisotoping': 1,
+        'smoothing': 0,
+        'deisotoping': 0,
         'monoisotopic': 0,
         'removeShoulders': 0,
     },
@@ -372,9 +372,9 @@ massDefectPlot={
 
 compoundsSearch={
     'massType': 0,
-    'maxCharge': 1,
+    'maxCharge': -1,
     'radicals': 0,
-    'adducts':  ['Na','K'],
+    'adducts':  [], #['Na','K'],
 }
 
 peakDifferences={
@@ -387,8 +387,8 @@ peakDifferences={
 
 comparePeaklists={
     'compare': 'peaklists',
-    'tolerance': 0.2,
-    'units': 'Da',
+    'tolerance': 10,
+    'units': 'ppm',
     'ignoreCharge': 0,
     'ratioCheck': 0,
     'ratioDirection': 1,
