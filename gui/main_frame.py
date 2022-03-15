@@ -1525,7 +1525,7 @@ class mainFrame(wx.Frame):
             
             # ask for name
             fileName = document.title+'.msd'
-            dlg = wx.FileDialog(self, "Save", config.main['lastDir'], fileName, "mMass Spectrum Document|*.msd", wx.FD_SAVE|wx.OVERWRITE_PROMPT)
+            dlg = wx.FileDialog(self, "Save", config.main['lastDir'], fileName, "mMass Spectrum Document|*.msd", wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
             if dlg.ShowModal() == wx.ID_OK:
                 path = dlg.GetPath()
                 config.main['lastDir'] = os.path.split(path)[0]
@@ -1549,7 +1549,7 @@ class mainFrame(wx.Frame):
         if self.currentDocumentXML:
             gauge.setLabel('Saving data...')
             try:
-                save = open(path, 'w')
+                save = open(path, 'wb')
                 save.write(self.currentDocumentXML.encode("utf-8"))
                 save.close()
                 failed = False

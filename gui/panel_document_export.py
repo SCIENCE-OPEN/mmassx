@@ -404,10 +404,10 @@ class panelDocumentExport(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(4)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(4)
             self.processing = None
         
@@ -508,7 +508,7 @@ class panelDocumentExport(wx.MiniFrame):
             fileType = "JPEG image file|*.jpg"
         
         # raise export dialog
-        dlg = wx.FileDialog(self, "Export Spectrum Image", config.main['lastDir'], fileName, fileType, wx.SAVE|wx.OVERWRITE_PROMPT)
+        dlg = wx.FileDialog(self, "Export Spectrum Image", config.main['lastDir'], fileName, fileType, wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             config.main['lastDir'] = os.path.split(path)[0]
@@ -544,7 +544,7 @@ class panelDocumentExport(wx.MiniFrame):
             fileType = "MGF file|*.mgf"
         
         # raise export dialog
-        dlg = wx.FileDialog(self, "Export Peak List", config.main['lastDir'], fileName, fileType, wx.SAVE|wx.OVERWRITE_PROMPT)
+        dlg = wx.FileDialog(self, "Export Peak List", config.main['lastDir'], fileName, fileType, wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             config.main['lastDir'] = os.path.split(path)[0]
@@ -579,7 +579,7 @@ class panelDocumentExport(wx.MiniFrame):
         fileType = "ASCII file|*.txt"
         
         # raise export dialog
-        dlg = wx.FileDialog(self, "Export Spectrum Data", config.main['lastDir'], fileName, fileType, wx.SAVE|wx.OVERWRITE_PROMPT)
+        dlg = wx.FileDialog(self, "Export Spectrum Data", config.main['lastDir'], fileName, fileType, wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             config.main['lastDir'] = os.path.split(path)[0]
