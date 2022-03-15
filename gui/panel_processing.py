@@ -51,7 +51,7 @@ class panelProcessing(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
         
         # update documents lists
         self.updateAvailableDocuments()
@@ -1422,7 +1422,7 @@ class panelProcessing(wx.MiniFrame):
         
         row = 0
         for title, colour in documentsMap:
-            self.batchDocumentsList.InsertStringItem(row, title)
+            self.batchDocumentsList.InsertItem(row, title)
             self.batchDocumentsList.SetItemData(row, row)
             self.batchDocumentsList.SetItemTextColour(row, colour)
             row += 1

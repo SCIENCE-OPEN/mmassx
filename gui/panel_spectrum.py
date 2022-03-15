@@ -408,7 +408,7 @@ class panelSpectrum(wx.Panel):
             self.toolsRuler_butt.SetBitmapLabel(images.lib['spectrumRulerOn'])
             self.spectrumCanvas.setMFunction(cursorTracker)
             self.spectrumCanvas.setLMBFunction('xDistance')
-            cursor = (wx.StockCursor(wx.CURSOR_ARROW), images.lib['cursorsCrossMeasure'])
+            cursor = (wx.Cursor(wx.CURSOR_ARROW), images.lib['cursorsCrossMeasure'])
         
         elif tool == 'labelpeak':
             self.toolsLabelPeak_butt.SetBitmapLabel(images.lib['spectrumLabelPeakOn'])

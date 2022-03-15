@@ -58,7 +58,7 @@ class panelSequence(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
         
         # select default tool
         self.onToolSelected(tool=self.currentTool)
@@ -2311,12 +2311,12 @@ class panelSequence(wx.MiniFrame):
         
         # update list
         for row, item in enumerate(currentMods):
-            self.modificationsList.InsertStringItem(row, item[0])
-            self.modificationsList.SetStringItem(row, 1, item[1])
-            self.modificationsList.SetStringItem(row, 2, item[2])
-            self.modificationsList.SetStringItem(row, 3, item[3])
-            self.modificationsList.SetStringItem(row, 4, item[4])
-            self.modificationsList.SetStringItem(row, 5, item[5])
+            self.modificationsList.InsertItem(row, item[0])
+            self.modificationsList.SetItem(row, 1, item[1])
+            self.modificationsList.SetItem(row, 2, item[2])
+            self.modificationsList.SetItem(row, 3, item[3])
+            self.modificationsList.SetItem(row, 4, item[4])
+            self.modificationsList.SetItem(row, 5, item[5])
             self.modificationsList.SetItemData(row, row)
         
         # sort data
@@ -2404,12 +2404,12 @@ class panelSequence(wx.MiniFrame):
             
             # add data
             row += 1
-            self.digestList.InsertStringItem(row, section)
-            self.digestList.SetStringItem(row, 1, str(item[1]))
-            self.digestList.SetStringItem(row, 2, mz)
-            self.digestList.SetStringItem(row, 3, str(item[3]))
-            self.digestList.SetStringItem(row, 4, item[4])
-            self.digestList.SetStringItem(row, 5, error)
+            self.digestList.InsertItem(row, section)
+            self.digestList.SetItem(row, 1, str(item[1]))
+            self.digestList.SetItem(row, 2, mz)
+            self.digestList.SetItem(row, 3, str(item[3]))
+            self.digestList.SetItem(row, 4, item[4])
+            self.digestList.SetItem(row, 5, error)
             self.digestList.SetItemData(row, index)
             
             # mark matched
@@ -2464,12 +2464,12 @@ class panelSequence(wx.MiniFrame):
             
             # add data
             row += 1
-            self.fragmentsList.InsertStringItem(row, item[0])
-            self.fragmentsList.SetStringItem(row, 1, section)
-            self.fragmentsList.SetStringItem(row, 2, mz)
-            self.fragmentsList.SetStringItem(row, 3, str(item[3]))
-            self.fragmentsList.SetStringItem(row, 4, item[4])
-            self.fragmentsList.SetStringItem(row, 5, error)
+            self.fragmentsList.InsertItem(row, item[0])
+            self.fragmentsList.SetItem(row, 1, section)
+            self.fragmentsList.SetItem(row, 2, mz)
+            self.fragmentsList.SetItem(row, 3, str(item[3]))
+            self.fragmentsList.SetItem(row, 4, item[4])
+            self.fragmentsList.SetItem(row, 5, error)
             self.fragmentsList.SetItemData(row, index)
             
             # mark filtered and matched fragments
@@ -2519,10 +2519,10 @@ class panelSequence(wx.MiniFrame):
             
             # add data
             row += 1
-            self.searchList.InsertStringItem(row, section)
-            self.searchList.SetStringItem(row, 1, mz)
-            self.searchList.SetStringItem(row, 2, item[3])
-            self.searchList.SetStringItem(row, 3, error)
+            self.searchList.InsertItem(row, section)
+            self.searchList.SetItem(row, 1, mz)
+            self.searchList.SetItem(row, 2, item[3])
+            self.searchList.SetItem(row, 3, error)
             self.searchList.SetItemData(row, index)
         
         # sort data

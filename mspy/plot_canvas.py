@@ -93,7 +93,7 @@ class canvas(wx.Window):
         self.viewMemory = [[],[]]
         
         self.cursorPosition = [0, 0, 0, 0]
-        self.cursorImage = wx.StockCursor(wx.CURSOR_ARROW)
+        self.cursorImage = wx.Cursor(wx.CURSOR_ARROW)
         self.draggingStart = False
         self.mouseEvent = False
         self.lastDraw = None
@@ -142,7 +142,7 @@ class canvas(wx.Window):
         height = max(1, height)
             
         # make new offscreen bitmap
-        self.plotBuffer = wx.EmptyBitmap(width, height)
+        self.plotBuffer = wx.Bitmap(width, height)
         self.setSize()
         
         # redraw plot or clear area
@@ -180,7 +180,7 @@ class canvas(wx.Window):
         self.escMouseEvents()
         
         # set mouse cursor
-        self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
+        self.SetCursor(wx.Cursor(wx.CURSOR_ARROW))
     # ----
     
     
@@ -802,7 +802,7 @@ class canvas(wx.Window):
             width, height = self.GetClientSize()
         
         # create empty bitmap
-        tmpBitmap = wx.EmptyBitmap(width, height)
+        tmpBitmap = wx.Bitmap(width, height)
         tmpDC = wx.MemoryDC()
         tmpDC.SelectObject(tmpBitmap)
         tmpDC.Clear()
@@ -1057,15 +1057,15 @@ class canvas(wx.Window):
         
         location = self.getCursorLocation()
         if location == 'xAxis':
-            self.SetCursor(wx.StockCursor(wx.CURSOR_SIZEWE))
+            self.SetCursor(wx.Cursor(wx.CURSOR_SIZEWE))
         elif location == 'yAxis':
-            self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENS))
+            self.SetCursor(wx.Cursor(wx.CURSOR_SIZENS))
         elif location == 'plot' and self.properties['showCurImage']:
             self.SetCursor(self.cursorImage)
         elif location == 'plot' and self.mouseFn:
-            self.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
+            self.SetCursor(wx.Cursor(wx.CURSOR_CROSS))
         else:
-            self.SetCursor(wx.StockCursor(wx.CURSOR_ARROW))
+            self.SetCursor(wx.Cursor(wx.CURSOR_ARROW))
     # ----
     
     
@@ -1576,7 +1576,7 @@ class canvas(wx.Window):
             return
         
         # hide cursor
-        self.SetCursor(wx.StockCursor(wx.CURSOR_BLANK))
+        self.SetCursor(wx.Cursor(wx.CURSOR_BLANK))
         
         # get screen coordinations
         x1 = self.draggingStart[2]
@@ -1667,7 +1667,7 @@ class canvas(wx.Window):
             return
         
         # hide cursor
-        self.SetCursor(wx.StockCursor(wx.CURSOR_BLANK))
+        self.SetCursor(wx.Cursor(wx.CURSOR_BLANK))
         
         # get X coordinations
         x = self.cursorPosition[2]
@@ -1993,7 +1993,7 @@ class canvas(wx.Window):
         size = dc.GetTextExtent(text)
         
         # make tmp bitmap
-        tmpBuffer = wx.EmptyBitmap(size[0], size[1])
+        tmpBuffer = wx.Bitmap(size[0], size[1])
         textDC.SelectObject(tmpBuffer)
         
         # draw under mac

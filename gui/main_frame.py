@@ -144,9 +144,9 @@ class mainFrame(wx.Frame):
         
         # bind events
         self.DragAcceptFiles(True)
-        wx.EVT_CLOSE(self, self.onQuit)
-        wx.EVT_SIZE(self, self.onSize)
-        wx.EVT_DROP_FILES(self, self.onDocumentDropped)
+        self.Bind(wx.EVT_CLOSE, self.onQuit) 
+        self.Bind(wx.EVT_SIZE, self.onSize)
+        self.Bind(wx.EVT_DROP_FILES, self.onDocumentDropped)
         
         # show app
         self.Layout()
@@ -173,7 +173,7 @@ class mainFrame(wx.Frame):
         document.Append(ID_documentNew, "New"+HK_documentNew, "")
         document.Append(ID_documentNewFromClipboard, "New from Clipboard"+HK_documentNewFromClipboard, "")
         document.Append(ID_documentOpen, "Open..."+HK_documentOpen, "")
-        document.AppendMenu(ID_documentRecent, "Open Recent", self.menuRecent)
+        document.Append(ID_documentRecent, "Open Recent", self.menuRecent)
         document.AppendSeparator()
         document.Append(ID_documentClose, "Close"+HK_documentClose, "")
         document.Append(ID_documentCloseAll, "Close All"+HK_documentCloseAll, "")
@@ -225,7 +225,7 @@ class mainFrame(wx.Frame):
         viewCanvas.AppendSeparator()
         viewCanvas.Append(ID_viewTracker, "Cursor Tracker", "", wx.ITEM_CHECK)
         viewCanvas.Append(ID_viewCheckLimits, "Check Limits", "", wx.ITEM_CHECK)
-        view.AppendMenu(-1, "Spectrum Canvas", viewCanvas)
+        view.Append(-1, "Spectrum Canvas", viewCanvas)
         
         viewLabels = wx.Menu()
         title = ("Show Labels", "Hide Labels")
@@ -242,7 +242,7 @@ class mainFrame(wx.Frame):
         viewLabels.AppendSeparator()
         viewLabels.Append(ID_viewOverlapLabels, "Allow Overlapping"+HK_viewOverlapLabels, "", wx.ITEM_CHECK)
         viewLabels.Append(ID_viewAllLabels, "Labels in All Documents"+HK_viewAllLabels, "", wx.ITEM_CHECK)
-        view.AppendMenu(-1, "Peak Labels", viewLabels)
+        view.Append(-1, "Peak Labels", viewLabels)
         
         viewNotations = wx.Menu()
         title = ("Show Notations", "Hide Notations")
@@ -251,7 +251,7 @@ class mainFrame(wx.Frame):
         viewNotations.Append(ID_viewNotationMarks, "Marks", "", wx.ITEM_CHECK)
         viewNotations.Append(ID_viewNotationLabels, "Labels", "", wx.ITEM_CHECK)
         viewNotations.Append(ID_viewNotationMz, "m/z", "", wx.ITEM_CHECK)
-        view.AppendMenu(-1, "Notations", viewNotations)
+        view.Append(-1, "Notations", viewNotations)
         
         viewSpectrumRuler = wx.Menu()
         viewSpectrumRuler.Append(ID_viewSpectrumRulerMz, "m/z", "", wx.ITEM_CHECK)
@@ -261,7 +261,7 @@ class mainFrame(wx.Frame):
         viewSpectrumRuler.Append(ID_viewSpectrumRulerCursorMass, "Neutral Mass (Cursor)", "", wx.ITEM_CHECK)
         viewSpectrumRuler.Append(ID_viewSpectrumRulerParentMass, "Neutral Mass (Parent)", "", wx.ITEM_CHECK)
         viewSpectrumRuler.Append(ID_viewSpectrumRulerArea, "Area", "", wx.ITEM_CHECK)
-        view.AppendMenu(-1, "Spectrum Ruler", viewSpectrumRuler)
+        view.Append(-1, "Spectrum Ruler", viewSpectrumRuler)
         
         viewPeaklistColumns = wx.Menu()
         viewPeaklistColumns.Append(ID_viewPeaklistColumnMz, "m/z", "", wx.ITEM_CHECK)
@@ -275,7 +275,7 @@ class mainFrame(wx.Frame):
         viewPeaklistColumns.Append(ID_viewPeaklistColumnFwhm, "FWHM", "", wx.ITEM_CHECK)
         viewPeaklistColumns.Append(ID_viewPeaklistColumnResol, "Resolution", "", wx.ITEM_CHECK)
         viewPeaklistColumns.Append(ID_viewPeaklistColumnGroup, "Group", "", wx.ITEM_CHECK)
-        view.AppendMenu(-1, "Peak List Columns", viewPeaklistColumns)
+        view.Append(-1, "Peak List Columns", viewPeaklistColumns)
         
         view.AppendSeparator()
         view.Append(ID_viewAutoscale, "Autoscale Intensity"+HK_viewAutoscale, "", wx.ITEM_CHECK)
@@ -545,12 +545,12 @@ class mainFrame(wx.Frame):
         linksMSTools.Append(ID_linksProspector, "Protein Prospector", "")
         linksMSTools.Append(ID_linksProfound, "ProFound", "")
         linksMSTools.Append(ID_linksBiomedMSTools, "Biomed MS Tools", "")
-        links.AppendMenu(-1, "MS Tools", linksMSTools)
+        links.Append(-1, "MS Tools", linksMSTools)
         
         linksModifications = wx.Menu()
         linksModifications.Append(ID_linksUniMod, "UniMod", "")
         linksModifications.Append(ID_linksDeltaMass, "Delta Mass", "")
-        links.AppendMenu(-1, "Modifications", linksModifications)
+        links.Append(-1, "Modifications", linksModifications)
         
         linksSequenceDB = wx.Menu()
         linksSequenceDB.Append(ID_linksUniProt, "UniProt", "")
@@ -558,18 +558,18 @@ class mainFrame(wx.Frame):
         linksSequenceDB.Append(ID_linksEMBLEBI, "EMBL EBI", "")
         linksSequenceDB.Append(ID_linksPIR, "PIR", "")
         linksSequenceDB.Append(ID_linksNCBI, "NCBI", "")
-        links.AppendMenu(-1, "Sequence Databases", linksSequenceDB)
+        links.Append(-1, "Sequence Databases", linksSequenceDB)
         
         linksSequenceTools = wx.Menu()
         linksSequenceTools.Append(ID_linksBLAST, "BLAST", "")
         linksSequenceTools.Append(ID_linksClustalW, "ClustalW", "")
         linksSequenceTools.Append(ID_linksFASTA, "FASTA", "")
         linksSequenceTools.Append(ID_linksMUSCLE, "MUSCLE", "")
-        links.AppendMenu(-1, "Sequence Tools", linksSequenceTools)
+        links.Append(-1, "Sequence Tools", linksSequenceTools)
         
         linksStructures = wx.Menu()
         linksStructures.Append(ID_linksPDB, "RCSB PDB", "")
-        links.AppendMenu(-1, "Protein Structures", linksStructures)
+        links.Append(-1, "Protein Structures", linksStructures)
         
         self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_linksExpasy)
         self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_linksMatrixScience)
@@ -651,9 +651,9 @@ class mainFrame(wx.Frame):
         
         # document
         if wx.Platform != '__WXMAC__':
-            self.toolbar.AddLabelTool(ID_documentOpen, "Open", images.lib['toolsOpen'], shortHelp="Open document...", longHelp="Open document")
-            self.toolbar.AddLabelTool(ID_documentSave, "Save", images.lib['toolsSave'], shortHelp="Save document", longHelp="Save current document")
-            self.toolbar.AddLabelTool(ID_documentPrintSpectrum, "Print", images.lib['toolsPrint'], shortHelp="Print spectrum...", longHelp="Print spectrum")
+            self.toolbar.AddTool(ID_documentOpen, "Open", images.lib['toolsOpen'], wx.NullBitmap, shortHelp="Open document...", longHelp="Open document")
+            self.toolbar.AddTool(ID_documentSave, "Save", images.lib['toolsSave'], wx.NullBitmap, shortHelp="Save document", longHelp="Save current document")
+            self.toolbar.AddTool(ID_documentPrintSpectrum, "Print", images.lib['toolsPrint'], wx.NullBitmap, shortHelp="Print spectrum...", longHelp="Print spectrum")
             
             self.toolbar.Bind(wx.EVT_TOOL, self.onDocumentOpen, id=ID_documentOpen)
             self.toolbar.Bind(wx.EVT_TOOL, self.onDocumentSave, id=ID_documentSave)
@@ -662,37 +662,37 @@ class mainFrame(wx.Frame):
             self.toolbar.AddSeparator()
         
         # tools
-        self.toolbar.AddLabelTool(ID_toolsProcessing, "Processing", images.lib['toolsProcessing'], shortHelp="Data processing...", longHelp="Mass spectrum processing")
-        self.toolbar.AddLabelTool(ID_toolsCalibration, "Calibration", images.lib['toolsCalibration'], shortHelp="Re-calibrate data...", longHelp="Mass spectrum calibration")
+        self.toolbar.AddTool(ID_toolsProcessing, "Processing", images.lib['toolsProcessing'], wx.NullBitmap, shortHelp="Data processing...", longHelp="Mass spectrum processing")
+        self.toolbar.AddTool(ID_toolsCalibration, "Calibration", images.lib['toolsCalibration'], wx.NullBitmap, shortHelp="Re-calibrate data...", longHelp="Mass spectrum calibration")
         
         if wx.Platform != '__WXMAC__':
              self.toolbar.AddSeparator()
         
-        self.toolbar.AddLabelTool(ID_toolsSequence, "Sequence", images.lib['toolsSequence'], shortHelp="Sequence editor...", longHelp="Sequence editor and tool")
+        self.toolbar.AddTool(ID_toolsSequence, "Sequence", images.lib['toolsSequence'], wx.NullBitmap, shortHelp="Sequence editor...", longHelp="Sequence editor and tool")
         
         if wx.Platform != '__WXMAC__':
              self.toolbar.AddSeparator()
         
-        self.toolbar.AddLabelTool(ID_toolsPeriodicTable, "Elements", images.lib['toolsPeriodicTable'], shortHelp="Periodic Table...", longHelp="Periodic table of elements")
-        self.toolbar.AddLabelTool(ID_toolsMassCalculator, "Masscalc", images.lib['toolsMassCalculator'], shortHelp="Mass calculator...", longHelp="Calculate ion series and isotopic pattern")
-        self.toolbar.AddLabelTool(ID_toolsMassToFormula, "Formulator", images.lib['toolsMassToFormula'], shortHelp="Mass to formula...", longHelp="Generate molecular formulae for specified mass")
-        self.toolbar.AddLabelTool(ID_toolsMassDefectPlot, "Mass Defect", images.lib['toolsMassDefectPlot'], shortHelp="Mass defect plot...", longHelp="Show various mass defect plots for current peak list")
+        self.toolbar.AddTool(ID_toolsPeriodicTable, "Elements", images.lib['toolsPeriodicTable'], wx.NullBitmap, shortHelp="Periodic Table...", longHelp="Periodic table of elements")
+        self.toolbar.AddTool(ID_toolsMassCalculator, "Masscalc", images.lib['toolsMassCalculator'], wx.NullBitmap, shortHelp="Mass calculator...", longHelp="Calculate ion series and isotopic pattern")
+        self.toolbar.AddTool(ID_toolsMassToFormula, "Formulator", images.lib['toolsMassToFormula'], wx.NullBitmap, shortHelp="Mass to formula...", longHelp="Generate molecular formulae for specified mass")
+        self.toolbar.AddTool(ID_toolsMassDefectPlot, "Mass Defect", images.lib['toolsMassDefectPlot'], wx.NullBitmap, shortHelp="Mass defect plot...", longHelp="Show various mass defect plots for current peak list")
         
         if wx.Platform != '__WXMAC__':
              self.toolbar.AddSeparator()
         
-        self.toolbar.AddLabelTool(ID_toolsMassFilter, "Mass Filter", images.lib['toolsMassFilter'], shortHelp="Mass filter...", longHelp="Filter spectrum contaminants")
-        self.toolbar.AddLabelTool(ID_toolsCompoundsSearch, "Compounds", images.lib['toolsCompoundsSearch'], shortHelp="Compounds search...", longHelp="Search for compounds")
-        self.toolbar.AddLabelTool(ID_toolsPeakDifferences, "Differences", images.lib['toolsPeakDifferences'], shortHelp="Peak differences...", longHelp="Calculate peak differences")
-        self.toolbar.AddLabelTool(ID_toolsComparePeaklists, "Compare", images.lib['toolsComparePeaklists'], shortHelp="Compare peak lists...", longHelp="Compare multiple peaklists")
-        self.toolbar.AddLabelTool(ID_toolsSpectrumGenerator, "Generator", images.lib['toolsSpectrumGenerator'], shortHelp="Generate mass spectrum...", longHelp="Generate mass spectrum from current peak list")
-        self.toolbar.AddLabelTool(ID_toolsEnvelopeFit, "Envelope Fit", images.lib['toolsEnvelopeFit'], shortHelp="Calculate atom exchange...", longHelp="Calculate atom exchange from peak envelope")
+        self.toolbar.AddTool(ID_toolsMassFilter, "Mass Filter", images.lib['toolsMassFilter'], wx.NullBitmap, shortHelp="Mass filter...", longHelp="Filter spectrum contaminants")
+        self.toolbar.AddTool(ID_toolsCompoundsSearch, "Compounds", images.lib['toolsCompoundsSearch'], wx.NullBitmap, shortHelp="Compounds search...", longHelp="Search for compounds")
+        self.toolbar.AddTool(ID_toolsPeakDifferences, "Differences", images.lib['toolsPeakDifferences'], wx.NullBitmap, shortHelp="Peak differences...", longHelp="Calculate peak differences")
+        self.toolbar.AddTool(ID_toolsComparePeaklists, "Compare", images.lib['toolsComparePeaklists'], wx.NullBitmap, shortHelp="Compare peak lists...", longHelp="Compare multiple peaklists")
+        self.toolbar.AddTool(ID_toolsSpectrumGenerator, "Generator", images.lib['toolsSpectrumGenerator'], wx.NullBitmap, shortHelp="Generate mass spectrum...", longHelp="Generate mass spectrum from current peak list")
+        self.toolbar.AddTool(ID_toolsEnvelopeFit, "Envelope Fit", images.lib['toolsEnvelopeFit'], wx.NullBitmap, shortHelp="Calculate atom exchange...", longHelp="Calculate atom exchange from peak envelope")
         
         if wx.Platform != '__WXMAC__':
             self.toolbar.AddSeparator()
         
-        self.toolbar.AddLabelTool(ID_toolsMascot, "Mascot", images.lib['toolsMascot'], shortHelp="Mascot search...", longHelp="Send data to Mascot server")
-        self.toolbar.AddLabelTool(ID_toolsProfound, "ProFound", images.lib['toolsProfound'], shortHelp="ProFound search...", longHelp="Send data to ProFound server")
+        self.toolbar.AddTool(ID_toolsMascot, "Mascot", images.lib['toolsMascot'], wx.NullBitmap, shortHelp="Mascot search...", longHelp="Send data to Mascot server")
+        self.toolbar.AddTool(ID_toolsProfound, "ProFound", images.lib['toolsProfound'], wx.NullBitmap, shortHelp="ProFound search...", longHelp="Send data to ProFound server")
         
         self.toolbar.Bind(wx.EVT_TOOL, self.onToolsProcessing, id=ID_toolsProcessing)
         self.toolbar.Bind(wx.EVT_TOOL, self.onToolsCalibration, id=ID_toolsCalibration)
@@ -713,9 +713,9 @@ class mainFrame(wx.Frame):
         if wx.Platform != '__WXMAC__':
             self.toolbar.AddSeparator()
         
-        self.toolbar.AddLabelTool(ID_toolsDocumentInfo, "Notes", images.lib['toolsDocumentInfo'], shortHelp="Document information and notes...", longHelp="Show document information and notes")
-        self.toolbar.AddLabelTool(ID_toolsDocumentReport, "Report", images.lib['toolsDocumentReport'], shortHelp="Analysis report", longHelp="Make analysis report for current document")
-        self.toolbar.AddLabelTool(ID_toolsDocumentExport, "Export", images.lib['toolsDocumentExport'], shortHelp="Export data...", longHelp="Export spectrum, peaklist or image")
+        self.toolbar.AddTool(ID_toolsDocumentInfo, "Notes", images.lib['toolsDocumentInfo'], wx.NullBitmap, shortHelp="Document information and notes...", longHelp="Show document information and notes")
+        self.toolbar.AddTool(ID_toolsDocumentReport, "Report", images.lib['toolsDocumentReport'], wx.NullBitmap, shortHelp="Analysis report", longHelp="Make analysis report for current document")
+        self.toolbar.AddTool(ID_toolsDocumentExport, "Export", images.lib['toolsDocumentExport'], wx.NullBitmap, shortHelp="Export data...", longHelp="Export spectrum, peaklist or image")
         
         self.toolbar.Bind(wx.EVT_TOOL, self.onDocumentInfo, id=ID_toolsDocumentInfo)
         self.toolbar.Bind(wx.EVT_TOOL, self.onDocumentReport, id=ID_toolsDocumentReport)
@@ -823,7 +823,7 @@ class mainFrame(wx.Frame):
         # get frame size
         config.main['appMaximized'] = int(self.IsMaximized())
         if not self.IsMaximized():
-            size = self.GetSizeTuple()
+            size = self.GetSize()
             config.main['appWidth'] = size[0]
             config.main['appHeight'] = size[1]
         

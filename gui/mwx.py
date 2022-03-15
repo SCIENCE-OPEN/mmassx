@@ -218,7 +218,7 @@ class bgrPanel(wx.Panel):
         self.image = image
         
         # set paint event to tile image
-        wx.EVT_PAINT(self, self._onPaint)
+        self.Bind(wx.EVT_PAINT, self._onPaint)
     # ----
     
     
@@ -249,7 +249,7 @@ class sortListCtrl(wx.ListCtrl):
         
         self._defaultColour = self.GetBackgroundColour()
         self._altColour = self.GetBackgroundColour()
-        self._currentAttr = wx.ListItemAttr()
+        self._currentAttr = wx.ItemAttr()
         
         self._getItemTextFn = None
         self._getItemAttrFn = None
@@ -768,11 +768,11 @@ class gaugePanel(wx.Dialog):
     
 
 
-class validator(wx.PyValidator):
+class validator(wx.Validator):
     """Text validator."""
     
     def __init__(self, flag):
-        wx.PyValidator.__init__(self)
+        wx.Validator.__init__(self)
         self.flag = flag
         self.Bind(wx.EVT_CHAR, self.OnChar)
     # ----

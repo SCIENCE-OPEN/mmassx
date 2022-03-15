@@ -50,7 +50,7 @@ class panelEnvelopeFit(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
     # ----
     
     
@@ -578,7 +578,7 @@ class panelEnvelopeFit(wx.MiniFrame):
         self.spectrumCanvas.setProperties(axisFont=axisFont)
         
         # set cursor
-        cursor = (wx.StockCursor(wx.CURSOR_ARROW), images.lib['cursorsCrossMeasure'])
+        cursor = (wx.Cursor(wx.CURSOR_ARROW), images.lib['cursorsCrossMeasure'])
         self.spectrumCanvas.setCursorImage(cursor[bool(config.spectrum['showTracker'])])
         self.spectrumCanvas.setMFunction([None, 'cross'][config.spectrum['showTracker']])
         
@@ -640,8 +640,8 @@ class panelEnvelopeFit(wx.MiniFrame):
         
         # add new data
         for row, item in enumerate(data):
-            self.resultsList.InsertStringItem(row, str(item[0]))
-            self.resultsList.SetStringItem(row, 1, str(round(item[1]*100, 1)))
+            self.resultsList.InsertItem(row, str(item[0]))
+            self.resultsList.SetItem(row, 1, str(round(item[1]*100, 1)))
             self.resultsList.SetItemData(row, row)
         
         # sort data
