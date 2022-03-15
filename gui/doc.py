@@ -528,13 +528,13 @@ class document():
         import pandas as pd
         if isinstance(self.annotations, type(None)):
             return NULL
-        
-        annot_array = numpy.array([i.asArray() for i in self.annotations])
-        df = pd.DataFrame(numpy.array(annot_array),columns=annotation.col_titles())
+
         basePeak = self.spectrum.peaklist.basepeak
-        #if basePeak:
-        #    basePeak = basePeak.intensity
-        #    df['int%'] = 100*(df['int']/basePeak)
+        if basePeak:
+            basePeak = basePeak.intensity
+        
+        annot_array = numpy.array([i.asArray(basePeak) for i in self.annotations])
+        df = pd.DataFrame(annot_array,columns=annotation.col_titles())
         return df
     # ----
  
@@ -753,12 +753,14 @@ class annotation():
             return None
     # ----
     
-    def asArray(self):
+    def asArray(self,basePeak=None):
         """return array for Pandas conversion"""
+        if basePeak is None:
+            int_rel = ''
+        else:
+            int_rel = 100*self.ai/basePeak
         return [self.mz,self.theoretical,self.delta('Da'),self.delta('ppm'),\
-                self.ai,'',self.charge,self.label,self.formula]
-       # return [self.label,self.mz,self.ai,self.base,self.charge,self.radical,\
-       #         self.theoretical,self.formula]
+                self.ai,int_rel,self.charge,self.label,self.formula]
             
     @classmethod
     def col_titles(self):
