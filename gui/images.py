@@ -20,6 +20,7 @@ import wx
 from wx.tools import img2py
 
 from . import ids
+#from ids import *  # USE THIS LINE FOR IMAGE CONVERSION (and comment the previous one)
 
 
 # IMAGES
@@ -650,7 +651,7 @@ def convertImages():
     for platform in ('mac', 'msw', 'gtk'):
         
         # create file
-        imageFile = file('images_lib_'+platform+'.py', 'w')
+        imageFile = open('images_lib_'+platform+'.py', 'w')
         imageFile.write(imp)
         imageFile.close()
         
