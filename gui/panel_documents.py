@@ -420,9 +420,18 @@ class panelDocuments(wx.Panel):
         elif itemType == 'sequence':
             self.parent.onToolsSequence()
         
-        # edit annotation or sequence match
-        elif itemType in ('annotation', 'match'):
+        # edit sequence match
+        elif itemType == 'match':
             self.onNotationEdit()
+
+        # zoom to annotated peak
+        elif itemType == 'annotation':
+            #gy self.onNotationEdit()
+            itemData = self.documentTree.GetPyData(item)
+            mz = itemData.mz
+            zw = 0.1   # config.spectrum['zoomWidthMZ']
+            self.parent.spectrumPanel.spectrumCanvas.zoom(xAxis=(mz-zw/2, mz+zw/2)) 
+
     # ----
     
     
