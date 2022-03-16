@@ -21,8 +21,8 @@ import numpy
 import copy
 
 # load modules
-import mod_signal
-import calculations
+from . import mod_signal
+from . import calculations
 
 
 # MAIN PLOT OBJECTS
@@ -375,7 +375,7 @@ class annotations:
         """Get bounding box for whole data or X selection"""
         
         # use relevant data
-        if minX != None and maxX != None:
+        if minX is not None and maxX is not None:
             self.cropPoints(minX, maxX)
             data = self.pointsCropped
         else:
@@ -386,7 +386,7 @@ class annotations:
             return False
         
         # get range
-        if minX != None and maxX != None:
+        if minX is not None and maxX is not None:
             minXY = numpy.minimum.reduce(data)
             maxXY = numpy.maximum.reduce(data)
         else:
@@ -529,7 +529,7 @@ class annotations:
         
         # prepare labels
         labels = []
-        format = '%0.'+`self.properties['xPosDigits']`+'f - '
+        format = '%0.'+str(self.properties['xPosDigits'])+'f - '
         for x, label in enumerate(self.labelsCropped):
             
             # check max length
@@ -663,7 +663,7 @@ class points:
         """Get bounding box for whole data or X selection"""
         
         # use relevant data
-        if minX != None and maxX != None:
+        if minX is not None and maxX is not None:
             self.cropPoints(minX, maxX)
             data = self.cropped
         else:
@@ -674,7 +674,7 @@ class points:
             return False
         
         # get range
-        if minX != None and maxX != None:
+        if minX is not None and maxX is not None:
             minXY = numpy.minimum.reduce(data)
             maxXY = numpy.maximum.reduce(data)
         else:
@@ -722,10 +722,10 @@ class points:
         # add current offset
         if not self.properties['normalized']:
             if self.properties['xOffset']:
-                format = ' X%0.'+`self.properties['xOffsetDigits']`+'f'
+                format = ' X%0.'+str(self.properties['xOffsetDigits'])+'f'
                 offset += format % self.properties['xOffset']
             if self.properties['yOffset']:
-                format = ' Y%0.'+`self.properties['yOffsetDigits']`+'f'
+                format = ' Y%0.'+str(self.properties['yOffsetDigits'])+'f'
                 offset += format % self.properties['yOffset']
             if legend and offset:
                 legend += ' (Offset%s)' % offset
@@ -959,7 +959,7 @@ class spectrum:
         peaklistBox = None
         
         # use relevant data
-        if minX != None and maxX != None:
+        if minX is not None and maxX is not None:
             self.cropPoints(minX, maxX)
             spectrumData = self.spectrumCropped
             peaklistData = self.peaklistCropped
@@ -969,7 +969,7 @@ class spectrum:
         
         # calculate bounding box for spectrum
         if len(spectrumData) and self.properties['showSpectrum']:
-            if minX != None and maxX != None:
+            if minX is not None and maxX is not None:
                 minXY = numpy.minimum.reduce(spectrumData)
                 maxXY = numpy.maximum.reduce(spectrumData)
             else:
@@ -983,7 +983,7 @@ class spectrum:
         
         # calculate bounding box for peaklist
         if len(peaklistData) and (self.properties['showSpectrum'] or self.properties['showLabels'] or self.properties['showTicks']):
-            if minX != None and maxX != None:
+            if minX is not None and maxX is not None:
                 minXY = numpy.minimum.reduce(peaklistData)
                 maxXY = numpy.maximum.reduce(peaklistData)
             else:
@@ -1051,10 +1051,10 @@ class spectrum:
         # add current offset
         if not self.properties['normalized']:
             if self.properties['xOffset']:
-                format = ' X%0.'+`self.properties['xOffsetDigits']`+'f'
+                format = ' X%0.'+str(self.properties['xOffsetDigits'])+'f'
                 offset += format % self.properties['xOffset']
             if self.properties['yOffset']:
-                format = ' Y%0.'+`self.properties['yOffsetDigits']`+'f'
+                format = ' Y%0.'+str(self.properties['yOffsetDigits'])+'f'
                 offset += format % self.properties['yOffset']
             if legend and offset:
                 legend += ' (Offset%s)' % offset
@@ -1199,7 +1199,7 @@ class spectrum:
         
         # prepare labels
         labels = []
-        format = '%0.'+`self.properties['labelDigits']`+'f'
+        format = '%0.'+str(self.properties['labelDigits'])+'f'
         for x, peak in enumerate(self.peaklistScaled):
             
             # skip isotopes
@@ -1214,7 +1214,7 @@ class spectrum:
             label = format % self.peaklistCroppedPeaks[x].mz
             
             # add charge to label
-            if self.properties['labelCharge'] and self.peaklistCroppedPeaks[x].charge != None:
+            if self.properties['labelCharge'] and self.peaklistCroppedPeaks[x].charge is not None:
                 label += ' (%d)' % self.peaklistCroppedPeaks[x].charge
             
             # add group to label
@@ -1399,7 +1399,7 @@ class spectrum:
         dc.SetPen(wx.TRANSPARENT_PEN)
         dc.SetBrush(msmsBrush)
         for x, peak in enumerate(self.peaklistScaled):
-            if self.peaklistCroppedPeaks[x].childScanNumber != None:
+            if self.peaklistCroppedPeaks[x].childScanNumber is not None:
                 try: dc.DrawCircle(peak[0], peak[1], 3*printerScale['drawings'])
                 except OverflowError: pass
     # ----
@@ -1595,9 +1595,9 @@ def _scaleAndShift(points, scaleX, scaleY, shiftX, shiftY):
     
     # check signal type
     if not isinstance(points, numpy.ndarray):
-        raise TypeError, "Signal points must be NumPy array!"
+        raise TypeError("Signal points must be NumPy array!")
     if points.dtype.name != 'float64':
-        raise TypeError, "Signal points must be float64!"
+        raise TypeError("Signal points must be float64!")
     
     # check signal data
     if len(points) == 0:
@@ -1616,9 +1616,9 @@ def _filterPoints(points, resolution):
     
     # check signal type
     if not isinstance(points, numpy.ndarray):
-        raise TypeError, "Signal points must be NumPy array!"
+        raise TypeError("Signal points must be NumPy array!")
     if points.dtype.name != 'float64':
-        raise TypeError, "Signal points must be float64!"
+        raise TypeError("Signal points must be float64!")
     
     # check signal data
     if len(points) == 0:

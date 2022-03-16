@@ -19,20 +19,20 @@
 import re
 import threading
 import wx
-import httplib
+import http.client
 import socket
 import webbrowser
 import tempfile
 import os.path
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import libs
 import mspy
-import doc
+from . import doc
 
 
 # FLOATING PANEL WITH MASCOT SEARCH
@@ -42,7 +42,7 @@ class panelMascot(wx.MiniFrame):
     """Mascot search tool."""
     
     def __init__(self, parent, tool=config.mascot['common']['searchType']):
-        wx.MiniFrame.__init__(self, parent, -1, 'Mascot Tools', size=(300, -1), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Mascot Tools', size=(300, -1), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.MAXIMIZE_BOX))
         
         self.parent = parent
         self.processing = None
@@ -54,7 +54,7 @@ class panelMascot(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
         
         # select tool
         self.onToolSelected(tool=self.currentTool)
@@ -699,7 +699,7 @@ class panelMascot(wx.MiniFrame):
         """Hide this frame."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -720,10 +720,10 @@ class panelMascot(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(5)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(5)
             self.processing = None
         
@@ -739,12 +739,12 @@ class panelMascot(wx.MiniFrame):
         """Selected tool."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
         # get the tool
-        if evt != None:
+        if evt is not None:
             tool = 'pmf'
             if evt and evt.GetId() == ID_mascotPMF:
                 tool = 'pmf'
@@ -903,7 +903,7 @@ class panelMascot(wx.MiniFrame):
         htmlData = self.makeSearchHTML()
         try:
             path = os.path.join(tempfile.gettempdir(), 'mmass_mascot_search.html')
-            htmlFile = file(path, 'w')
+            htmlFile = open(path, 'wb')
             htmlFile.write(htmlData.encode("utf-8"))
             htmlFile.close()
             webbrowser.open('file://'+path, autoraise=1)
@@ -955,7 +955,7 @@ class panelMascot(wx.MiniFrame):
         # get data from the server
         socket.setdefaulttimeout(5)
         try:
-            conn = httplib.HTTPConnection(server['host'])
+            conn = http.client.HTTPConnection(server['host'])
             conn.connect()
             conn.request('GET', server['path'] + server['params'])
             response = conn.getresponse()
@@ -1240,7 +1240,7 @@ class panelMascot(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # hide processing gauge

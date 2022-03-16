@@ -21,13 +21,13 @@ import math
 import wx
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import libs
 import mspy
-import doc
+from . import doc
 
 from gui.panel_match import panelMatch
 
@@ -39,7 +39,7 @@ class panelCompoundsSearch(wx.MiniFrame):
     """Compounds search tool."""
     
     def __init__(self, parent, tool='compounds'):
-        wx.MiniFrame.__init__(self, parent, -1, 'Compounds Search', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Compounds Search', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.MAXIMIZE_BOX))
         
         self.parent = parent
         self.matchPanel = None
@@ -54,7 +54,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
         
         # select default tool
         self.onToolSelected(tool=self.currentTool)
@@ -108,7 +108,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         self.tool_label.SetFont(wx.SMALL_FONT)
         
         choices = libs.compounds.keys()
-        choices.sort()
+        choices = sorted(choices)
         choices.insert(0,'Compounds lists')
         self.compounds_choice = wx.Choice(panel, -1, choices=choices, size=(250, mwx.SMALL_CHOICE_HEIGHT))
         self.compounds_choice.Select(0)
@@ -307,7 +307,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         """Hide this frame."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -326,13 +326,13 @@ class panelCompoundsSearch(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(3)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(3)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.Layout()
@@ -345,8 +345,8 @@ class panelCompoundsSearch(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
-            mspy.stop()
+        if self.processing and self.processing.is_alive():
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -356,7 +356,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         """Selected tool."""
         
         # get the tool
-        if evt != None:
+        if evt is not None:
             tool = 'compounds'
             if evt.GetId() == ID_compoundsSearchCompounds:
                 tool = 'compounds'
@@ -552,11 +552,12 @@ class panelCompoundsSearch(wx.MiniFrame):
             group = self.compounds_choice.GetStringSelection()
             if group and group in libs.compounds:
                 compounds = libs.compounds[group]
+                
         else:
             formula = self.formula_value.GetValue()
             if formula:
                 try:
-                    compounds[formula] = mspy.compound(formula)
+                    compounds[formula] = mspy.obj_compound.compound(formula)
                 except:
                     wx.Bell()
         
@@ -576,7 +577,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update compounds list
@@ -623,7 +624,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         """Annotate matched peaks."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             wx.Bell()
             return
         
@@ -713,19 +714,19 @@ class panelCompoundsSearch(wx.MiniFrame):
             return
         
         # add new data
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        errFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        errFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         if config.match['units'] == 'ppm':
-            errFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+            errFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         fontMatched = wx.Font(mwx.SMALL_FONT_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
         
         row = -1
         for index, item in enumerate(self.currentCompounds):
             
             # filter data
-            if self._compoundsFilter == 1 and item[5] == None:
+            if self._compoundsFilter == 1 and item[5] is None:
                 continue
-            elif self._compoundsFilter == -1 and item[5] != None:
+            elif self._compoundsFilter == -1 and item[5] is not None:
                 continue
             
             # format data
@@ -734,35 +735,35 @@ class panelCompoundsSearch(wx.MiniFrame):
             adduct = ''
             formula = ''
             error = ''
-            if item[1] != None:
+            if item[1] is not None:
                 mz = mzFormat % (item[1])
-            if item[2] != None:
+            if item[2] is not None:
                 z = str(item[2])
-            if item[3] != None:
+            if item[3] is not None:
                 adduct = item[3]
-            if item[4] != None:
+            if item[4] is not None:
                 formula = item[4]
-            if item[5] != None:
+            if item[5] is not None:
                 error = errFormat % (item[5])
             
             # add data
             row += 1
-            self.compoundsList.InsertStringItem(row, '')
-            self.compoundsList.SetStringItem(row, 0, item[0])
-            self.compoundsList.SetStringItem(row, 1, mz)
-            self.compoundsList.SetStringItem(row, 2, z)
-            self.compoundsList.SetStringItem(row, 3, adduct)
-            self.compoundsList.SetStringItem(row, 4, formula)
-            self.compoundsList.SetStringItem(row, 5, error)
+            self.compoundsList.InsertItem(row, '')
+            self.compoundsList.SetItem(row, 0, item[0])
+            self.compoundsList.SetItem(row, 1, mz)
+            self.compoundsList.SetItem(row, 2, z)
+            self.compoundsList.SetItem(row, 3, adduct)
+            self.compoundsList.SetItem(row, 4, formula)
+            self.compoundsList.SetItem(row, 5, error)
             self.compoundsList.SetItemData(row, index)
             
             # mark matched
-            if item[5] != None:
+            if item[5] is not None:
                 self.compoundsList.SetItemTextColour(row, (0,200,0))
                 self.compoundsList.SetItemFont(row, fontMatched)
         
         # sort data
-        self.compoundsList.sort()
+        self.compoundsList.sort
         
         # scroll top
         if self.compoundsList.GetItemCount():
@@ -831,7 +832,7 @@ class panelCompoundsSearch(wx.MiniFrame):
                         mz = compound.mz(z*polarity, agentFormula='e', agentCharge=-1)[config.compoundsSearch['massType']]
                         self.currentCompounds.append([name, mz, z*polarity, 'radical', compound.expression, None, []])
                     
-                    mspy.CHECK_FORCE_QUIT()
+                    mspy.mod_stopper.CHECK_FORCE_QUIT()
                     
                     # add adducts
                     for item in config.compoundsSearch['adducts']:
@@ -841,12 +842,12 @@ class panelCompoundsSearch(wx.MiniFrame):
                         elif item in ('-H2O'):
                             formula = '%s(%s)' % (compound.expression, adducts[item])
                         
-                        formula = mspy.compound(formula)
+                        formula = mspy.obj_compound.compound(formula)
                         if formula.isvalid():
                             mz = formula.mz(z*polarity)[config.compoundsSearch['massType']]
                             self.currentCompounds.append([name, mz, z*polarity, item, formula.expression, None, []])
                     
-                    mspy.CHECK_FORCE_QUIT()
+                    mspy.mod_stopper.CHECK_FORCE_QUIT()
                     
                     # add combinations
                     for item1 in ('Na', 'K', 'Li', 'NH4'):
@@ -861,13 +862,13 @@ class panelCompoundsSearch(wx.MiniFrame):
                                         adduct = '%s%s' % (item1, item2)
                                         formula = '%s(%s)(%s)(H-1)' % (compound.expression, adducts[item1], adducts[item2])
                                     
-                                    formula = mspy.compound(formula)
+                                    formula = mspy.obj_compound.compound(formula)
                                     if formula.isvalid():
                                         mz = formula.mz(z*polarity)[config.compoundsSearch['massType']]
                                         self.currentCompounds.append([name, mz, z*polarity, adduct, formula.expression, None, []])
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             self.currentCompounds = []
             return
     # ----

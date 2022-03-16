@@ -307,6 +307,7 @@ ID_massToFormulaSearchChemSpider = wx.NewId()
 ID_massToFormulaSearchMETLIN = wx.NewId()
 ID_massToFormulaSearchHMDB = wx.NewId()
 ID_massToFormulaSearchLipidMaps = wx.NewId()
+ID_massToFormulaSearchKEGG = wx.NewId()
 
 # coumpounds search panel
 ID_compoundsSearchCompounds = wx.NewId()

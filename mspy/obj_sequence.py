@@ -20,17 +20,17 @@ import re
 import copy
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load blocks
-import blocks
+from . import blocks
 
 # load objects
-import obj_compound
+from . import obj_compound
 
 # load modules
-import mod_basics
-import mod_pattern
+from . import mod_basics
+from . import mod_pattern
 
 
 # SEQUENCE OBJECT DEFINITION
@@ -61,7 +61,7 @@ class sequence:
         
         for monomer in self.chain:
             if not monomer in blocks.monomers:
-                raise KeyError, 'Unknown monomer in the sequence! --> ' + monomer
+                raise KeyError('Unknown monomer in the sequence! --> ' + monomer)
         
         # set terminal groups
         if self.cyclic:
@@ -129,7 +129,7 @@ class sequence:
         
         # check slice
         if stop <= start and not self.cyclic:
-            raise ValueError, 'Invalid slice!'
+            raise ValueError ('Invalid slice!')
         
         # break the links
         parent = copy.deepcopy(self)
@@ -224,6 +224,8 @@ class sequence:
             raise StopIteration
     # ----
     
+    def __next__(self):
+        return self.next()
     
     def reset(self):
         """Clear sequence buffers."""
@@ -242,15 +244,15 @@ class sequence:
         
         # check slice
         if stop < start:
-            raise ValueError, 'Invalid slice!'
+            raise ValueError('Invalid slice!')
         
         # check value
         if not isinstance(value, sequence):
-            raise TypeError, 'Invalid object to instert!'
+            raise TypeError('Invalid object to instert!')
         
         # check chain type
         if value.chainType != self.chainType:
-            raise TypeError, 'Invalid chain type to instert!'
+            raise TypeError('Invalid chain type to instert!')
         
         # break the links
         value = copy.deepcopy(value)
@@ -274,7 +276,7 @@ class sequence:
         
         # adding modifications not implemented
         if value.modifications or value.labels:
-            raise NotImplementedError, "Sequence __setslice__ doesn't support modifications and labels."
+            raise NotImplementedError("Sequence __setslice__ doesn't support modifications and labels.")
         
         # clear some values
         self.history = [('init', 0, len(self.chain))]
@@ -292,7 +294,7 @@ class sequence:
         
         # check slice
         if stop < start:
-            raise ValueError, 'Invalid slice!'
+            raise ValueError('Invalid slice!')
         
         # remove sequence
         self.chain = self.chain[:start] + self.chain[stop:]
@@ -353,7 +355,7 @@ class sequence:
         """Get formula."""
         
         # check formula buffer
-        if self._formula != None:
+        if self._formula is not None:
             return self._formula
         
         # get composition
@@ -375,7 +377,7 @@ class sequence:
         """Get elemental composition."""
         
         # check composition buffer
-        if self._composition != None:
+        if self._composition is not None:
             return self._composition
         
         self._composition = {}
@@ -440,7 +442,7 @@ class sequence:
         """Get mass."""
         
         # get mass
-        if self._mass == None:
+        if self._mass is None:
             self._mass = obj_compound.compound(self.formula()).mass()
         
         # return mass
@@ -524,7 +526,7 @@ class sequence:
         keys['f'] = ''
         if 'f' in template and self.fragmentSerie:
             keys['f'] = self.fragmentSerie
-            if self.fragmentIndex != None:
+            if self.fragmentIndex is not None:
                 keys['f'] += str(self.fragmentIndex)
             for gain in self.fragmentGains:
                 keys['f'] += ' +'+gain
@@ -563,7 +565,7 @@ class sequence:
         
         # check cyclic peptides
         if self.cyclic:
-            raise TypeError, 'Search function is not supported for cyclic peptides!'
+            raise TypeError('Search function is not supported for cyclic peptides!')
         
         matches = []
         
@@ -738,7 +740,7 @@ class sequence:
         
         # set break points
         breakPoints = range(len(self))
-        if breakPoint != None:
+        if breakPoint is not None:
             breakPoints = [breakPoint]
         
         # make peptides for all break points
@@ -797,7 +799,7 @@ class sequence:
         """
         
         # check specified position only
-        if position != None:
+        if position is not None:
             for mod in self.modifications:
                 if (strict or mod[2]=='f'):
                     if mod[1] == position \
@@ -841,7 +843,7 @@ class sequence:
         
         # check modification
         if not name in blocks.modifications:
-            raise KeyError, 'Unknown modification! --> ' + name
+            raise KeyError('Unknown modification! --> ' + name)
         
         # check position
         try: position = int(position)
@@ -868,7 +870,7 @@ class sequence:
         """Remove modification from sequence."""
         
         # remove all modifications
-        if name == None:
+        if name is None:
             del self.modifications[:]
         
         # remove modification
@@ -888,7 +890,7 @@ class sequence:
         
         # check modification
         if not name in blocks.modifications:
-            raise KeyError, 'Unknown modification! --> ' + name
+            raise KeyError('Unknown modification! --> ' + name)
         
         # check position
         try: position = int(position)

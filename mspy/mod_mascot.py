@@ -17,12 +17,12 @@
 
 # load libs
 import re
-import httplib
+import http.client
 import webbrowser
 import xml.dom.minidom
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 
 # MASCOT SEARCH FUNCTIONS
@@ -142,7 +142,7 @@ class mascot():
         
         # send data to server
         try:
-            conn = httplib.HTTPConnection(self.server['host'])
+            conn = http.client.HTTPConnection(self.server['host'])
             conn.putrequest('POST', self.server['path'] + self.server['search'] + '?1')
             conn.putheader('content-type', 'multipart/form-data; boundary=%s' % boundary)
             conn.putheader('content-length', str(len(body)))
@@ -204,7 +204,7 @@ class mascot():
         
         # get data from the server
         try:
-            conn = httplib.HTTPConnection(self.server['host'])
+            conn = http.client.HTTPConnection(self.server['host'])
             conn.request('GET', path)
             response = conn.getresponse()
             data = response.read()
@@ -299,7 +299,7 @@ class mascot():
         
         # save file
         try:
-            save = file(path, 'w')
+            save = open(path, 'wb')
             save.write(self.resultsXML.encode("utf-8"))
             save.close()
             return True
@@ -313,7 +313,7 @@ class mascot():
         
         # get data from the server
         try:
-            conn = httplib.HTTPConnection(self.server['host'])
+            conn = http.client.HTTPConnection(self.server['host'])
             conn.connect()
             conn.request('GET', self.server['path'] + self.server['params'])
             response = conn.getresponse()

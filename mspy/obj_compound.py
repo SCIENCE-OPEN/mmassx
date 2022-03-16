@@ -16,14 +16,14 @@
 # -------------------------------------------------------------------------
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load objects
-import blocks
+from . import blocks
 
 # load modules
-import mod_basics
-import mod_pattern
+from . import mod_basics
+from . import mod_pattern
 
 
 # COMPOUND OBJECT DEFINITION
@@ -108,7 +108,7 @@ class compound:
         """Get formula."""
         
         # check formula buffer
-        if self._formula != None:
+        if self._formula is not None:
             return self._formula
         
         self._formula = ''
@@ -141,7 +141,7 @@ class compound:
         """Get elemental composition."""
         
         # check composition buffer
-        if self._composition != None:
+        if self._composition is not None:
             return self._composition
         
         # unfold brackets
@@ -170,7 +170,7 @@ class compound:
                 self._composition[atom] = count
         
         # remove zeros
-        for atom in self._composition.keys():
+        for atom in list(self._composition.keys()):
             if self._composition[atom] == 0:
                 del self._composition[atom]
         
@@ -182,7 +182,7 @@ class compound:
         """Get mass."""
         
         # get mass
-        if self._mass == None:
+        if self._mass is None:
             massMo = 0
             massAv = 0
             
@@ -223,7 +223,7 @@ class compound:
         """Get nominal mass."""
         
         # get mass
-        if self._nominalmass == None:
+        if self._nominalmass is None:
             
             nominalmass = 0
             
@@ -352,18 +352,18 @@ class compound:
         
         # check formula
         if not mod_basics.FORMULA_PATTERN.match(formula):
-            raise ValueError, 'Wrong formula! --> ' + formula
+            raise ValueError('Wrong formula! --> ' + formula)
         
         # check elements and isotopes
         for atom in mod_basics.ELEMENT_PATTERN.findall(formula):
             if not atom[0] in blocks.elements:
-                raise ValueError, 'Unknown element in formula! --> ' + atom[0] + ' in ' + formula
+                raise ValueError('Unknown element in formula! --> ' + atom[0] + ' in ' + formula)
             elif atom[1] and not int(atom[1]) in blocks.elements[atom[0]].isotopes:
-                raise ValueError, 'Unknown isotope in formula! --> ' + atom[0] + atom[1] + ' in ' + formula
+                raise ValueError('Unknown isotope in formula! --> ' + atom[0] + atom[1] + ' in ' + formula)
         
         # check brackets
         if formula.count(')') != formula.count('('):
-            raise ValueError, 'Wrong number of brackets in formula! --> ' + formula
+            raise ValueError('Wrong number of brackets in formula! --> ' + formula)
     # ----
     
     

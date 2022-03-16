@@ -19,14 +19,14 @@
 import wx
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
+from .ids import *
+from . import mwx
+from . import images
+from . import config
 import mspy
-import doc
+from . import doc
 
-from dlg_notation import dlgNotation
+from .dlg_notation import dlgNotation
 
 
 # PEAKLIST PANEL
@@ -298,7 +298,7 @@ class panelPeaklist(wx.Panel):
         buttons.Add(self.peakReplace_butt, 0)
         
         mainSizer = wx.BoxSizer(wx.VERTICAL)
-        mainSizer.Add(grid, 0, wx.EXPAND|wx.ALIGN_CENTER|wx.ALL, 10)
+        mainSizer.Add(grid, 0, wx.EXPAND|wx.ALL, 10)
         mainSizer.Add(buttons, 0, wx.ALIGN_CENTER|wx.RIGHT|wx.LEFT|wx.BOTTOM, 10)
         
         # fit layout
@@ -340,7 +340,7 @@ class panelPeaklist(wx.Panel):
         evt.Skip()
         
         # check document and selected peak
-        if self.currentDocument == None or self.selectedPeak == None:
+        if self.currentDocument is None or self.selectedPeak is None:
             return
         
         # popup menu
@@ -435,7 +435,7 @@ class panelPeaklist(wx.Panel):
         """Plus button pressed."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             wx.Bell()
             return
             
@@ -454,7 +454,7 @@ class panelPeaklist(wx.Panel):
         """Minus button pressed."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             wx.Bell()
             return
         
@@ -483,7 +483,7 @@ class panelPeaklist(wx.Panel):
         """Annotate selected peak."""
         
         # check document and selected peak
-        if self.currentDocument == None or self.selectedPeak == None:
+        if self.currentDocument is None or self.selectedPeak is None:
             wx.Bell()
             return
         
@@ -527,7 +527,7 @@ class panelPeaklist(wx.Panel):
         """Delete selected peaks."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             wx.Bell()
             return
         
@@ -547,7 +547,7 @@ class panelPeaklist(wx.Panel):
         """Delete peaks by selected threshold."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             wx.Bell()
             return
         
@@ -587,7 +587,7 @@ class panelPeaklist(wx.Panel):
             # use s/n
             elif thresholdType == 's/n':
                 for i, peak in enumerate(self.currentDocument.spectrum.peaklist):
-                    if peak.sn != None and peak.sn < threshold:
+                    if peak.sn is not None and peak.sn < threshold:
                         indexes.append(i)
             
             # delete peaks
@@ -606,7 +606,7 @@ class panelPeaklist(wx.Panel):
         """Delete all peaks."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             wx.Bell()
             return
         
@@ -621,7 +621,7 @@ class panelPeaklist(wx.Panel):
         """Get peak data and add peak."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             wx.Bell()
             return
         
@@ -641,7 +641,7 @@ class panelPeaklist(wx.Panel):
         """Get peak data and refresh current peak."""
         
         # check selection
-        if self.selectedPeak == None:
+        if self.selectedPeak is None:
             wx.Bell()
             return
         
@@ -658,7 +658,7 @@ class panelPeaklist(wx.Panel):
         """Send selected peak to mass to formula tool."""
         
         # check document and selected peak
-        if self.currentDocument == None or self.selectedPeak == None:
+        if self.currentDocument is None or self.selectedPeak is None:
             wx.Bell()
             return
         
@@ -764,9 +764,9 @@ class panelPeaklist(wx.Panel):
         """Refresh item data in the list."""
         
         # set formats
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        intFormat = '%0.' + `config.main['intDigits']` + 'f'
-        fwhmFormat = '%0.' + `max(config.main['mzDigits'],3)` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        intFormat = '%0.' + str(config.main['intDigits']) + 'f'
+        fwhmFormat = '%0.' + str(max(config.main['mzDigits'],3)) + 'f'
         
         # insert data
         x = 0
@@ -792,11 +792,11 @@ class panelPeaklist(wx.Panel):
                     data = '%0.2f' % (item[x])
             
             elif column == 'sn':
-                if item[x] != None:
+                if item[x] is not None:
                     data = '%0.1f' % (item[x])
             
             elif column == 'z':
-                if item[x] != None:
+                if item[x] is not None:
                     data = str(item[x])
             
             elif column == 'mass':
@@ -812,7 +812,7 @@ class panelPeaklist(wx.Panel):
                     data = '%0.0f' % (item[x])
             
             elif column == 'group':
-                if item[x] != None:
+                if item[x] is not None:
                     data = unicode(item[x])
             
             else:
@@ -820,9 +820,9 @@ class panelPeaklist(wx.Panel):
             
             # add data
             if x == 0 and insert:
-                self.peakList.InsertStringItem(row, data)
+                self.peakList.InsertItem(row, data)
             else:
-                self.peakList.SetStringItem(row, x, data)
+                self.peakList.SetItem(row, x, data)
             
             x += 1
     # ----
@@ -913,7 +913,7 @@ class panelPeaklist(wx.Panel):
                 isotope = None
             
             # make peak
-            peak = mspy.peak(mz=mz, ai=ai, base=base, sn=sn, charge=charge, isotope=isotope, fwhm=fwhm, group=group)
+            peak = mspy.obj_peak.peak(mz=mz, ai=ai, base=base, sn=sn, charge=charge, isotope=isotope, fwhm=fwhm, group=group)
             return peak
         
         except:
@@ -1071,7 +1071,7 @@ class dlgThreshold(wx.Dialog):
         """Delete."""
         
         # check value and end
-        if self.threshold != None:
+        if self.threshold is not None:
             self.EndModal(wx.ID_OK)
         else:
             wx.Bell()

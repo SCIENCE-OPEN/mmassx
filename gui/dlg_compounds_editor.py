@@ -21,10 +21,10 @@ import copy
 import xml.dom.minidom
 
 # load modules
-from ids import *
-import mwx
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import config
+from . import libs
 import mspy
 
 
@@ -505,7 +505,7 @@ class dlgCompoundsEditor(wx.Dialog):
             return
         
         # add new data
-        digits = '%0.' + `config.main['mzDigits']` + 'f'
+        digits = '%0.' + str(config.main['mzDigits']) + 'f'
         for row, item in enumerate(self.itemsMap):
             
             # format data
@@ -513,11 +513,11 @@ class dlgCompoundsEditor(wx.Dialog):
             avMass = digits % (item[3])
             
             # add data
-            self.itemsList.InsertStringItem(row, item[0])
-            self.itemsList.SetStringItem(row, 1, item[1])
-            self.itemsList.SetStringItem(row, 2, str(moMass))
-            self.itemsList.SetStringItem(row, 3, str(avMass))
-            self.itemsList.SetStringItem(row, 4, item[4])
+            self.itemsList.InsertItem(row, item[0])
+            self.itemsList.SetItem(row, 1, item[1])
+            self.itemsList.SetItem(row, 2, str(moMass))
+            self.itemsList.SetItem(row, 3, str(avMass))
+            self.itemsList.SetItem(row, 4, item[4])
             self.itemsList.SetItemData(row, row)
         
         # sort
@@ -533,7 +533,7 @@ class dlgCompoundsEditor(wx.Dialog):
         
         # show formula masses
         try:
-            formula = mspy.compound(formula)
+            formula = mspy.obj_compound.compound(formula)
             mass = formula.mass()
             self.itemMoMass_value.SetValue(str(mass[0]))
             self.itemAvMass_value.SetValue(str(mass[1]))
@@ -569,7 +569,7 @@ class dlgCompoundsEditor(wx.Dialog):
         
         # make compound
         try:
-            compound = mspy.compound(formula)
+            compound = mspy.obj_compound.compound(formula)
             compound.name = name
             compound.description = description
         except:
@@ -605,7 +605,7 @@ class dlgCompoundsEditor(wx.Dialog):
                     for compoundTag in compoundTags:
                         try:
                             name = compoundTag.getAttribute('name')
-                            compound = mspy.compound(compoundTag.getAttribute('formula'))
+                            compound = mspy.obj_compound.compound(compoundTag.getAttribute('formula'))
                             compound.description = self._getNodeText(compoundTag)
                             compounds[groupName][name] = compound
                         except:
@@ -780,8 +780,8 @@ class dlgSelectItemsToImport(wx.Dialog):
         
         # add data
         for row, item in enumerate(self.itemsMap):
-            self.itemsList.InsertStringItem(row, item[0])
-            self.itemsList.SetStringItem(row, 1, str(item[1]))
+            self.itemsList.InsertItem(row, item[0])
+            self.itemsList.SetItem(row, 1, str(item[1]))
             self.itemsList.SetItemData(row, row)
         
         # sort data

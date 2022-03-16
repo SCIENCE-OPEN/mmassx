@@ -20,9 +20,9 @@ import wx
 import copy
 
 # load modules
-import mwx
-import config
-import libs
+from . import mwx
+from . import config
+from . import libs
 import mspy
 
 
@@ -146,7 +146,7 @@ class dlgPresetsEditor(wx.Dialog):
         """Rename item."""
         
         # check selection
-        if self.selectedItem == None:
+        if self.selectedItem is None:
             wx.Bell()
             return
         
@@ -229,8 +229,8 @@ class dlgPresetsEditor(wx.Dialog):
         
         # add new data
         for row, item in enumerate(self.itemsMap):
-            self.itemsList.InsertStringItem(row, item[0])
-            self.itemsList.SetStringItem(row, 1, item[1])
+            self.itemsList.InsertItem(row, item[0])
+            self.itemsList.SetItem(row, 1, item[1])
             self.itemsList.SetItemData(row, row)
         
         # sort

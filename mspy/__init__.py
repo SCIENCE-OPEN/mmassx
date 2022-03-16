@@ -16,34 +16,36 @@
 # -------------------------------------------------------------------------
 
 # load stopper
-from mod_stopper import *
+from . import mod_stopper
+# from mod_stopper import *
 
 # load building blocks
-from blocks import *
+from . import blocks
+# from blocks import *
 
 # load objects
-from obj_compound import *
-from obj_sequence import *
-from obj_peak import *
-from obj_peaklist import *
-from obj_scan import *
+from . import obj_compound #import *
+from . import obj_sequence #import *
+from . import obj_peak #import *
+from . import obj_peaklist #import *
+from . import obj_scan #import *
 
 # load modules
-from mod_basics import *
-from mod_pattern import *
-from mod_signal import *
-from mod_calibration import *
-from mod_peakpicking import *
-from mod_proteo import *
-from mod_formulator import *
-from mod_envfit import *
-from mod_mascot import *
-from mod_utils import *
+from . import mod_basics #import *
+from . import mod_pattern #import *
+from . import mod_signal #import *
+from . import mod_calibration #import *
+from . import mod_peakpicking #import *
+from . import mod_proteo #import *
+from . import mod_formulator #import *
+from . import mod_envfit #import *
+from . import mod_mascot #import *
+from . import mod_utils #import *
 
 # load parsers
-from parser_xy import parseXY
-from parser_mzxml import parseMZXML
-from parser_mzdata import parseMZDATA
-from parser_mzml import parseMZML
-from parser_mgf import parseMGF
-from parser_fasta import parseFASTA
+from .parser_xy import parseXY
+from .parser_mzxml import parseMZXML
+from .parser_mzdata import parseMZDATA
+from .parser_mzml import parseMZML
+from .parser_mgf import parseMGF
+from .parser_fasta import parseFASTA

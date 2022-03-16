@@ -24,10 +24,10 @@ import os.path
 import numpy
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
+from .ids import *
+from . import mwx
+from . import images
+from . import config
 import mspy
 
 
@@ -38,7 +38,7 @@ class panelMassToFormula(wx.MiniFrame):
     """Mass to formula tool."""
     
     def __init__(self, parent):
-        wx.MiniFrame.__init__(self, parent, -1, 'Mass To Formula', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Mass To Formula', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.MAXIMIZE_BOX))
         
         self.parent = parent
         
@@ -50,7 +50,7 @@ class panelMassToFormula(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
     # ----
     
     
@@ -108,7 +108,7 @@ class panelMassToFormula(wx.MiniFrame):
         
         tolerance_label = wx.StaticText(panel, -1, "Tolerance:")
         tolerance_label.SetFont(wx.SMALL_FONT)
-        self.tolerance_value = wx.TextCtrl(panel, -1, str(config.massToFormula['tolerance']), size=(50, -1), validator=mwx.validator('floatPos'))
+        self.tolerance_value = wx.TextCtrl(panel, -1, str(config.massToFormula['tolerance']), size=(50, -1), style=wx.TE_PROCESS_ENTER, validator=mwx.validator('floatPos'))
         self.tolerance_value.Bind(wx.EVT_TEXT_ENTER, self.onGenerate)
         
         self.unitsDa_radio = wx.RadioButton(panel, -1, "Da", style=wx.RB_GROUP)
@@ -313,7 +313,7 @@ class panelMassToFormula(wx.MiniFrame):
         """Destroy this frame."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -328,13 +328,13 @@ class panelMassToFormula(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(4)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(4)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.Layout()
@@ -347,8 +347,8 @@ class panelMassToFormula(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
-            mspy.stop()
+        if self.processing and self.processing.is_alive():
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -418,6 +418,8 @@ class panelMassToFormula(wx.MiniFrame):
             server = 'HMDB'
         elif evt.GetId() == ID_massToFormulaSearchLipidMaps:
             server = 'Lipid MAPS'
+        elif evt.GetId() == ID_massToFormulaSearchKEGG:
+            server = 'KEGG'
         else:
             wx.Bell()
             return
@@ -428,7 +430,7 @@ class panelMassToFormula(wx.MiniFrame):
         # run search
         try:
             path = os.path.join(tempfile.gettempdir(), 'mmass_formula_search.html')
-            htmlFile = file(path, 'w')
+            htmlFile = open(path, 'wb')
             htmlFile.write(htmlData.encode("utf-8"))
             htmlFile.close()
             webbrowser.open('file://'+path, autoraise=1)
@@ -491,6 +493,7 @@ class panelMassToFormula(wx.MiniFrame):
         menu.Append(ID_massToFormulaSearchMETLIN, "Search in METLIN", "")
         menu.Append(ID_massToFormulaSearchHMDB, "Search in HMDB", "")
         menu.Append(ID_massToFormulaSearchLipidMaps, "Search in Lipid MAPS", "")
+        menu.Append(ID_massToFormulaSearchKEGG, "Search in KEGG", "")
         menu.AppendSeparator()
         menu.Append(ID_listCopyFormula, "Copy Formula")
         menu.Append(ID_listCopy, "Copy List")
@@ -502,6 +505,7 @@ class panelMassToFormula(wx.MiniFrame):
         self.Bind(wx.EVT_MENU, self.onItemSearch, id=ID_massToFormulaSearchMETLIN)
         self.Bind(wx.EVT_MENU, self.onItemSearch, id=ID_massToFormulaSearchHMDB)
         self.Bind(wx.EVT_MENU, self.onItemSearch, id=ID_massToFormulaSearchLipidMaps)
+        self.Bind(wx.EVT_MENU, self.onItemSearch, id=ID_massToFormulaSearchKEGG)
         self.Bind(wx.EVT_MENU, self.onItemCopyFormula, id=ID_listCopyFormula)
         self.Bind(wx.EVT_MENU, self.onListCopy, id=ID_listCopy)
         
@@ -552,7 +556,7 @@ class panelMassToFormula(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update gui
@@ -582,7 +586,7 @@ class panelMassToFormula(wx.MiniFrame):
         # recalculate errors
         if self.currentFormulae:
             for x, item in enumerate(self.currentFormulae):
-                self.currentFormulae[x][3] = mspy.delta(self.currentMass, item[2], config.massToFormula['units'])
+                self.currentFormulae[x][3] = mspy.mod_basics.delta(self.currentMass, item[2], config.massToFormula['units'])
         
         # update GUI
         self.updateFormulaeList()
@@ -608,7 +612,7 @@ class panelMassToFormula(wx.MiniFrame):
         
         # enable/disable profile check
         self.checkPattern_check.Enable(True)
-        if self.currentDocument == None or not self.currentDocument.spectrum.hasprofile():
+        if self.currentDocument is None or not self.currentDocument.spectrum.hasprofile():
             self.checkPattern_check.Enable(False)
         
         # check mass
@@ -621,13 +625,13 @@ class panelMassToFormula(wx.MiniFrame):
         # update values
         self.mass_value.ChangeValue(str(mass))
         
-        if charge != None:
+        if charge is not None:
             self.charge_value.ChangeValue(str(charge))
         
-        if tolerance != None:
+        if tolerance is not None:
             self.tolerance_value.ChangeValue(str(tolerance))
         
-        if units != None:
+        if units is not None:
             self.unitsDa_radio.SetValue(bool(units == 'Da'))
             self.unitsPpm_radio.SetValue(bool(units == 'ppm'))
         
@@ -705,7 +709,7 @@ class panelMassToFormula(wx.MiniFrame):
                 agentCharge = -1
             
             # approximate CHNO composition from neutral mass
-            mass = mspy.mz(
+            mass = mspy.mod_basics.mz(
                 mass = self.currentMass,
                 charge = 0,
                 currentCharge = config.massToFormula['charge'],
@@ -725,14 +729,14 @@ class panelMassToFormula(wx.MiniFrame):
                     composition = {'C':[0,180], 'H':[0,300], 'N':[0,60], 'O':[0,90]}
             
             # add user-specified compositions
-            minComposition = mspy.compound(config.massToFormula['formulaMin']).composition()
+            minComposition = mspy.obj_compound.compound(config.massToFormula['formulaMin']).composition()
             for el in minComposition:
                 if el in composition:
                     composition[el][0] = minComposition[el]
                 else:
                     composition[el] = [minComposition[el], minComposition[el]]
             
-            maxComposition = mspy.compound(config.massToFormula['formulaMax']).composition()
+            maxComposition = mspy.obj_compound.compound(config.massToFormula['formulaMax']).composition()
             for el in maxComposition:
                 if el in composition:
                     composition[el][1] = maxComposition[el]
@@ -740,7 +744,7 @@ class panelMassToFormula(wx.MiniFrame):
                     composition[el] = [0, maxComposition[el]]
             
             # calculate formulae
-            formulae = mspy.formulator(
+            formulae = mspy.mod_formulator.formulator(
                 mz = self.currentMass,
                 charge = config.massToFormula['charge'],
                 tolerance = config.massToFormula['tolerance'],
@@ -756,11 +760,11 @@ class panelMassToFormula(wx.MiniFrame):
             for formula in formulae:
                 
                 # make compound
-                cmpd = mspy.compound(formula)
+                cmpd = mspy.obj_compound.compound(formula)
                 mass = cmpd.mass(0)
                 mz = cmpd.mz(config.massToFormula['charge'], config.massToFormula['ionization'], 1)[0]
-                error = mspy.delta(self.currentMass, mz, config.massToFormula['units'])
-                errorDa = mspy.delta(self.currentMass, mz, 'Da')
+                error = mspy.mod_basics.delta(self.currentMass, mz, config.massToFormula['units'])
+                errorDa = mspy.mod_basics.delta(self.currentMass, mz, 'Da')
                 
                 # compare isotopic pattern
                 similarity = None
@@ -783,7 +787,7 @@ class panelMassToFormula(wx.MiniFrame):
             self.currentFormulae = buff
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             return
     # ----
     
@@ -800,11 +804,11 @@ class panelMassToFormula(wx.MiniFrame):
             return
         
         # add new data
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        errFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        errFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         
         if config.massToFormula['units'] == 'ppm':
-            errFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+            errFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         
         row = -1
         for index, item in enumerate(self.currentFormulae):
@@ -820,22 +824,22 @@ class panelMassToFormula(wx.MiniFrame):
             rdbe = '%.1f' % item[5]
             
             hc = 'n/a'
-            if item[4] != None:
+            if item[4] is not None:
                 hc = '%.1f' % item[4]
             
             similarity = 'n/a'
-            if item[6] != None:
+            if item[6] is not None:
                 similarity = '%.1f' % item[6]
             
             # add data
             row += 1
-            self.formulaeList.InsertStringItem(row, item[0])
-            self.formulaeList.SetStringItem(row, 1, mass)
-            self.formulaeList.SetStringItem(row, 2, mz)
-            self.formulaeList.SetStringItem(row, 3, error)
-            self.formulaeList.SetStringItem(row, 4, hc)
-            self.formulaeList.SetStringItem(row, 5, rdbe)
-            self.formulaeList.SetStringItem(row, 6, similarity)
+            self.formulaeList.InsertItem(row, item[0])
+            self.formulaeList.SetItem(row, 1, mass)
+            self.formulaeList.SetItem(row, 2, mz)
+            self.formulaeList.SetItem(row, 3, error)
+            self.formulaeList.SetItem(row, 4, hc)
+            self.formulaeList.SetItem(row, 5, rdbe)
+            self.formulaeList.SetItem(row, 6, similarity)
             self.formulaeList.SetItemData(row, index)
         
         # sort data
@@ -851,7 +855,7 @@ class panelMassToFormula(wx.MiniFrame):
         """Compare theoretical and real isotopic pattern."""
         
         # check document
-        if self.currentDocument == None or not self.currentDocument.spectrum.hasprofile():
+        if self.currentDocument is None or not self.currentDocument.spectrum.hasprofile():
             return None
         
         # get baseline window
@@ -868,7 +872,7 @@ class panelMassToFormula(wx.MiniFrame):
         # approximate fwhm
         fwhm = 0.1
         mz = compound.mz(charge, ionization, 1)[0]
-        peak = mspy.labelpeak(
+        peak = mspy.mod_peakpicking.labelpeak(
             signal = self.currentDocument.spectrum.profile,
             mz = mz+shift,
             pickingHeight = config.processing['peakpicking']['pickingHeight'],
@@ -892,7 +896,7 @@ class panelMassToFormula(wx.MiniFrame):
             pattern[x][0] += shift
         
         # match pattern to signal
-        rms = mspy.matchpattern(
+        rms = mspy.mod_pattern.matchpattern(
             signal = self.currentDocument.spectrum.profile,
             pattern = pattern,
             pickingHeight = config.processing['peakpicking']['pickingHeight'],
@@ -900,7 +904,7 @@ class panelMassToFormula(wx.MiniFrame):
         )
         
         # calc similarity
-        if rms != None:
+        if rms is not None:
             rms = (1-rms)*100
         
         return rms
@@ -931,7 +935,7 @@ class panelMassToFormula(wx.MiniFrame):
         
         # get method
         method = 'post'
-        if server in ['ChemSpider', 'HMDB']:
+        if server in ['ChemSpider', 'HMDB', 'KEGG']:
             method = 'get'
         
         # get formula
@@ -997,6 +1001,11 @@ class panelMassToFormula(wx.MiniFrame):
             buff += '      <input type="hidden" name="Mode" value="ProcessTextOntologySearch" />\n'
             buff += '      <input type="hidden" name="ResultsPerPage" value="50" />\n'
             buff += '      <input type="text" name="Formula" value="%s" />\n' % (formula)
+            
+        elif server == 'KEGG':
+            buff += '      <input type="hidden" name="DATABASE" value="compound" />\n'
+            buff += '      <input type="hidden" name="column" value="entry+name+formula" />\n'
+            buff += '      <input type="text" name="query" value="%s" />\n' % (formula)
         
         # page end
         buff += '    </div>\n\n'
@@ -1025,7 +1034,7 @@ class panelMassToFormula(wx.MiniFrame):
             agentCharge = -1
         
         # approximate CHNO composition from neutral mass
-        mass = mspy.mz(
+        mass = mspy.mod_basics.mz(
             mass = self.currentMass,
             charge = 0,
             currentCharge = config.massToFormula['charge'],

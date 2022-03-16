@@ -20,10 +20,10 @@ import math
 import wx
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
+from .ids import *
+from . import mwx
+from . import images
+from . import config
 import mspy
 import mspy.plot
 
@@ -43,7 +43,7 @@ class panelMassDefectPlot(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
     # ----
     
     
@@ -246,7 +246,7 @@ class panelMassDefectPlot(wx.MiniFrame):
             return
         
         # show annotations for current document on top
-        if self.currentDocument != None and config.massDefectPlot['showNotations']:
+        if self.currentDocument is not None and config.massDefectPlot['showNotations']:
             
             buff = []
             for item in self.currentDocument.annotations:
@@ -255,7 +255,7 @@ class panelMassDefectPlot(wx.MiniFrame):
                 for item in sequence.matches:
                     buff.append((item.mz, item.charge))
             
-            points = self.makeDataPoints(mspy.peaklist(buff), self.currentDocument.spectrum.polarity)
+            points = self.makeDataPoints(mspy.obj_peaklist.peaklist(buff), self.currentDocument.spectrum.polarity)
             obj = mspy.plot.points(points, pointColour=(255,0,0), showPoints=True, showLines=False)
             self.plotCanvasContainer.append(obj)
         
@@ -268,7 +268,7 @@ class panelMassDefectPlot(wx.MiniFrame):
                     self.plotCanvasContainer.append(obj)
         
         # show current document only
-        elif self.currentDocument != None:
+        elif self.currentDocument is not None:
             points = self.makeDataPoints(self.currentDocument.spectrum.peaklist, self.currentDocument.spectrum.polarity)
             obj = mspy.plot.points(points, pointColour=(0,255,0), showPoints=True, showLines=False)
             self.plotCanvasContainer.append(obj)
@@ -283,7 +283,7 @@ class panelMassDefectPlot(wx.MiniFrame):
         """Highlight selected point in spectrum."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             evt.Skip()
             return
         
@@ -370,7 +370,7 @@ class panelMassDefectPlot(wx.MiniFrame):
             config.massDefectPlot['showAllDocuments'] = self.showAllDocuments_check.GetValue()
             
             formula = self.kendrickFormula_value.GetValue()
-            cmpd = mspy.compound(formula)
+            cmpd = mspy.obj_compound.compound(formula)
             config.massDefectPlot['kendrickFormula'] = str(formula)
             if config.massDefectPlot['yAxis'] == 'kendrick' and cmpd.mass(0) == 0:
                 raise ValueError
@@ -459,17 +459,17 @@ class panelMassDefectPlot(wx.MiniFrame):
         buff = []
         
         # init Kendrick formula
-        kendrickFormula = mspy.compound(config.massDefectPlot['kendrickFormula'])
+        kendrickFormula = mspy.obj_compound.compound(config.massDefectPlot['kendrickFormula'])
         
         # calculate data points
         for peak in peaks:
             
             mass = peak[0]
             if not config.massDefectPlot['ignoreCharge'] and peak[1]:
-                mass = mspy.mz(peak[0], 1*polarity, peak[1], agentFormula='H', agentCharge=1)
+                mass = mspy.mod_basics.mz(peak[0], 1*polarity, peak[1], agentFormula='H', agentCharge=1)
             
             # calc mass defect
-            md = mspy.md(
+            md = mspy.mod_basics.md(
                 mass = mass,
                 mdType = config.massDefectPlot['yAxis'],
                 kendrickFormula = kendrickFormula,
@@ -481,10 +481,10 @@ class panelMassDefectPlot(wx.MiniFrame):
                 mass = peak[0]
             
             elif config.massDefectPlot['xAxis'] == 'nominal':
-                mass = mspy.nominalmass(peak[0], config.massDefectPlot['nominalMass'])
+                mass = mspy.mod_basics.nominalmass(peak[0], config.massDefectPlot['nominalMass'])
             
             elif config.massDefectPlot['xAxis'] == 'kendrick':
-                mass = mspy.nominalmass(peak[0] * kendrickFormula.nominalmass()/kendrickFormula.mass(0))
+                mass = mspy.mod_basics.nominalmass(peak[0] * kendrickFormula.nominalmass()/kendrickFormula.mass(0))
             
             else:
                 mass = peak[0]

@@ -21,12 +21,12 @@ import os.path
 from copy import deepcopy
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load objects
-import obj_peak
-import obj_peaklist
-import obj_scan
+from . import obj_peak
+from . import obj_peaklist
+from . import obj_scan
 
 
 # PARSE MGF DATA
@@ -42,7 +42,7 @@ class parseMGF():
         
         # check path
         if not os.path.exists(path):
-            raise IOError, 'File not found! --> ' + self.path
+            raise IOError('File not found! --> ' + self.path)
     # ----
     
     
@@ -97,7 +97,7 @@ class parseMGF():
         # check selected scan
         if scanID in self._scans:
             data = self._scans[scanID]
-        elif scanID == None:
+        elif scanID is None:
             data = self._scans[0]
         
         # return scan
@@ -114,7 +114,7 @@ class parseMGF():
         
         # open document
         try:
-            document = file(self.path)
+            document = open(self.path)
             rawData = document.readlines()
             document.close()
         except IOError:
@@ -133,7 +133,7 @@ class parseMGF():
                 continue
             
             # append default scan
-            if currentID == None or line == 'BEGIN IONS':
+            if currentID is None or line == 'BEGIN IONS':
                 currentID = len(self._scans)
                 scan = {
                     'title': '',
@@ -184,7 +184,7 @@ class parseMGF():
                 try: point[0] = float(parts[0])
                 except ValueError: continue
                 try: point[1] = float(parts[1])
-                except ValueError, IndexError: pass
+                except (ValueError, IndexError) as target: pass
                 self._scans[currentID]['data'].append(point)
                 self._scans[currentID]['pointsCount'] += 1
                 continue

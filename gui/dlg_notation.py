@@ -19,8 +19,8 @@
 import wx
 
 # load modules
-import mwx
-import config
+from . import mwx
+from gui import config
 import mspy
 
 
@@ -39,7 +39,7 @@ class dlgNotation(wx.Dialog):
         self.button = button
         
         # set dlg title
-        format = 'Notation for m/z: %0.' + `config.main['mzDigits']` + 'f'
+        format = 'Notation for m/z: %0.' + str(config.main['mzDigits']) + 'f'
         title = format % (self.notation.mz)
         self.SetTitle(title)
         
@@ -160,7 +160,7 @@ class dlgNotation(wx.Dialog):
             self.theoreticalMZ_value.SetValue(str(self.notation.theoretical))
         
         # set charge
-        if self.notation.charge != None:
+        if self.notation.charge is not None:
             self.charge_value.SetValue(str(self.notation.charge))
         
         # set radical
@@ -188,7 +188,7 @@ class dlgNotation(wx.Dialog):
         # get formula
         if formula:
             try:
-                mspy.compound(formula)
+                mspy.obj_compound.compound(formula)
                 self.notation.formula = formula
             except:
                 wx.Bell()
@@ -241,7 +241,7 @@ class dlgNotation(wx.Dialog):
     def onFormula(self, evt=None):
         """Check formula and calculate m/z."""
         
-        if evt != None:
+        if evt is not None:
             evt.Skip()
         
         # user-defined m/z
@@ -258,7 +258,7 @@ class dlgNotation(wx.Dialog):
         
         # get m/z from formula
         try:
-            compound = mspy.compound(formula)
+            compound = mspy.obj_compound.compound(formula)
             charge = int(charge)
             if radical:
                 mz = compound.mz(charge=charge, agentFormula='e', agentCharge=-1)

@@ -21,10 +21,10 @@ import os.path
 import wx
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
+from .ids import *
+from . import mwx
+from . import images
+from . import config
 import mspy
 
 
@@ -35,7 +35,7 @@ class panelDocumentExport(wx.MiniFrame):
     """Document export tools."""
     
     def __init__(self, parent, tool='image'):
-        wx.MiniFrame.__init__(self, parent, -1, 'Export', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Export', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BORDER | wx.MAXIMIZE_BOX))
         
         self.parent = parent
         self.processing = None
@@ -44,7 +44,7 @@ class panelDocumentExport(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
         
         # select default tool
         self.onToolSelected(tool=self.currentTool)
@@ -156,11 +156,11 @@ class panelDocumentExport(wx.MiniFrame):
         
         imageFontsScale_label = wx.StaticText(panel, -1, "Font scale:")
         self.imageFontsScale_slider = wx.Slider(panel, -1, config.export['imageFontsScale'], 1, 10, size=(140, -1), style=mwx.SLIDER_STYLE)
-        self.imageFontsScale_slider.SetTickFreq(1,1)
+        self.imageFontsScale_slider.SetTickFreq(1)
         
         imageDrawingsScale_label = wx.StaticText(panel, -1, "Line scale:")
         self.imageDrawingsScale_slider = wx.Slider(panel, -1, config.export['imageDrawingsScale'], 1, 10, size=(140, -1), style=mwx.SLIDER_STYLE)
-        self.imageDrawingsScale_slider.SetTickFreq(1,1)
+        self.imageDrawingsScale_slider.SetTickFreq(1)
         
         # pack elements
         grid = wx.GridBagSizer(mwx.GRIDBAG_VSPACE, mwx.GRIDBAG_HSPACE)
@@ -338,7 +338,7 @@ class panelDocumentExport(wx.MiniFrame):
         """Destroy this frame."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -350,12 +350,12 @@ class panelDocumentExport(wx.MiniFrame):
         """Selected tool."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
         # get the tool
-        if evt != None:
+        if evt is not None:
             tool = 'image'
             if evt.GetId() == ID_documentExportImage:
                 tool = 'image'
@@ -404,10 +404,10 @@ class panelDocumentExport(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(4)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(4)
             self.processing = None
         
@@ -508,7 +508,7 @@ class panelDocumentExport(wx.MiniFrame):
             fileType = "JPEG image file|*.jpg"
         
         # raise export dialog
-        dlg = wx.FileDialog(self, "Export Spectrum Image", config.main['lastDir'], fileName, fileType, wx.SAVE|wx.OVERWRITE_PROMPT)
+        dlg = wx.FileDialog(self, "Export Spectrum Image", config.main['lastDir'], fileName, fileType, wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             config.main['lastDir'] = os.path.split(path)[0]
@@ -544,7 +544,7 @@ class panelDocumentExport(wx.MiniFrame):
             fileType = "MGF file|*.mgf"
         
         # raise export dialog
-        dlg = wx.FileDialog(self, "Export Peak List", config.main['lastDir'], fileName, fileType, wx.SAVE|wx.OVERWRITE_PROMPT)
+        dlg = wx.FileDialog(self, "Export Peak List", config.main['lastDir'], fileName, fileType, wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             config.main['lastDir'] = os.path.split(path)[0]
@@ -562,7 +562,7 @@ class panelDocumentExport(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # hide processing gauge
@@ -579,7 +579,7 @@ class panelDocumentExport(wx.MiniFrame):
         fileType = "ASCII file|*.txt"
         
         # raise export dialog
-        dlg = wx.FileDialog(self, "Export Spectrum Data", config.main['lastDir'], fileName, fileType, wx.SAVE|wx.OVERWRITE_PROMPT)
+        dlg = wx.FileDialog(self, "Export Spectrum Data", config.main['lastDir'], fileName, fileType, wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             config.main['lastDir'] = os.path.split(path)[0]
@@ -597,7 +597,7 @@ class panelDocumentExport(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # hide processing gauge
@@ -801,7 +801,7 @@ class panelDocumentExport(wx.MiniFrame):
             
         # save file
         try:
-            save = file(path, 'w')
+            save = open(path, 'wb')
             save.write(buff.encode("utf-8"))
             save.close()
         except IOError:
@@ -819,7 +819,7 @@ class panelDocumentExport(wx.MiniFrame):
             spectrum = self.parent.getCurrentSpectrumPoints(currentView=True)
         
         # check spectrum
-        if spectrum == None:
+        if spectrum is None:
             wx.Bell()
             return
         
@@ -835,7 +835,7 @@ class panelDocumentExport(wx.MiniFrame):
         
         # save file
         try:
-            save = file(path, 'w')
+            save = open(path, 'wb')
             save.write(buff.encode("utf-8"))
             save.close()
         except IOError:

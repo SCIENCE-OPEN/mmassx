@@ -21,13 +21,13 @@ import re
 import copy
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load objects
-import obj_peak
+from . import obj_peak
 
 # load modules
-import mod_peakpicking
+from . import mod_peakpicking
 
 
 # PEAKLIST OBJECT DEFINITION
@@ -145,7 +145,13 @@ class peaklist:
         else:
             raise StopIteration
     # ----
+
+    def __next__(self):  # added gy
+        
+        return self.next()
     
+    # ----
+        
     
     def append(self, item):
         """Append new peak.
@@ -202,7 +208,7 @@ class peaklist:
         # get used names
         used = []
         for peak in self.peaks:
-            if peak.group != None and not peak.group in used:
+            if peak.group is not None and not peak.group in used:
                 used.append(peak.group)
         
         # generate new name
@@ -464,7 +470,7 @@ class peaklist:
         # get indexes to delete
         indexes = []
         for x, peak in enumerate(self.peaks):
-            if peak.intensity < threshold or (peak.sn != None and peak.sn < snThreshold):
+            if peak.intensity < threshold or (peak.sn is not None and peak.sn < snThreshold):
                 indexes.append(x)
         
         # delete peaks
@@ -528,7 +534,7 @@ class peaklist:
         # get indexes to delete
         indexes = []
         for x, peak in enumerate(self.peaks):
-            if peak.isotope != 0 and peak.charge != None:
+            if peak.isotope != 0 and peak.charge is not None:
                 indexes.append(x)
         
         # delete peaks
@@ -546,7 +552,7 @@ class peaklist:
         # get indexes to delete
         indexes = []
         for x, peak in enumerate(self.peaks):
-            if peak.charge == None:
+            if peak.charge is None:
                 indexes.append(x)
         
         # delete peaks
@@ -569,7 +575,7 @@ class peaklist:
             return obj_peak.peak(item[0], item[1])
         
         # not valid peak data
-        raise TypeError, 'Item must be a peak object or list/tuple of two floats!'
+        raise TypeError('Item must be a peak object or list/tuple of two floats!')
     # ----
     
     

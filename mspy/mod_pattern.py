@@ -20,20 +20,20 @@ import math
 import numpy
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load blocks
-import blocks
+from . import blocks
 
 # load objects
-import obj_compound
-import obj_peaklist
+from . import obj_compound
+from . import obj_peaklist
 
 # load modules
-import calculations
-import mod_basics
-import mod_signal
-import mod_peakpicking
+from . import calculations
+from . import mod_basics
+from . import mod_signal
+from . import mod_peakpicking
 
 
 # ISOTOPIC PATTERN FUNCTIONS
@@ -70,7 +70,7 @@ def pattern(compound, fwhm=0.1, threshold=0.01, charge=0, agentFormula='H', agen
     composition = compound.composition()
     for atom in composition:
         if composition[atom] < 0:
-            raise ValueError, 'Pattern cannot be calculated for this formula! --> ' + compound.formula()
+            raise ValueError('Pattern cannot be calculated for this formula! --> ' + compound.formula())
     
     # set internal thresholds
     internalThreshold = threshold/100.
@@ -211,7 +211,7 @@ def profile(peaklist, fwhm=0.1, points=10, noise=0, raster=None, forceFwhm=False
         peaklist = obj_peaklist.peaklist(peaklist)
     
     # check raster type
-    if raster != None and not isinstance(raster, numpy.ndarray):
+    if not (raster is None) and not isinstance(raster, numpy.ndarray):
         raster = numpy.array(raster)
     
     # get peaks
@@ -231,7 +231,7 @@ def profile(peaklist, fwhm=0.1, points=10, noise=0, raster=None, forceFwhm=False
         shape = 2
     
     # make profile
-    if raster != None:
+    if not(raster is None):
         data = calculations.signal_profile_to_raster(numpy.array(peaks), raster, float(noise), shape)
     else:
         data = calculations.signal_profile(numpy.array(peaks), int(points), float(noise), shape)
@@ -259,11 +259,11 @@ def matchpattern(signal, pattern, pickingHeight=0.75, baseline=None):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     
    # check baseline type
-    if baseline != None and not isinstance(baseline, numpy.ndarray):
-        raise TypeError, "Baseline must be NumPy array!"
+    if not(baseline is None) and not isinstance(baseline, numpy.ndarray):
+        raise TypeError("Baseline must be NumPy array!")
     
     # check signal data
     if len(signal) == 0:

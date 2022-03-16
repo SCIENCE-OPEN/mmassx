@@ -21,9 +21,9 @@ import wx
 import numpy
 
 # load modules
-import mwx
-import images
-import config
+from . import mwx
+from . import images
+from . import config
 import mspy
 import mspy.plot
 
@@ -35,7 +35,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
     """Spectrum generator tool."""
     
     def __init__(self, parent):
-        wx.MiniFrame.__init__(self, parent, -1, 'Spectrum Generator', size=(700, 400), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Spectrum Generator', size=(700, 400), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.MAXIMIZE_BOX))
         
         self.parent = parent
         
@@ -50,7 +50,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
     # ----
     
     
@@ -254,7 +254,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
         """Close panel."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -269,13 +269,13 @@ class panelSpectrumGenerator(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(3)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(3)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.Layout()
@@ -288,8 +288,8 @@ class panelSpectrumGenerator(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
-            mspy.stop()
+        if self.processing and self.processing.is_alive():
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -327,7 +327,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update spectrum canvas
@@ -347,7 +347,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
         """Apply current profile to current document."""
         
         # check data and document
-        if self.currentDocument == None or self.currentProfile == None:
+        if self.currentDocument is None or self.currentProfile is None:
             wx.Bell()
             return
         
@@ -487,7 +487,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
         self.spectrumCanvas.setProperties(axisFont=axisFont)
         
         # set cursor
-        cursor = (wx.StockCursor(wx.CURSOR_ARROW), images.lib['cursorsCrossMeasure'])
+        cursor = (wx.Cursor(wx.CURSOR_ARROW), images.lib['cursorsCrossMeasure'])
         self.spectrumCanvas.setCursorImage(cursor[bool(config.spectrum['showTracker'])])
         self.spectrumCanvas.setMFunction([None, 'cross'][config.spectrum['showTracker']])
         
@@ -520,13 +520,13 @@ class panelSpectrumGenerator(wx.MiniFrame):
         
         # get current profile data
         profile = []
-        if self.currentProfile != None:
+        if self.currentProfile is not None:
             profile = self.currentProfile
         
         # add main profile spectrum to container
         labelFont = wx.Font(config.spectrum['labelFontSize'], wx.SWISS, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0)
         spectrum = mspy.plot.spectrum(
-            scan = mspy.scan(profile=profile, peaklist=peaklist),
+            scan = mspy.obj_scan.scan(profile=profile, peaklist=peaklist),
             spectrumColour = (16,71,185),
             tickColour = (255,0,0),
             showPoints = config.spectrum['showDataPoints'],
@@ -541,7 +541,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
         
         # add individual peaks to container
         if config.spectrumGenerator['showPeaks']:
-            if self.currentPeaks != None:
+            if self.currentPeaks is not None:
                 for peak in self.currentPeaks:
                     spectrum = mspy.plot.points(
                         points = peak,
@@ -569,7 +569,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
         """Show / hide profile overlay in main viewer."""
         
         # update tmp spectrum
-        if self.currentProfile == None or not config.spectrumGenerator['showOverlay']:
+        if self.currentProfile is None or not config.spectrumGenerator['showOverlay']:
             self.parent.updateTmpSpectrum(None)
         else:
             self.parent.updateTmpSpectrum(self.currentProfile, flipped=config.spectrumGenerator['showFlipped'])
@@ -586,7 +586,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
         try:
             
             # make profile spectrum
-            self.currentProfile = mspy.profile(
+            self.currentProfile = mspy.mod_pattern.profile(
                 peaklist = self.currentDocument.spectrum.peaklist,
                 fwhm = config.spectrumGenerator['fwhm'],
                 points = config.spectrumGenerator['points'],
@@ -606,7 +606,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
                 
                 # gaussian shape
                 if config.spectrumGenerator['peakShape'] == 'gaussian':
-                    points = mspy.gaussian(
+                    points = mspy.mod_pattern.gaussian(
                         x = peak.mz,
                         minY = peak.base,
                         maxY = peak.ai,
@@ -615,7 +615,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
                 
                 # lorentzian shape
                 elif config.spectrumGenerator['peakShape'] == 'lorentzian':
-                    points = mspy.lorentzian(
+                    points = mspy.mod_pattern.lorentzian(
                         x = peak.mz,
                         minY = peak.base,
                         maxY = peak.ai,
@@ -624,7 +624,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
                 
                 # gauss-lorentzian shape
                 elif config.spectrumGenerator['peakShape'] == 'gausslorentzian':
-                    points = mspy.gausslorentzian(
+                    points = mspy.mod_pattern.gausslorentzian(
                         x = peak.mz,
                         minY = peak.base,
                         maxY = peak.ai,
@@ -634,7 +634,7 @@ class panelSpectrumGenerator(wx.MiniFrame):
                 self.currentPeaks.append(points)
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             self.currentProfile = None
             self.currentPeaks = None
     # ----

@@ -16,19 +16,40 @@
 # -------------------------------------------------------------------------
 
 # load main config and libs
-from gui import config
-from gui import libs
+# gy addition for paths
+import sys
+import os
+#sys.path.append('D:/Documents/mMass-gySources')
+#sys.path.append('D:/Documents/mMass-gySources/gui')
+#sys.path.append('D:/Documents/mMass-gySources/mspy')
+
+#sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),'gui')))
+#sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__),'mspy')))
+#sys.path.insert(0, './gui')
+sys.path.insert(0, './mspy')
+
+
+# end gy
+import gui.config
+import gui.libs
+
+#from gui import config
+#from gui import libs
 
 # load libs
-import sys
+# import sys
 import os
 import threading
 import socket
-import SocketServer
+import socketserver
+
+
 import wx
 
 # load modules
-from gui import mwx
+import gui.mwx
+
+#from gui import mwx
 from gui.main_frame import mainFrame
 
 
@@ -39,13 +60,13 @@ class mMass(wx.App):
         """Init application."""
         
         # set some special wx params
-        mwx.appInit()
+        gui.mwx.appInit()
         
         # init frame
         self.frame = mainFrame(None, -1, 'mMass')
         
         # bind main app frame to server
-        if server != None:
+        if server is not None:
             server.app = self.frame
         
         # show frame
@@ -63,7 +84,7 @@ class mMass(wx.App):
     
     def OnExit(self):
         """Exit application."""
-        
+        return 0
         # delete instance lock file
         # del self.instance
         pass
@@ -89,13 +110,13 @@ class mMass(wx.App):
     
     
 
-class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+class TCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     """TCP communication server."""
     
     def __init__(self, server_address, RequestHandlerClass):
         self.allow_reuse_address = True
         self.stopped = False
-        SocketServer.TCPServer.__init__(self, server_address, RequestHandlerClass, False)
+        socketserver.TCPServer.__init__(self, server_address, RequestHandlerClass, False)
     # ----
     
     
@@ -112,7 +133,7 @@ class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     
     
 
-class TCPServerHandler(SocketServer.BaseRequestHandler):
+class TCPServerHandler(socketserver.BaseRequestHandler):
     """TCP communication server handler."""
     
     def handle(self):
@@ -136,11 +157,11 @@ if __name__ == '__main__':
     server = None
     
     # use server
-    if config.main['useServer'] and sys.platform != 'darwin':
+    if gui.config.main['useServer'] and sys.platform != 'darwin':
         
         # init server params
         HOST = socket.gethostname()
-        PORT = config.main['serverPort']
+        PORT = gui.config.main['serverPort']
         
         # get command
         command = ''

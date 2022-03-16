@@ -29,8 +29,8 @@ import numpy
 import wx
 
 # load modules
-import images
-import config
+from . import images
+from gui import config
 import mspy
 
 
@@ -53,7 +53,7 @@ class document():
         self.instrument = ''
         self.notes = ''
         
-        self.spectrum = mspy.scan()
+        self.spectrum = mspy.obj_scan.scan()
         self.annotations = []
         self.sequences = []
         
@@ -134,7 +134,7 @@ class document():
         buff = []
         for item in self.annotations:
             buff.append((item.mz, item))
-        buff.sort()
+        buff.sort(key = lambda y: y[0])
         
         # remove formula duplicates
         #formulas = []
@@ -205,17 +205,17 @@ class document():
         points = self.spectrum.profile
         mzArray, intArray = self._convertSpectrum(points, precision)
         attributes = 'points="%s"' % len(points)
-        if self.spectrum.scanNumber != None:
+        if self.spectrum.scanNumber is not None:
                 attributes += ' scanNumber="%s"' % self.spectrum.scanNumber
-        if self.spectrum.msLevel != None:
+        if self.spectrum.msLevel is not None:
                 attributes += ' msLevel="%s"' % self.spectrum.msLevel
-        if self.spectrum.retentionTime != None:
+        if self.spectrum.retentionTime is not None:
                 attributes += ' retentionTime="%s"' % self.spectrum.retentionTime
-        if self.spectrum.precursorMZ != None:
+        if self.spectrum.precursorMZ is not None:
                 attributes += ' precursorMZ="%s"' % self.spectrum.precursorMZ
-        if self.spectrum.precursorCharge != None:
+        if self.spectrum.precursorCharge is not None:
                 attributes += ' precursorCharge="%s"' % self.spectrum.precursorCharge
-        if self.spectrum.polarity != None:
+        if self.spectrum.polarity is not None:
                 attributes += ' polarity="%s"' % self.spectrum.polarity
         
         buff += '  <spectrum %s>\n' % attributes
@@ -229,13 +229,13 @@ class document():
             buff += '  <peaklist>\n'
             for peak in self.spectrum.peaklist:
                 attributes = 'mz="%.6f" intensity="%.6f" baseline="%.6f"' % (peak.mz, peak.ai, peak.base)
-                if peak.sn != None:
+                if peak.sn is not None:
                     attributes += ' sn="%.3f"' % peak.sn
-                if peak.charge != None:
+                if peak.charge is not None:
                     attributes += ' charge="%d"' % peak.charge
-                if peak.isotope != None:
+                if peak.isotope is not None:
                     attributes += ' isotope="%d"' % peak.isotope
-                if peak.fwhm != None:
+                if peak.fwhm is not None:
                     attributes += ' fwhm="%.6f"' % peak.fwhm
                 if peak.group:
                     attributes += ' group="%s"' % self._escape(peak.group)
@@ -247,13 +247,13 @@ class document():
             buff += '  <annotations>\n'
             for annot in self.annotations:
                 attributes = 'peakMZ="%.6f" peakIntensity="%.6f" peakBaseline="%.6f"' % (annot.mz, annot.ai, annot.base)
-                if annot.charge != None:
+                if annot.charge is not None:
                     attributes += ' charge="%d"' % annot.charge
                 if annot.radical:
                     attributes += ' radical="1"'
-                if annot.theoretical != None:
+                if annot.theoretical is not None:
                     attributes += ' calcMZ="%.6f"' % annot.theoretical
-                if annot.formula != None:
+                if annot.formula is not None:
                     attributes += ' formula="%s"' % annot.formula
                 buff += '    <annotation %s>%s</annotation>\n' % (attributes, self._escape(annot.label))
             buff += '  </annotations>\n\n'
@@ -278,7 +278,7 @@ class document():
                     for abbr in sequence.chain:
                         if not abbr in savedMonomers:
                             savedMonomers.append(abbr)
-                            formula = mspy.monomers[abbr].formula
+                            formula = mspy.blocks.monomers[abbr].formula
                             buff += '        <monomer abbr="%s" formula="%s" />\n' % (abbr, formula)
                     buff += '      </monomers>\n'
                 
@@ -286,8 +286,8 @@ class document():
                 if len(sequence.modifications):
                     buff += '      <modifications>\n'
                     for mod in sequence.modifications:
-                        gainFormula = mspy.modifications[mod[0]].gainFormula
-                        lossFormula = mspy.modifications[mod[0]].lossFormula
+                        gainFormula = mspy.blocks.modifications[mod[0]].gainFormula
+                        lossFormula = mspy.blocks.modifications[mod[0]].lossFormula
                         modtype = 'fixed'
                         if mod[2] == 'v':
                             modtype = 'variable'
@@ -299,19 +299,19 @@ class document():
                     buff += '      <matches>\n'
                     for match in sequence.matches:
                         attributes = 'peakMZ="%.6f" peakIntensity="%.6f" peakBaseline="%.6f"' % (match.mz, match.ai, match.base)
-                        if match.charge != None:
+                        if match.charge is not None:
                             attributes += ' charge="%d"' % match.charge
                         if match.radical:
                             attributes += ' radical="1"'
-                        if match.theoretical != None:
+                        if match.theoretical is not None:
                             attributes += ' calcMZ="%.6f"' % match.theoretical
-                        if match.formula != None:
+                        if match.formula is not None:
                             attributes += ' formula="%s"' % match.formula
-                        if match.sequenceRange != None:
+                        if match.sequenceRange is not None:
                             attributes += ' sequenceRange="%d-%d"' % tuple(match.sequenceRange)
-                        if match.fragmentSerie != None:
+                        if match.fragmentSerie is not None:
                             attributes += ' fragmentSerie="%s"' % match.fragmentSerie
-                        if match.fragmentIndex != None:
+                        if match.fragmentIndex is not None:
                             attributes += ' fragmentIndex="%s"' % match.fragmentIndex
                         buff += '        <match %s>%s</match>\n' % (attributes, self._escape(match.label))
                     buff += '      </matches>\n'
@@ -328,9 +328,9 @@ class document():
     def report(self, image=None):
         """Get HTML report."""
         
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        intFormat = '%0.' + `config.main['intDigits']` + 'f'
-        ppmFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        intFormat = '%0.' + str(config.main['intDigits']) + 'f'
+        ppmFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         
         # add header
         buff = REPORT_HEADER
@@ -348,13 +348,13 @@ class document():
         if basePeak:
             basePeak = basePeak.intensity
         
-        if self.spectrum.scanNumber != None:
+        if self.spectrum.scanNumber is not None:
             scanNumber = self.spectrum.scanNumber
-        if self.spectrum.retentionTime != None:
+        if self.spectrum.retentionTime is not None:
             retentionTime = self.spectrum.retentionTime
-        if self.spectrum.msLevel != None:
+        if self.spectrum.msLevel is not None:
             msLevel = self.spectrum.msLevel
-        if self.spectrum.precursorMZ != None:
+        if self.spectrum.precursorMZ is not None:
             precursorMZ = self.spectrum.precursorMZ
             
         if self.spectrum.polarity == 1:
@@ -523,6 +523,21 @@ class document():
         return buff
     # ----
     
+    def annotationsAsDataFrame(self):
+        """converts annotations to DataFrame"""
+        import pandas as pd
+        if isinstance(self.annotations, type(None)):
+            return NULL
+
+        basePeak = self.spectrum.peaklist.basepeak
+        if basePeak:
+            basePeak = basePeak.intensity
+        
+        annot_array = numpy.array([i.asArray(basePeak) for i in self.annotations])
+        df = pd.DataFrame(annot_array,columns=annotation.col_titles())
+        return df
+    # ----
+ 
     
     def _escape(self, text):
         """Clear special characters such as <> etc."""
@@ -547,8 +562,8 @@ class document():
             precision = 'd'
         
         # convert data to binary
-        mzArray = ''
-        intArray = ''
+        mzArray = b''
+        intArray = b''
         for point in spectrum:
             mzArray += struct.pack(precision, point[0])
             intArray += struct.pack(precision, point[1])
@@ -604,7 +619,7 @@ class document():
         
         buff = []
         
-        format = '%0.' + `config.main['mzDigits']` + 'f'
+        format = '%0.' + str(config.main['mzDigits']) + 'f'
         for mod in sequence.modifications:
             name = mod[0]
             
@@ -625,14 +640,14 @@ class document():
                 modtype = 'variable'
             
             # format masses
-            mass = mspy.modifications[name].mass
+            mass = mspy.blocks.modifications[name].mass
             massMo = format % mass[0]
             massAv = format % mass[1]
             
             # format formula
-            formula = mspy.modifications[name].gainFormula
-            if mspy.modifications[name].lossFormula:
-                formula += ' - ' + mspy.modifications[name].lossFormula
+            formula = mspy.blocks.modifications[name].gainFormula
+            if mspy.blocks.modifications[name].lossFormula:
+                formula += ' - ' + mspy.blocks.modifications[name].lossFormula
             
             # append data
             buff.append((position, name, modtype, massMo, massAv, formula))
@@ -647,11 +662,11 @@ class document():
         # get ranges
         ranges = []
         for m in sequence.matches:
-            if m.sequenceRange != None:
+            if m.sequenceRange is not None:
                 ranges.append(m.sequenceRange)
         
         # get coverage
-        coverage = mspy.coverage(ranges, len(sequence))
+        coverage = mspy.mod_proteo.coverage(ranges, len(sequence))
         coverage = '%.1f ' % coverage
         coverage += '%'
         
@@ -732,12 +747,28 @@ class annotation():
     def delta(self, units):
         """Get error in specified units."""
         
-        if self.theoretical != None:
-            return mspy.delta(self.mz, self.theoretical, units)
+        if self.theoretical is not None:
+            return mspy.mod_basics.delta(self.mz, self.theoretical, units)
         else:
             return None
     # ----
     
+    def asArray(self,basePeak=None):
+        """return array for Pandas conversion"""
+        if basePeak is None:
+            int_rel = ''
+        else:
+            int_rel = 100*(self.ai-self.base)/basePeak
+        return [self.mz,self.theoretical,self.delta('Da'),self.delta('ppm'),\
+                (self.ai-self.base),int_rel,self.charge,self.label,self.formula]
+            
+    @classmethod
+    def col_titles(self):
+        """column titles for Pandas DataFrame"""
+        return ['meas m/z','calc m/z','d(Da)','d(ppm)','int','int%','z','annotation','formula']
+        #return ['label','mz','int','base','chg','radical','mzTheor','formula']
+    
+
     
 
 
@@ -767,8 +798,8 @@ class match():
     def delta(self, units):
         """Get error in specified units."""
         
-        if self.theoretical != None :
-            return mspy.delta(self.mz, self.theoretical, units)
+        if self.theoretical is not None :
+            return mspy.mod_basics.delta(self.mz, self.theoretical, units)
         else:
             return None
     # ----
@@ -1040,11 +1071,11 @@ class parseMSD():
                     continue
                 
                 # make peak
-                peak = mspy.peak(mz=mz, ai=ai, base=base, sn=sn, charge=charge, isotope=isotope, fwhm=fwhm, group=group)
+                peak = mspy.obj_peak.peak(mz=mz, ai=ai, base=base, sn=sn, charge=charge, isotope=isotope, fwhm=fwhm, group=group)
                 peaklist.append(peak)
         
         # add peaklist to document
-        peaklist = mspy.peaklist(peaklist)
+        peaklist = mspy.obj_peaklist.peaklist(peaklist)
         self.document.spectrum.setpeaklist(peaklist)
     # ----
     
@@ -1097,7 +1128,6 @@ class parseMSD():
             self.document.sortAnnotations()
     # ----
     
-    
     def handleSequences(self):
         """Get sequences."""
         
@@ -1146,12 +1176,12 @@ class parseMSD():
         for monomerTag in monomerTags:
             abbr = monomerTag.getAttribute('abbr')
             formula = monomerTag.getAttribute('formula')
-            if not abbr in mspy.monomers:
+            if not abbr in mspy.blocks.monomers:
                 self._addMonomer(abbr, formula)
         
         # make sequence
         try:
-            sequence = mspy.sequence(chain, title=title, accession=accession, chainType=chainType, cyclic=cyclic)
+            sequence = mspy.obj_sequence.sequence(chain, title=title, accession=accession, chainType=chainType, cyclic=cyclic)
             sequence.matches = []
         except:
             self.errors.append('Unknown monomers in sequence data.')
@@ -1173,7 +1203,7 @@ class parseMSD():
             if modificationTag.getAttribute('type') == 'variable':
                 modtype = 'v'
             
-            if name in mspy.modifications:
+            if name in mspy.blocks.modifications:
                 sequence.modify(name, position, modtype)
             else:
                 if self._addModification(name, gainFormula, lossFormula):
@@ -1267,7 +1297,7 @@ class parseMSD():
                     continue
                 
                 # make peak
-                peak = mspy.peak(mz=mz, ai=ai)
+                peak = mspy.obj_peak.peak(mz=mz, ai=ai)
                 peaklist.append(peak)
                 
                 # make annotation
@@ -1275,7 +1305,7 @@ class parseMSD():
                     self.document.annotations.append(annotation(label=annot, mz=mz, ai=ai))
         
         # add peaklist to document
-        peaklist = mspy.peaklist(peaklist)
+        peaklist = mspy.obj_peaklist.peaklist(peaklist)
         self.document.spectrum.setpeaklist(peaklist)
     # ----
     
@@ -1311,7 +1341,7 @@ class parseMSD():
         
         # make sequence
         try:
-            sequence = mspy.sequence(chain, title=title)
+            sequence = mspy.obj_sequence.sequence(chain, title=title)
             sequence.matches = []
         except:
             self.errors.append('Unknown monomers in sequence data.')
@@ -1332,7 +1362,7 @@ class parseMSD():
             else:
                 position = amino
             
-            if name in mspy.modifications:
+            if name in mspy.blocks.modifications:
                 sequence.modify(name, position)
             else:
                 if self._addModification(name, gainFormula, lossFormula):
@@ -1412,9 +1442,9 @@ class parseMSD():
         
         # add new monomer
         try:
-            monomer = mspy.monomer(abbr=abbr, formula=formula, losses=losses, name=name, category=category)
-            mspy.monomers[abbr] = monomer
-            mspy.saveMonomers(os.path.join(config.confdir,'monomers.xml'))
+            monomer = mspy.blocks.monomer(abbr=abbr, formula=formula, losses=losses, name=name, category=category)
+            mspy.blocks.monomers[abbr] = monomer
+            mspy.blocks.saveMonomers(os.path.join(config.confdir,'monomers.xml'))
             return True
         except:
             return False
@@ -1430,9 +1460,9 @@ class parseMSD():
         
         # add new modification
         try:
-            modification = mspy.modification(name=name, gainFormula=gainFormula, lossFormula=lossFormula, aminoSpecifity=aminoSpecifity)
-            mspy.modifications[name] = modification
-            mspy.saveModifications(os.path.join(config.confdir,'modifications.xml'))
+            modification = mspy.blocks.modification(name=name, gainFormula=gainFormula, lossFormula=lossFormula, aminoSpecifity=aminoSpecifity)
+            mspy.blocks.modifications[name] = modification
+            mspy.blocks.saveModifications(os.path.join(config.confdir,'modifications.xml'))
             return True
         except:
             return False

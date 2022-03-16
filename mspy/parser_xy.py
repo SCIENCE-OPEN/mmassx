@@ -20,12 +20,12 @@ import re
 import os.path
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load objects
-import obj_peak
-import obj_peaklist
-import obj_scan
+from . import obj_peak
+from . import obj_peaklist
+from . import obj_scan
 
 
 # PARSE SIMPLE ASCII XY
@@ -39,7 +39,7 @@ class parseXY():
         
         # check path
         if not os.path.exists(path):
-            raise IOError, 'File not found! --> ' + self.path
+            raise IOError('File not found! --> ' + self.path)
     # ----
     
     
@@ -80,13 +80,15 @@ class parseXY():
         
         # open document
         try:
-            document = file(self.path)
+            document = open(self.path)
             rawData = document.readlines()
             document.close()
         except IOError:
             return False
         
-        pattern = re.compile('^([-0-9\.eE+]+)[ \t]*(;|,)?[ \t]*([-0-9\.eE+]*)$')
+        #pattern = re.compile('^([-0-9\.eE+]+)[ \t]*(;|,)?[ \t]*([-0-9\.eE+]*)$')
+        # new version to absorb junk at the end
+        pattern = re.compile('^([-0-9\.eE+]+)[ \t]*(;|,)?[ \t]*([-0-9\.eE+]*).*$')
         
         # read lines
         data = []

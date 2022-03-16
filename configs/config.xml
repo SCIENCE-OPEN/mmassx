@@ -6,10 +6,10 @@
     <param name="appHeight" value="620" type="int" />
     <param name="appMaximized" value="0" type="int" />
     <param name="layout" value="default" type="str" />
-    <param name="documentsWidth" value="195" type="int" />
-    <param name="documentsHeight" value="550" type="int" />
+    <param name="documentsWidth" value="365" type="int" />
+    <param name="documentsHeight" value="531" type="int" />
     <param name="peaklistWidth" value="195" type="int" />
-    <param name="peaklistHeight" value="550" type="int" />
+    <param name="peaklistHeight" value="531" type="int" />
     <param name="reverseScrolling" value="0" type="int" />
     <param name="macListCtrlGeneric" value="1" type="int" />
     <param name="cursorInfo" value="mz;dist;ppm;z" type="str" />
@@ -20,13 +20,13 @@
     <param name="chargeDigits" value="2" type="int" />
     <param name="lastDir" value="" type="unicode" />
     <param name="lastSeqDir" value="" type="unicode" />
-    <param name="errorUnits" value="Da" type="str" />
+    <param name="errorUnits" value="ppm" type="str" />
     <param name="printQuality" value="5" type="int" />
-    <param name="useServer" value="1" type="int" />
+    <param name="useServer" value="0" type="int" />
     <param name="serverPort" value="65456" type="int" />
     <param name="updatesEnabled" value="1" type="int" />
     <param name="updatesChecked" value="" type="str" />
-    <param name="updatesCurrent" value="" type="str" />
+    <param name="updatesCurrent" value="5.5.0" type="str" />
     <param name="updatesAvailable" value="" type="str" />
     <param name="compassMode" value="Profile" type="str" />
     <param name="compassFormat" value="mzML" type="str" />
@@ -34,6 +34,7 @@
   </main>
 
   <recent>
+    <path value="N:\YELLEN LAB\MSI\13C lactate\20220217_13Clactate_N1-3_mMass\N1_5minKCl_DG-OverviewSpectra.csv" />
   </recent>
 
   <colours>
@@ -115,8 +116,8 @@
   </spectrum>
 
   <match>
-    <param name="tolerance" value="0.200000" type="float" />
-    <param name="units" value="Da" type="str" />
+    <param name="tolerance" value="10.000000" type="float" />
+    <param name="units" value="ppm" type="str" />
     <param name="ignoreCharge" value="0" type="int" />
     <param name="filterAnnotations" value="0" type="int" />
     <param name="filterMatches" value="0" type="int" />
@@ -127,8 +128,8 @@
 
   <processing>
     <crop>
-      <param name="lowMass" value="500" type="int" />
-      <param name="highMass" value="5000" type="int" />
+      <param name="lowMass" value="90" type="int" />
+      <param name="highMass" value="1000" type="int" />
     </crop>
     <baseline>
       <param name="precision" value="15" type="int" />
@@ -141,12 +142,12 @@
     </smoothing>
     <peakpicking>
       <param name="snThreshold" value="3.000000" type="float" />
-      <param name="absIntThreshold" value="0.000000" type="float" />
+      <param name="absIntThreshold" value="5.000000" type="float" />
       <param name="relIntThreshold" value="0.000000" type="float" />
       <param name="pickingHeight" value="0.750000" type="float" />
       <param name="baseline" value="1" type="int" />
-      <param name="smoothing" value="1" type="int" />
-      <param name="deisotoping" value="1" type="int" />
+      <param name="smoothing" value="0" type="int" />
+      <param name="deisotoping" value="0" type="int" />
       <param name="removeShoulders" value="0" type="int" />
     </peakpicking>
     <deisotoping>
@@ -231,12 +232,12 @@
   <massToFormula>
     <param name="countLimit" value="1000" type="int" />
     <param name="massLimit" value="3000" type="int" />
-    <param name="charge" value="1" type="int" />
+    <param name="charge" value="-1" type="int" />
     <param name="ionization" value="H" type="str" />
-    <param name="tolerance" value="1.000000" type="float" />
+    <param name="tolerance" value="10.000000" type="float" />
     <param name="units" value="ppm" type="str" />
     <param name="formulaMin" value="" type="str" />
-    <param name="formulaMax" value="" type="str" />
+    <param name="formulaMax" value="P4S3" type="str" />
     <param name="autoCHNO" value="1" type="int" />
     <param name="checkPattern" value="1" type="int" />
     <param name="rules" value="HC;NOPSC;NOPS;RDBE;RDBEInt" type="str" />
@@ -262,9 +263,9 @@
 
   <compoundsSearch>
     <param name="massType" value="0" type="int" />
-    <param name="maxCharge" value="1" type="int" />
+    <param name="maxCharge" value="-1" type="int" />
     <param name="radicals" value="0" type="int" />
-    <param name="adducts" value="Na;K" type="str" />
+    <param name="adducts" value="" type="str" />
   </compoundsSearch>
 
   <peakDifferences>
@@ -276,8 +277,8 @@
   </peakDifferences>
 
   <comparePeaklists>
-    <param name="tolerance" value="0.200000" type="float" />
-    <param name="units" value="Da" type="str" />
+    <param name="tolerance" value="10.000000" type="float" />
+    <param name="units" value="ppm" type="str" />
     <param name="ignoreCharge" value="0" type="int" />
     <param name="ratioCheck" value="0" type="int" />
     <param name="ratioDirection" value="1" type="int" />
@@ -448,23 +449,23 @@
   </prospector>
 
   <links>
-    <link name="unimod" value="http://www.unimod.org/" />
-    <link name="fasta" value="http://www.ebi.ac.uk/Tools/fasta33/" />
-    <link name="pir" value="http://pir.georgetown.edu/" />
-    <link name="expasy" value="http://www.expasy.org/" />
-    <link name="ncbi" value="http://www.ncbi.nlm.nih.gov/Entrez/" />
     <link name="mMassWhatsNew" value="http://www.mmass.org/download/history.php" />
     <link name="biomedmstools" value="http://ms.biomed.cas.cz/MSTools/" />
-    <link name="matrixscience" value="http://www.matrixscience.com/" />
-    <link name="emblebi" value="http://www.ebi.ac.uk/services/" />
-    <link name="deltamass" value="http://www.abrf.org/index.cfm/dm.home" />
     <link name="blast" value="http://www.ebi.ac.uk/Tools/blastall/" />
-    <link name="prospector" value="http://prospector.ucsf.edu/" />
     <link name="clustalw" value="http://www.ebi.ac.uk/Tools/clustalw/" />
-    <link name="profound" value="http://prowl.rockefeller.edu/prowl-cgi/profound.exe" />
-    <link name="uniprot" value="http://www.uniprot.org/" />
+    <link name="deltamass" value="http://www.abrf.org/index.cfm/dm.home" />
+    <link name="emblebi" value="http://www.ebi.ac.uk/services/" />
+    <link name="expasy" value="http://www.expasy.org/" />
+    <link name="fasta" value="http://www.ebi.ac.uk/Tools/fasta33/" />
+    <link name="matrixscience" value="http://www.matrixscience.com/" />
     <link name="muscle" value="http://phylogenomics.berkeley.edu/cgi-bin/muscle/input_muscle.py" />
+    <link name="ncbi" value="http://www.ncbi.nlm.nih.gov/Entrez/" />
     <link name="pdb" value="http://www.rcsb.org/pdb/" />
+    <link name="pir" value="http://pir.georgetown.edu/" />
+    <link name="profound" value="http://prowl.rockefeller.edu/prowl-cgi/profound.exe" />
+    <link name="prospector" value="http://prospector.ucsf.edu/" />
+    <link name="unimod" value="http://www.unimod.org/" />
+    <link name="uniprot" value="http://www.uniprot.org/" />
   </links>
 
 </mMassConfig>

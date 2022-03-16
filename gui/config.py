@@ -69,7 +69,7 @@ else:
         except: pass
 
 if not os.path.exists(confdir):
-    raise IOError, "Configuration folder cannot be found!"
+    raise IOError ("Configuration folder cannot be found!")
 
 
 # INIT DEFAULT VALUES
@@ -211,7 +211,7 @@ processing={
         'multiplier': 1,
     },
     'crop':{
-        'lowMass': 500,
+        'lowMass': 90,
         'highMass': 5000,
     },
     'baseline':{
@@ -229,8 +229,8 @@ processing={
         'relIntThreshold': 0.0,
         'pickingHeight': 0.75,
         'baseline': 1,
-        'smoothing': 1,
-        'deisotoping': 1,
+        'smoothing': 0,
+        'deisotoping': 0,
         'monoisotopic': 0,
         'removeShoulders': 0,
     },
@@ -339,7 +339,7 @@ massToFormula={
     'tolerance': 1.,
     'units': 'ppm',
     'formulaMin': '',
-    'formulaMax': '',
+    'formulaMax': 'P3S2',
     'autoCHNO': 1,
     'checkPattern': 1,
     'rules': ['HC','NOPSC','NOPS','RDBE', 'RDBEInt'],
@@ -356,6 +356,7 @@ massToFormula={
     'METLINScript': 'http://metlin.scripps.edu/metabo_list_adv.php',
     'HMDBScript': 'http://www.hmdb.ca/search',
     'LipidMAPSScript': 'http://www.lipidmaps.org/data/structure/LMSDSearch.php',
+    'KEGGScript': 'https://www.kegg.jp/kegg-bin/search_ligand',
 }
 
 massDefectPlot={
@@ -372,9 +373,9 @@ massDefectPlot={
 
 compoundsSearch={
     'massType': 0,
-    'maxCharge': 1,
+    'maxCharge': -1,
     'radicals': 0,
-    'adducts':  ['Na','K'],
+    'adducts':  [], #['Na','K'],
 }
 
 peakDifferences={
@@ -387,8 +388,8 @@ peakDifferences={
 
 comparePeaklists={
     'compare': 'peaklists',
-    'tolerance': 0.2,
-    'units': 'Da',
+    'tolerance': 10,
+    'units': 'ppm',
     'ignoreCharge': 0,
     'ratioCheck': 0,
     'ratioDirection': 1,
@@ -1339,7 +1340,7 @@ def saveConfig(path=os.path.join(confdir, 'config.xml')):
     
     # save config file
     try:
-        save = file(path, 'w')
+        save = open(path, 'wb')
         save.write(buff.encode("utf-8"))
         save.close()
         return True

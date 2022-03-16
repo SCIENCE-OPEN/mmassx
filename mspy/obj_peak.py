@@ -16,13 +16,13 @@
 # -------------------------------------------------------------------------
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load objects
-import blocks
+from . import blocks
 
 # load modules
-import mod_basics
+from . import mod_basics
 
 
 # PEAK OBJECT DEFINITION
@@ -86,11 +86,11 @@ class peak:
         """Get neutral peak mass."""
         
         # check charge
-        if self.charge == None:
+        if self.charge is None:
             return None
         
         # check mass buffer
-        if self._mass != None:
+        if self._mass is not None:
             return self._mass
         
         # calculate neutral mass

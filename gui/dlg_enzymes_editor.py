@@ -20,8 +20,8 @@ import re
 import wx
 
 # load modules
-import mwx
-import config
+from . import mwx
+from . import config
 import mspy
 
 
@@ -151,7 +151,7 @@ class dlgEnzymesEditor(wx.Dialog):
         
         # get selected item
         name = evt.GetText()
-        enzyme = mspy.enzymes[name]
+        enzyme = mspy.blocks.enzymes[name]
         
         # update item editor
         self.itemName_value.SetValue(name)
@@ -172,7 +172,7 @@ class dlgEnzymesEditor(wx.Dialog):
             return
         
         # check name
-        if itemData.name in mspy.enzymes:
+        if itemData.name in mspy.blocks.enzymes:
             wx.Bell()
             title = 'Enzyme with the same name already exists.\nDo you want to replace it?'
             message = 'Old enzyme definition will be lost.'
@@ -185,7 +185,7 @@ class dlgEnzymesEditor(wx.Dialog):
                 dlg.Destroy()
         
         # add/replace item
-        mspy.enzymes[itemData.name] = itemData
+        mspy.blocks.enzymes[itemData.name] = itemData
         
         # update gui
         self.updateItemsList()
@@ -211,7 +211,7 @@ class dlgEnzymesEditor(wx.Dialog):
         for i in self.itemsList.getSelected():
             index = self.itemsList.GetItemData(i)
             name = self.itemsMap[index][0]
-            del mspy.enzymes[name]
+            del mspy.blocks.enzymes[name]
         
         # update gui
         self.updateItemsList()
@@ -225,7 +225,7 @@ class dlgEnzymesEditor(wx.Dialog):
         self.itemsMap = []
         
         # make map
-        for name, enzyme in sorted(mspy.enzymes.items()):
+        for name, enzyme in sorted(mspy.blocks.enzymes.items()):
             self.itemsMap.append((
                 enzyme.name,
                 enzyme.expression,
@@ -262,12 +262,12 @@ class dlgEnzymesEditor(wx.Dialog):
                 modsAfter = 'allowed'
             
             # add data
-            self.itemsList.InsertStringItem(row, item[0])
-            self.itemsList.SetStringItem(row, 1, item[1])
-            self.itemsList.SetStringItem(row, 2, item[2])
-            self.itemsList.SetStringItem(row, 3, item[3])
-            self.itemsList.SetStringItem(row, 4, modsBefore)
-            self.itemsList.SetStringItem(row, 5, modsAfter)
+            self.itemsList.InsertItem(row, item[0])
+            self.itemsList.SetItem(row, 1, item[1])
+            self.itemsList.SetItem(row, 2, item[2])
+            self.itemsList.SetItem(row, 3, item[3])
+            self.itemsList.SetItem(row, 4, modsBefore)
+            self.itemsList.SetItem(row, 5, modsAfter)
             self.itemsList.SetItemData(row, row)
         
         # sort
@@ -307,7 +307,7 @@ class dlgEnzymesEditor(wx.Dialog):
         # make enzyme
         try:
             expr = re.compile(expression)
-            enzyme = mspy.enzyme(
+            enzyme = mspy.blocks.enzyme(
                 name = name,
                 expression = expression,
                 cTermFormula = cTermFormula,

@@ -19,11 +19,11 @@
 import wx
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import libs
 import mspy
 
 
@@ -34,7 +34,7 @@ class panelMonomerLibrary(wx.MiniFrame):
     """Monomer library."""
     
     def __init__(self, parent, filterIn=[], filterOut=[], DnD=True):
-        wx.MiniFrame.__init__(self, parent, -1, 'Monomer Library', size=(250, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parent, -1, 'Monomer Library', size=(250, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.MAXIMIZE_BOX))
         
         self.parent = parent
         self.filterIn = filterIn
@@ -43,7 +43,7 @@ class panelMonomerLibrary(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
         
         # update list
         self.updateMonomerList()
@@ -190,7 +190,7 @@ class panelMonomerLibrary(wx.MiniFrame):
         search = self.search_value.GetValue().lower().split()
         
         # make map
-        for abbr, monomer in sorted(mspy.monomers.items()):
+        for abbr, monomer in sorted(mspy.blocks.monomers.items()):
             
             # check filters
             if self.filterIn and not monomer.category in self.filterIn:
@@ -224,8 +224,8 @@ class panelMonomerLibrary(wx.MiniFrame):
         
         # add new data
         for row, item in enumerate(self.monomerMap):
-            self.monomerList.InsertStringItem(row, item[0])
-            self.monomerList.SetStringItem(row, 1, item[1])
+            self.monomerList.InsertItem(row, item[0])
+            self.monomerList.SetItem(row, 1, item[1])
             self.monomerList.SetItemData(row, row)
         
         # sort

@@ -21,9 +21,9 @@ import wx
 import wx.grid
 
 # load modules
-import mwx
-import images
-import config
+from . import mwx
+from . import images
+from . import config
 import mspy
 
 
@@ -50,7 +50,7 @@ class panelPeakDifferences(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        wx.EVT_CLOSE(self, self.onClose)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
     # ----
     
     
@@ -253,7 +253,7 @@ class panelPeakDifferences(wx.MiniFrame):
         """Hide this frame."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -268,13 +268,13 @@ class panelPeakDifferences(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(2)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(2)
             self.processing = None
-            mspy.start()
+            mspy.mod_stopper.start()
         
         # fit layout
         self.differencesGrid.SetMinSize(self.differencesGrid.GetSize())
@@ -289,8 +289,8 @@ class panelPeakDifferences(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
-            mspy.stop()
+        if self.processing and self.processing.is_alive():
+            mspy.mod_stopper.stop()
         else:
             wx.Bell()
     # ----
@@ -385,7 +385,7 @@ class panelPeakDifferences(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # update gui
@@ -457,7 +457,7 @@ class panelPeakDifferences(wx.MiniFrame):
         self.differencesGrid.AppendRows(size)
         
         # create labels
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         cellAttr = wx.grid.GridCellAttr()
         cellAttr.SetReadOnly(True)
         for x in range(size):
@@ -467,7 +467,7 @@ class panelPeakDifferences(wx.MiniFrame):
             self.differencesGrid.SetColAttr(x, cellAttr)
         
         # paste data
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         for x in range(size):
             for y in range(size):
                 
@@ -528,7 +528,7 @@ class panelPeakDifferences(wx.MiniFrame):
         self.matchesGrid.SetColAttr(1, cellAttr)
         
         # set format
-        errFormat = '%0.' + `config.main['mzDigits']` + 'f'
+        errFormat = '%0.' + str(config.main['mzDigits']) + 'f'
         
         # add data
         for i, match in enumerate(self.currentMatches):
@@ -595,13 +595,13 @@ class panelPeakDifferences(wx.MiniFrame):
                 rowBuff = [(peaklist[x].mz, x)]
                 for y in range(x+1):
                     
-                    mspy.CHECK_FORCE_QUIT()
+                    mspy.mod_stopper.CHECK_FORCE_QUIT()
                     
                     diff = peaklist[x].mz - peaklist[y].mz
                     match = False
                     
                     # match specified value
-                    if self.currentDifference != None and (diffMin <= diff <= diffMax):
+                    if self.currentDifference is not None and (diffMin <= diff <= diffMax):
                         match = 'value'
                     
                     # match amino acids
@@ -631,7 +631,7 @@ class panelPeakDifferences(wx.MiniFrame):
                 self.consolidateTable()
         
         # task canceled
-        except mspy.ForceQuit:
+        except mspy.mod_stopper.ForceQuit:
             self.currentDifferences = []
             return
     # ----
@@ -647,15 +647,15 @@ class panelPeakDifferences(wx.MiniFrame):
         
         # get amino acids
         aminoacids = []
-        for abbr in mspy.monomers:
-            if mspy.monomers[abbr].category == '_InternalAA':
+        for abbr in mspy.blocks.monomers:
+            if mspy.blocks.monomers[abbr].category == '_InternalAA':
                 aminoacids.append(abbr)
-                self._aaMasses[abbr] = mspy.monomers[abbr].mass
+                self._aaMasses[abbr] = mspy.blocks.monomers[abbr].mass
         
         # approximate mass limits
         masses = []
         for aa in aminoacids:
-            masses.append(mspy.monomers[aa].mass[1])
+            masses.append(mspy.blocks.monomers[aa].mass[1])
         self._aaLimits = [min(masses)-1, max(masses)+1]
         self._dipLimits = [2*self._aaLimits[0]-1, 2*self._aaLimits[1]+1]
         
@@ -666,8 +666,8 @@ class panelPeakDifferences(wx.MiniFrame):
                 aX = aminoacids[x]
                 aY = aminoacids[y]
                 
-                massX = mspy.monomers[aX].mass
-                massY = mspy.monomers[aY].mass
+                massX = mspy.blocks.monomers[aX].mass
+                massY = mspy.blocks.monomers[aY].mass
                 mass = (massX[0] + massY[0], massX[1] + massY[1])
                 
                 if aX != aY:

@@ -22,19 +22,19 @@ import numpy
 import time
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load blocks
-import blocks
+from . import blocks
 
 # load objects
-import obj_compound
-import obj_peak
-import obj_peaklist
+from . import obj_compound
+from . import obj_peak
+from . import obj_peaklist
 
 # load modules
-import mod_basics
-import mod_signal
+from . import mod_basics
+from . import mod_signal
 
 
 # BASIC CONSTANTS
@@ -57,11 +57,11 @@ def labelpoint(signal, mz, baseline=None):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     
    # check baseline type
-    if baseline != None and not isinstance(baseline, numpy.ndarray):
-        raise TypeError, "Baseline must be NumPy array!"
+    if not isinstance(baseline, type(None)) and not isinstance(baseline, numpy.ndarray):
+        raise TypeError("Baseline must be NumPy array!")
     
     # check signal data
     if len(signal) == 0:
@@ -79,7 +79,7 @@ def labelpoint(signal, mz, baseline=None):
     # get peak baseline and s/n
     base = 0.0
     sn = None
-    if baseline == None:
+    if isinstance(baseline, type(None)):
         base, noise = mod_signal.noise(signal, x=mz)
         if noise:
             sn = (ai - base) / noise
@@ -118,28 +118,28 @@ def labelpeak(signal, mz=None, minX=None, maxX=None, pickingHeight=0.75, baselin
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     
    # check baseline type
-    if baseline != None and not isinstance(baseline, numpy.ndarray):
-        raise TypeError, "Baseline must be NumPy array!"
+    if not isinstance(baseline, type(None)) and not isinstance(baseline, numpy.ndarray):
+        raise TypeError("Baseline must be NumPy array!")
     
     # check m/z value or range
-    if mz == None and minX == None and maxX == None:
-        raise TypeError, "m/z value or range must be specified!"
+    if mz is None and minX is None and maxX is None:
+        raise TypeError("m/z value or range must be specified!")
     
     # check signal data
     if len(signal) == 0:
         return None
     
     # check m/z value
-    if mz != None:
+    if mz is not None:
         minX = mz
     if minX <= 0:
         return False
     
     # get index of given m/z or range maximum
-    if mz != None:
+    if mz is not None:
         imax = mod_signal.locate(signal, mz)
     else:
         i1 = mod_signal.locate(signal, minX)
@@ -152,7 +152,7 @@ def labelpeak(signal, mz=None, minX=None, maxX=None, pickingHeight=0.75, baselin
     
     # get centroid height
     h = signal[imax][1] * pickingHeight
-    if baseline != None:
+    if not isinstance(baseline, type(None)):
         idx = mod_signal.locate(baseline, signal[imax][0])
         if (idx > 0) and (idx < len(baseline)):
             base = mod_signal.interpolate( (baseline[idx-1][0], baseline[idx-1][1]), (baseline[idx][0], baseline[idx][1]), x=signal[imax][0])
@@ -171,11 +171,11 @@ def labelpeak(signal, mz=None, minX=None, maxX=None, pickingHeight=0.75, baselin
     rightMZ = mod_signal.interpolate(signal[iright-1], signal[iright], y=h)
     
     # check range
-    if mz == None and (leftMZ < minX or rightMZ > maxX) and (leftMZ != rightMZ):
+    if mz is None and (leftMZ < minX or rightMZ > maxX) and (leftMZ != rightMZ):
         return None
     
     # label peak in the newly found selection
-    if mz != None and leftMZ != rightMZ:
+    if mz is not None and leftMZ != rightMZ:
         peak = labelpeak(
             signal = signal,
             minX = leftMZ,
@@ -210,14 +210,14 @@ def labelscan(signal, minX=None, maxX=None, pickingHeight=0.75, absThreshold=0.,
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     
    # check baseline type
-    if baseline != None and not isinstance(baseline, numpy.ndarray):
-        raise TypeError, "Baseline must be NumPy array!"
+    if not isinstance(baseline, type(None)) and not isinstance(baseline, numpy.ndarray):
+        raise TypeError("Baseline must be NumPy array!")
     
     # crop data
-    if minX != None and maxX != None:
+    if minX is not None and maxX is not None:
         i1 = mod_signal.locate(signal, minX)
         i2 = mod_signal.locate(signal, maxX)
         signal = signal[i1:i2]
@@ -238,7 +238,7 @@ def labelscan(signal, minX=None, maxX=None, pickingHeight=0.75, absThreshold=0.,
     
     # get peaks baseline and s/n
     basepeak = 0.0
-    if baseline != None:
+    if not isinstance(baseline, type(None)):
         for peak in buff:
             idx = mod_signal.locate(baseline, peak[0])
             if (idx > 0) and (idx < len(baseline)):
@@ -298,7 +298,7 @@ def labelscan(signal, minX=None, maxX=None, pickingHeight=0.75, absThreshold=0.,
                 continue
             
             # try to group with previous peak
-            if previous != None and leftMZ < previous:
+            if previous is not None and leftMZ < previous:
                 if peak[1] > buff[-1][1]:
                     buff[-1] = peak
                     previous = rightMZ
@@ -313,7 +313,7 @@ def labelscan(signal, minX=None, maxX=None, pickingHeight=0.75, absThreshold=0.,
     
     # get peaks baseline and s/n
     basepeak = 0.0
-    if baseline != None:
+    if not isinstance(baseline, type(None)):
         for peak in candidates:
             idx = mod_signal.locate(baseline, peak[0])
             if (idx > 0) and (idx < len(baseline)):
@@ -389,7 +389,7 @@ def envcentroid(isotopes, pickingHeight=0.5, intensity='maximum'):
     for x, isotope in enumerate(isotopes):
         if isotope.intensity >= minInt:
             i2 = x
-            if i1 == None:
+            if i1 is None:
                 i1 = x
     
     mz1 = isotopes[i1].mz
@@ -481,7 +481,7 @@ def deisotope(peaklist, maxCharge=1, mzTolerance=0.15, intTolerance=0.5, isotope
     
     # check peaklist
     if not isinstance(peaklist, obj_peaklist.peaklist):
-        raise TypeError, "Peak list must be mspy.peaklist object!"
+        raise TypeError("Peak list must be mspy.peaklist object!")
     
     # clear previous results
     for peak in peaklist:
@@ -502,7 +502,7 @@ def deisotope(peaklist, maxCharge=1, mzTolerance=0.15, intTolerance=0.5, isotope
         CHECK_FORCE_QUIT()
         
         # skip assigned peaks
-        if parent.isotope != None:
+        if parent.isotope is not None:
             continue
         
         # try all charge states
@@ -672,9 +672,9 @@ def _gentable(highmass, step=200, composition=AVERAGE_AMINO, table='tuple'):
             pattern += '%.3f, ' % abundance
         
         if table == 'tuple':
-            print '(%s), #%d' % (pattern[:-2], mass)
+            print ('(%s), #%d' % (pattern[:-2], mass))
         elif table == 'dict':
-            print '%d: (%s),' % (mass, pattern[:-2])
+            print ('%d: (%s),' % (mass, pattern[:-2]))
 # ----
 
 

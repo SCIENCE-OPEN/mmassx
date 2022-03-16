@@ -27,12 +27,12 @@ import numpy
 from copy import deepcopy
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load objects
-import obj_peak
-import obj_peaklist
-import obj_scan
+from . import obj_peak
+from . import obj_peaklist
+from . import obj_scan
 
 # compile basic patterns
 RETENTION_TIME_PATTERN = re.compile('^PT((\d*\.?\d*)M)?((\d*\.?\d*)S)?$')
@@ -52,7 +52,7 @@ class parseMZXML():
         
         # check path
         if not os.path.exists(path):
-            raise IOError, 'File not found! --> ' + self.path
+            raise IOError('File not found! --> ' + self.path)
     # ----
     
     
@@ -66,7 +66,7 @@ class parseMZXML():
         
         # parse document
         try:
-            document = file(self.path)
+            document = open(self.path)
             parser.parse(document)
             document.close()
             self._scans = handler.data
@@ -98,7 +98,7 @@ class parseMZXML():
         
         # parse document
         try:
-            document = file(self.path)
+            document = open(self.path)
             parser.parse(document)
             document.close()
         except stopParsing:
@@ -124,7 +124,7 @@ class parseMZXML():
         
         # parse document
         try:
-            document = file(self.path)
+            document = open(self.path)
             parser.parse(document)
             document.close()
             self._scanlist = handler.data
@@ -148,7 +148,7 @@ class parseMZXML():
             parser = xml.sax.make_parser()
             parser.setContentHandler(handler)
             try:
-                document = file(self.path)
+                document = open(self.path)
                 parser.parse(document)
                 document.close()
                 data = handler.data
@@ -307,7 +307,7 @@ class scanlistHandler(xml.sax.handler.ContentHandler):
             
             # get scan ID
             self.currentID = attrs.get('num', None)
-            if self.currentID != None:
+            if self.currentID is not None:
                 self.currentID = int(self.currentID)
             
             # add scan to hierarchy
@@ -339,7 +339,7 @@ class scanlistHandler(xml.sax.handler.ContentHandler):
             
             # get number of points
             attribute = attrs.get('peaksCount', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['pointsCount'] = int(attribute)
             
             # get polarity
@@ -351,32 +351,32 @@ class scanlistHandler(xml.sax.handler.ContentHandler):
             
             # get scan retention time
             attribute = attrs.get('retentionTime', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['retentionTime'] = _convertRetentionTime(attribute)
             
             # get low m/z
             attribute = attrs.get('lowMz', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['lowMZ'] = float(attribute)
             
             # get high m/z
             attribute = attrs.get('highMz', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['highMZ'] = float(attribute)
             
             # get base peak m/z
             attribute = attrs.get('basePeakMz', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['basePeakMZ'] = float(attribute)
             
             # get base peak intensity
             attribute = attrs.get('basePeakIntensity', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['basePeakIntensity'] = max(0.0, float(attribute))
             
             # get total ion current
             attribute = attrs.get('totIonCurrent', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['totIonCurrent'] = max(0.0, float(attribute))
             
             # add scan
@@ -389,12 +389,12 @@ class scanlistHandler(xml.sax.handler.ContentHandler):
             
             # get precursor intensity
             attribute = attrs.get('precursorIntensity', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['precursorIntensity'] = max(0.0, float(attribute))
             
             # get precursor charge
             attribute = attrs.get('precursorCharge', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['precursorCharge'] = int(attribute)
     # ----
     
@@ -459,14 +459,14 @@ class scanHandler(xml.sax.handler.ContentHandler):
             
             # get scan ID
             scanID = attrs.get('num', None)
-            if scanID != None:
+            if scanID is not None:
                 scanID = int(scanID)
             
             # add scan to hierarchy
             self._scanHierarchy.append(scanID)
             
             # selected scan
-            if self.scanID == None or self.scanID == scanID:
+            if self.scanID is None or self.scanID == scanID:
                 self._isMatch = True
                 
                 self.data = {
@@ -500,7 +500,7 @@ class scanHandler(xml.sax.handler.ContentHandler):
                 
                 # get number of points
                 attribute = attrs.get('peaksCount', None)
-                if attribute != None:
+                if attribute is not None:
                     self.data['pointsCount'] = int(attribute)
                 
                 # get polarity
@@ -512,32 +512,32 @@ class scanHandler(xml.sax.handler.ContentHandler):
                 
                 # get scan retention time
                 attribute = attrs.get('retentionTime', None)
-                if attribute != None:
+                if attribute is not None:
                     self.data['retentionTime'] = _convertRetentionTime(attribute)
                 
                 # get low m/z
                 attribute = attrs.get('lowMz', None)
-                if attribute != None:
+                if attribute is not None:
                     self.data['lowMZ'] = float(attribute)
                 
                 # get high m/z
                 attribute = attrs.get('highMz', None)
-                if attribute != None:
+                if attribute is not None:
                     self.data['highMZ'] = float(attribute)
                 
                 # get base peak m/z
                 attribute = attrs.get('basePeakMz', None)
-                if attribute != None:
+                if attribute is not None:
                     self.data['basePeakMZ'] = float(attribute)
                 
                 # get base peak intensity
                 attribute = attrs.get('basePeakIntensity', None)
-                if attribute != None:
+                if attribute is not None:
                     self.data['basePeakIntensity'] = max(0.0, float(attribute))
                 
                 # get total ion current
                 attribute = attrs.get('totIonCurrent', None)
-                if attribute != None:
+                if attribute is not None:
                     self.data['totIonCurrent'] = max(0.0, float(attribute))
         
         # get peaks data
@@ -565,12 +565,12 @@ class scanHandler(xml.sax.handler.ContentHandler):
             
             # get precursor intensity
             attribute = attrs.get('precursorIntensity', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data['precursorIntensity'] = max(0.0, float(attribute))
             
             # get precursor charge
             attribute = attrs.get('precursorCharge', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data['precursorCharge'] = int(attribute)
     # ----
     
@@ -649,7 +649,7 @@ class runHandler(xml.sax.handler.ContentHandler):
             
             # get scan ID
             self.currentID = attrs.get('num', None)
-            if self.currentID != None:
+            if self.currentID is not None:
                 self.currentID = int(self.currentID)
             
             # add scan to hierarchy
@@ -686,7 +686,7 @@ class runHandler(xml.sax.handler.ContentHandler):
             
             # get number of points
             attribute = attrs.get('peaksCount', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['pointsCount'] = int(attribute)
             
             # get polarity
@@ -698,32 +698,32 @@ class runHandler(xml.sax.handler.ContentHandler):
             
             # get scan retention time
             attribute = attrs.get('retentionTime', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['retentionTime'] = _convertRetentionTime(attribute)
             
             # get low m/z
             attribute = attrs.get('lowMz', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['lowMZ'] = float(attribute)
             
             # get high m/z
             attribute = attrs.get('highMz', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['highMZ'] = float(attribute)
             
             # get base peak m/z
             attribute = attrs.get('basePeakMz', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['basePeakMZ'] = float(attribute)
             
             # get base peak intensity
             attribute = attrs.get('basePeakIntensity', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['basePeakIntensity'] = max(0.0, float(attribute))
             
             # get total ion current
             attribute = attrs.get('totIonCurrent', None)
-            if attribute != None:
+            if attribute is not None:
                 scan['totIonCurrent'] = max(0.0, float(attribute))
             
             # add scan
@@ -754,12 +754,12 @@ class runHandler(xml.sax.handler.ContentHandler):
             
             # get precursor intensity
             attribute = attrs.get('precursorIntensity', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['precursorIntensity'] = max(0.0, float(attribute))
             
             # get precursor charge
             attribute = attrs.get('precursorCharge', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['precursorCharge'] = int(attribute)
     # ----
     

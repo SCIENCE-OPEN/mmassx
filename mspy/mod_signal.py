@@ -19,10 +19,10 @@
 import numpy
 
 # load stopper
-from mod_stopper import CHECK_FORCE_QUIT
+from .mod_stopper import CHECK_FORCE_QUIT
 
 # load modules
-import calculations
+from . import calculations
 
 
 # SIGNAL PROCESSING FUNCTIONS
@@ -36,9 +36,9 @@ def locate(signal, x):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
@@ -56,13 +56,13 @@ def basepeak(signal):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
-        raise ValueError, "Signal contains no data!"
+        raise ValueError("Signal contains no data!")
     
     # locate x
     return calculations.signal_locate_max_y(signal)
@@ -78,16 +78,16 @@ def interpolate(p1, p2, x=None, y=None):
     """
     
     # interpolate y point
-    if x != None:
+    if x is not None:
         return calculations.signal_interpolate_y(float(p1[0]), float(p1[1]), float(p2[0]), float(p2[1]), float(x))
     
     # interpolate x point
-    elif y != None:
+    elif y is not None:
         return calculations.signal_interpolate_x(float(p1[0]), float(p1[1]), float(p2[0]), float(p2[1]), float(y))
     
     # no value
     else:
-        raise ValueError, "No x/y value provided for interpolation!"
+        raise ValueError("No x/y value provided for interpolation!")
 # ----
 
 
@@ -98,13 +98,13 @@ def boundaries(signal):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
-        raise ValueError, "Signal contains no data!"
+        raise ValueError("Signal contains no data!")
     
     # calculate boundaries
     return calculations.signal_box(signal)
@@ -118,9 +118,9 @@ def maxima(signal):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
@@ -139,13 +139,13 @@ def intensity(signal, x):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
-        raise ValueError, "Signal contains no data!"
+        raise ValueError("Signal contains no data!")
     
     # determine intensity
     return calculations.signal_intensity(signal, float(x))
@@ -161,13 +161,13 @@ def centroid(signal, x, height):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
-        raise ValueError, "Signal contains no data!"
+        raise ValueError("Signal contains no data!")
     
     # determine centroid
     return calculations.signal_centroid(signal, float(x), float(height))
@@ -183,13 +183,13 @@ def width(signal, x, height):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
-        raise ValueError, "Signal contains no data!"
+        raise ValueError("Signal contains no data!")
     
     # determine width
     return calculations.signal_width(signal, float(x), float(height))
@@ -206,31 +206,31 @@ def area(signal, minX=None, maxX=None, baseline=None):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check baseline type
-    if baseline != None:
+    if baseline is not None:
         if not isinstance(baseline, numpy.ndarray):
-            raise TypeError, "Baseline must be NumPy array!"
+            raise TypeError("Baseline must be NumPy array!")
         if baseline.dtype.name != 'float64':
-            raise TypeError, "Signal data must be float64!"
+            raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
         return 0.0
     
     # check range
-    if minX != None and maxX != None and minX == maxX:
+    if minX is not None and maxX is not None and minX == maxX:
         return 0.0
     
     # crop data
-    if minX != None and maxX != None:
+    if minX is not None and maxX is not None:
         signal = crop(signal, minX, maxX)
     
     # subtract baseline
-    if baseline != None:
+    if baseline is not None:
         signal = subbase(signal, baseline)
     
     # calculate area
@@ -248,21 +248,21 @@ def noise(signal, minX=None, maxX=None, x=None, window=0.1):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
         return (0.0, 0.0)
     
     # use specified signal range
-    if minX != None and maxX != None:
+    if minX is not None and maxX is not None:
         i1 = locate(signal, minX)
         i2 = locate(signal, maxX)
     
     # use specified x +- window
-    elif x != None and window != None:
+    elif x is not None and window is not None:
         window = x*window
         i1 = locate(signal, x-window)
         i2 = locate(signal, x+window)
@@ -293,16 +293,16 @@ def baseline(signal, window=0.1, offset=0.):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
-        raise ValueError, "Signal contains no data!"
+        raise ValueError("Signal contains no data!")
     
     # single segment baseline
-    if window == None:
+    if window is None:
         noiseLevel, noiseWidth = noise(signal)
         noiseLevel -= noiseWidth*offset
         return numpy.array([ [signal[0][0], noiseLevel, noiseWidth], [signal[-1][0], noiseLevel, noiseWidth] ])
@@ -356,7 +356,7 @@ def crop(signal, minX, maxX):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     
     # check limits
     if minX > maxX:
@@ -380,9 +380,9 @@ def offset(signal, x=0.0, y=0.0):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
@@ -402,9 +402,9 @@ def multiply(signal, x=1.0, y=1.0):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
@@ -422,9 +422,9 @@ def normalize(signal):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
@@ -445,9 +445,9 @@ def smooth(signal, method, window, cycles=1):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray):
-        raise TypeError, "Signal must be NumPy array!"
+        raise TypeError("Signal must be NumPy array!")
     if signal.dtype.name != 'float64':
-        raise TypeError, "Signal data must be float64!"
+        raise TypeError("Signal data must be float64!")
     
     # check signal data
     if len(signal) == 0:
@@ -467,7 +467,7 @@ def smooth(signal, method, window, cycles=1):
     
     # unknown smoothing method
     else:
-        raise KeyError, "Unknown smoothing method! -->", method
+        raise KeyError("Unknown smoothing method! -->", method)
 # ----
 
 
@@ -581,9 +581,9 @@ def combine(signalA, signalB):
     
     # check signal type
     if not isinstance(signalA, numpy.ndarray) or not isinstance(signalB, numpy.ndarray):
-        raise TypeError, "Signals must be NumPy arrays!"
+        raise TypeError("Signals must be NumPy arrays!")
     if signalA.dtype.name != 'float64' or signalB.dtype.name != 'float64':
-        raise TypeError, "Signals data must be float64!"
+        raise TypeError("Signals data must be float64!")
     
     # check signal data
     if len(signalA) == 0 and len(signalB) == 0:
@@ -602,9 +602,9 @@ def overlay(signalA, signalB):
     
     # check signal type
     if not isinstance(signalA, numpy.ndarray) or not isinstance(signalB, numpy.ndarray):
-        raise TypeError, "Signals must be NumPy arrays!"
+        raise TypeError("Signals must be NumPy arrays!")
     if signalA.dtype.name != 'float64' or signalB.dtype.name != 'float64':
-        raise TypeError, "Signals data must be float64!"
+        raise TypeError("Signals data must be float64!")
     
     # check signal data
     if len(signalA) == 0 and len(signalB) == 0:
@@ -623,9 +623,9 @@ def subtract(signalA, signalB):
     
     # check signal type
     if not isinstance(signalA, numpy.ndarray) or not isinstance(signalB, numpy.ndarray):
-        raise TypeError, "Signals must be NumPy arrays!"
+        raise TypeError("Signals must be NumPy arrays!")
     if signalA.dtype.name != 'float64' or signalB.dtype.name != 'float64':
-        raise TypeError, "Signals data must be float64!"
+        raise TypeError("Signals data must be float64!")
     
     # check signal data
     if len(signalA) == 0 and len(signalB) == 0:
@@ -644,9 +644,9 @@ def subbase(signal, baseline):
     
     # check signal type
     if not isinstance(signal, numpy.ndarray) or not isinstance(baseline, numpy.ndarray):
-        raise TypeError, "Signals must be NumPy arrays!"
+        raise TypeError("Signals must be NumPy arrays!")
     if signal.dtype.name != 'float64' or baseline.dtype.name != 'float64':
-        raise TypeError, "Signals data must be float64!"
+        raise TypeError("Signals data must be float64!")
     
     # check signal data
     if len(signal) == 0:

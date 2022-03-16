@@ -21,10 +21,10 @@ import copy
 import xml.dom.minidom
 
 # load modules
-from ids import *
-import mwx
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import config
+from . import libs
 import mspy
 
 
@@ -458,8 +458,8 @@ class dlgReferencesEditor(wx.Dialog):
         
         # add new data
         for row, item in enumerate(self.itemsMap):
-            self.itemsList.InsertStringItem(row, item[0])
-            self.itemsList.SetStringItem(row, 1, str(item[1]))
+            self.itemsList.InsertItem(row, item[0])
+            self.itemsList.SetItem(row, 1, str(item[1]))
             self.itemsList.SetItemData(row, row)
         
         # sort
@@ -475,7 +475,7 @@ class dlgReferencesEditor(wx.Dialog):
         
         # show formula masses
         try:
-            formula = mspy.compound(formula)
+            formula = mspy.obj_compound.compound(formula)
             mass = formula.mass()
             self.itemMoMass_value.SetValue(str(mass[0]))
             self.itemAvMass_value.SetValue(str(mass[1]))
@@ -715,8 +715,8 @@ class dlgSelectItemsToImport(wx.Dialog):
         
         # add data
         for row, item in enumerate(self.itemsMap):
-            self.itemsList.InsertStringItem(row, item[0])
-            self.itemsList.SetStringItem(row, 1, str(item[1]))
+            self.itemsList.InsertItem(row, item[0])
+            self.itemsList.SetItem(row, 1, str(item[1]))
             self.itemsList.SetItemData(row, row)
         
         # sort data
