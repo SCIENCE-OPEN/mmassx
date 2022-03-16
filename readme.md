@@ -1,5 +1,13 @@
-This fork of the mMass 5.5.0 repo (xxao\\mMass) has been extensively updated to run with Python 3.9 / NumPy 1.20.3 / wxPython 4.1.1.
-Some additional changes have been made to allow zooming in on annotated or unannotated peaks, and to import .csv files
+This fork of the mMass 5.5.0 repo (xxao\\mMass) has been extensively updated to run with 
+	python 3.9 
+	numPy 1.20.3  
+	wxPython 4.1.1
+	pandas 1.3.4
+	
+Some additional changes have been made to allow 
+	zooming in on annotated or unannotated peak
+	import of .csv files
+	lookup in KEGG for mass-to-formula
 
 ========= original readme: =========
 # Official mMass Repository

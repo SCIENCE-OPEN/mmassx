@@ -2,7 +2,7 @@
 <mMassConfig version="1.0">
 
   <main>
-    <param name="appWidth" value="1043" type="int" />
+    <param name="appWidth" value="1267" type="int" />
     <param name="appHeight" value="620" type="int" />
     <param name="appMaximized" value="0" type="int" />
     <param name="layout" value="default" type="str" />
