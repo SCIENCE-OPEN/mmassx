@@ -102,7 +102,7 @@ def save(data, path):
     for point in data:
         buff += "%f\t%f\n" % tuple(point)
     
-    save = file(path, 'w')
+    save = open(path, 'wb')
     save.write(buff.encode("utf-8"))
     save.close()
 # ----

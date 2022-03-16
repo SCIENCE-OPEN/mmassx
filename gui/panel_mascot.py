@@ -903,7 +903,7 @@ class panelMascot(wx.MiniFrame):
         htmlData = self.makeSearchHTML()
         try:
             path = os.path.join(tempfile.gettempdir(), 'mmass_mascot_search.html')
-            htmlFile = file(path, 'w')
+            htmlFile = open(path, 'wb')
             htmlFile.write(htmlData.encode("utf-8"))
             htmlFile.close()
             webbrowser.open('file://'+path, autoraise=1)

@@ -299,7 +299,7 @@ class mascot():
         
         # save file
         try:
-            save = file(path, 'w')
+            save = open(path, 'wb')
             save.write(self.resultsXML.encode("utf-8"))
             save.close()
             return True

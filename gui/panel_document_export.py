@@ -801,7 +801,7 @@ class panelDocumentExport(wx.MiniFrame):
             
         # save file
         try:
-            save = file(path, 'w')
+            save = open(path, 'wb')
             save.write(buff.encode("utf-8"))
             save.close()
         except IOError:
@@ -835,7 +835,7 @@ class panelDocumentExport(wx.MiniFrame):
         
         # save file
         try:
-            save = file(path, 'w')
+            save = open(path, 'wb')
             save.write(buff.encode("utf-8"))
             save.close()
         except IOError:

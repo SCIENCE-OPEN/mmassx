@@ -428,7 +428,7 @@ class panelMassToFormula(wx.MiniFrame):
         # run search
         try:
             path = os.path.join(tempfile.gettempdir(), 'mmass_formula_search.html')
-            htmlFile = file(path, 'w')
+            htmlFile = open(path, 'wb')
             htmlFile.write(htmlData.encode("utf-8"))
             htmlFile.close()
             webbrowser.open('file://'+path, autoraise=1)

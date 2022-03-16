@@ -1339,7 +1339,7 @@ def saveConfig(path=os.path.join(confdir, 'config.xml')):
     
     # save config file
     try:
-        save = file(path, 'w')
+        save = open(path, 'wb')
         save.write(buff.encode("utf-8"))
         save.close()
         return True
