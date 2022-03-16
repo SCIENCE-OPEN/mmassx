@@ -66,7 +66,7 @@ class mMass(wx.App):
         self.frame = mainFrame(None, -1, 'mMass')
         
         # bind main app frame to server
-        if server != None:
+        if server is not None:
             server.app = self.frame
         
         # show frame
