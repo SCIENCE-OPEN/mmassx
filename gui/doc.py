@@ -758,9 +758,9 @@ class annotation():
         if basePeak is None:
             int_rel = ''
         else:
-            int_rel = 100*self.ai/basePeak
+            int_rel = 100*(self.ai-self.base)/basePeak
         return [self.mz,self.theoretical,self.delta('Da'),self.delta('ppm'),\
-                self.ai,int_rel,self.charge,self.label,self.formula]
+                (self.ai-self.base),int_rel,self.charge,self.label,self.formula]
             
     @classmethod
     def col_titles(self):
