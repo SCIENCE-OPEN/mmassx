@@ -348,7 +348,7 @@ class scanlistHandler(xml.sax.handler.ContentHandler):
             
             # get scan ID
             self.currentID = attrs.get('id', None)
-            if self.currentID != None:
+            if self.currentID is not None:
                 self.currentID = int(self.currentID)
             
             scan = {
@@ -389,12 +389,12 @@ class scanlistHandler(xml.sax.handler.ContentHandler):
             
             # get low m/z
             attribute = attrs.get('mzRangeStart', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['lowMZ'] = float(attribute)
             
             # get high m/z
             attribute = attrs.get('mzRangeStop', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['highMZ'] = float(attribute)
         
         # get other params
@@ -403,22 +403,22 @@ class scanlistHandler(xml.sax.handler.ContentHandler):
             paramValue = attrs.get('value', None)
             
             # get retention time
-            if paramName == 'TimeInMinutes' and paramValue != None:
+            if paramName == 'TimeInMinutes' and paramValue is not None:
                 try: self.data[self.currentID]['retentionTime'] = float(paramValue)*60
                 except ValueError: pass
             
             # get total ion current
-            elif paramName == 'TotalIonCurrent' and paramValue != None:
+            elif paramName == 'TotalIonCurrent' and paramValue is not None:
                 try: self.data[self.currentID]['totIonCurrent'] = float(paramValue)
                 except ValueError: pass
             
             # get precursor m/z
-            elif paramName == 'MassToChargeRatio' and paramValue != None:
+            elif paramName == 'MassToChargeRatio' and paramValue is not None:
                 try: self.data[self.currentID]['precursorMZ'] = float(paramValue)
                 except ValueError: pass
             
             # get precursor charge
-            elif paramName == 'ChargeState' and paramValue != None:
+            elif paramName == 'ChargeState' and paramValue is not None:
                 try: self.data[self.currentID]['precursorCharge'] = int(paramValue)
                 except ValueError: pass
             
@@ -432,13 +432,13 @@ class scanlistHandler(xml.sax.handler.ContentHandler):
         # get parent scan
         elif name == 'precursor':
             attribute = attrs.get('spectrumRef', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['parentScanNumber'] = int(attribute)
         
         # get spectrum length
         elif name == 'data':
             attribute = attrs.get('length', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['pointsCount'] = int(attribute)
     # ----
     
@@ -478,11 +478,11 @@ class scanHandler(xml.sax.handler.ContentHandler):
             
             # get scan ID
             scanID = attrs.get('id', None)
-            if scanID != None:
+            if scanID is not None:
                 scanID = int(scanID)
             
             # selected scan
-            if self.scanID == None or scanID == self.scanID:
+            if self.scanID is None or scanID == self.scanID:
                 self._isMatch = True
                 
                 self.data = {
@@ -527,12 +527,12 @@ class scanHandler(xml.sax.handler.ContentHandler):
             
             # get low m/z
             attribute = attrs.get('mzRangeStart', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data['lowMZ'] = float(attribute)
             
             # get high m/z
             attribute = attrs.get('mzRangeStop', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data['highMZ'] = float(attribute)
         
         # get other params
@@ -541,22 +541,22 @@ class scanHandler(xml.sax.handler.ContentHandler):
             paramValue = attrs.get('value', None)
             
             # get retention time
-            if paramName == 'TimeInMinutes' and paramValue != None:
+            if paramName == 'TimeInMinutes' and paramValue is not None:
                 try: self.data['retentionTime'] = float(paramValue)*60
                 except ValueError: pass
             
             # get total ion current
-            elif paramName == 'TotalIonCurrent' and paramValue != None:
+            elif paramName == 'TotalIonCurrent' and paramValue is not None:
                 try: self.data['totIonCurrent'] = float(paramValue)
                 except ValueError: pass
             
             # get precursor m/z
-            elif paramName == 'MassToChargeRatio' and paramValue != None:
+            elif paramName == 'MassToChargeRatio' and paramValue is not None:
                 try: self.data['precursorMZ'] = float(paramValue)
                 except ValueError: pass
             
             # get precursor charge
-            elif paramName == 'ChargeState' and paramValue != None:
+            elif paramName == 'ChargeState' and paramValue is not None:
                 try: self.data['precursorCharge'] = int(paramValue)
                 except ValueError: pass
             
@@ -570,7 +570,7 @@ class scanHandler(xml.sax.handler.ContentHandler):
         # get parent scan
         elif name == 'precursor' and self._isMatch:
             attribute = attrs.get('spectrumRef', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data['parentScanNumber'] = int(attribute)
         
         # get mz data
@@ -588,7 +588,7 @@ class scanHandler(xml.sax.handler.ContentHandler):
             
             # get points count
             attribute = attrs.get('length', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data['pointsCount'] = int(attribute)
             
             # get array params
@@ -666,7 +666,7 @@ class runHandler(xml.sax.handler.ContentHandler):
             
             # get scan ID
             self.currentID = attrs.get('id', None)
-            if self.currentID != None:
+            if self.currentID is not None:
                 self.currentID = int(self.currentID)
             
             scan = {
@@ -714,12 +714,12 @@ class runHandler(xml.sax.handler.ContentHandler):
             
             # get low m/z
             attribute = attrs.get('mzRangeStart', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['lowMZ'] = float(attribute)
             
             # get high m/z
             attribute = attrs.get('mzRangeStop', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['highMZ'] = float(attribute)
         
         # get other params
@@ -728,22 +728,22 @@ class runHandler(xml.sax.handler.ContentHandler):
             paramValue = attrs.get('value', None)
             
             # get retention time
-            if paramName == 'TimeInMinutes' and paramValue != None:
+            if paramName == 'TimeInMinutes' and paramValue is not None:
                 try: self.data[self.currentID]['retentionTime'] = float(paramValue)*60
                 except ValueError: pass
             
             # get total ion current
-            elif paramName == 'TotalIonCurrent' and paramValue != None:
+            elif paramName == 'TotalIonCurrent' and paramValue is not None:
                 try: self.data[self.currentID]['totIonCurrent'] = float(paramValue)
                 except ValueError: pass
             
             # get precursor m/z
-            elif paramName == 'MassToChargeRatio' and paramValue != None:
+            elif paramName == 'MassToChargeRatio' and paramValue is not None:
                 try: self.data[self.currentID]['precursorMZ'] = float(paramValue)
                 except ValueError: pass
             
             # get precursor m/z
-            elif paramName == 'ChargeState' and paramValue != None:
+            elif paramName == 'ChargeState' and paramValue is not None:
                 try: self.data[self.currentID]['precursorCharge'] = int(paramValue)
                 except ValueError: pass
             
@@ -757,7 +757,7 @@ class runHandler(xml.sax.handler.ContentHandler):
         # get parent scan
         elif name == 'precursor':
             attribute = attrs.get('spectrumRef', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['parentScanNumber'] = int(attribute)
         
         # get mz data
@@ -775,7 +775,7 @@ class runHandler(xml.sax.handler.ContentHandler):
             
             # get points count
             attribute = attrs.get('length', None)
-            if attribute != None:
+            if attribute is not None:
                 self.data[self.currentID]['pointsCount'] = int(attribute)
             
             # get array params

@@ -339,7 +339,7 @@ massToFormula={
     'tolerance': 1.,
     'units': 'ppm',
     'formulaMin': '',
-    'formulaMax': '',
+    'formulaMax': 'P3S2',
     'autoCHNO': 1,
     'checkPattern': 1,
     'rules': ['HC','NOPSC','NOPS','RDBE', 'RDBEInt'],

@@ -84,7 +84,7 @@ class panelMassFilter(wx.MiniFrame):
         references_label.SetFont(wx.SMALL_FONT)
         
         choices = libs.references.keys()
-        choices.sort()
+        choices = sorted(choices)
         choices.insert(0,'Reference lists')
         self.references_choice = wx.Choice(panel, -1, choices=choices, size=(200, mwx.SMALL_CHOICE_HEIGHT))
         self.references_choice.Select(0)
@@ -291,7 +291,7 @@ class panelMassFilter(wx.MiniFrame):
         """Annotate matched peaks."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             wx.Bell()
             return
         
@@ -321,7 +321,7 @@ class panelMassFilter(wx.MiniFrame):
         """Remove matched masses from current peaklist."""
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             wx.Bell()
             return
         
@@ -380,16 +380,16 @@ class panelMassFilter(wx.MiniFrame):
         for index, item in enumerate(self.currentReferences):
             
             # filter data
-            if self._referencesFilter == 1 and item[2] == None:
+            if self._referencesFilter == 1 and item[2] is None:
                 continue
-            elif self._referencesFilter == -1 and item[2] != None:
+            elif self._referencesFilter == -1 and item[2] is not None:
                 continue
             
             # format data
             theoretical = mzFormat % (item[1])
             
             error = ''
-            if item[2] != None:
+            if item[2] is not None:
                 error = errFormat % (item[2])
             
             # add data
@@ -401,7 +401,7 @@ class panelMassFilter(wx.MiniFrame):
             self.referencesList.SetItemData(row, index)
             
             # mark matched
-            if item[2] != None:
+            if item[2] is not None:
                 self.referencesList.SetItemTextColour(row, (0,200,0))
                 self.referencesList.SetItemFont(row, fontMatched)
             
@@ -431,7 +431,7 @@ class panelMassFilter(wx.MiniFrame):
         """Clear matched data."""
         
         # update references list
-        if self.currentReferences != None:
+        if self.currentReferences is not None:
             for item in self.currentReferences:
                 item[2] = None
                 item[-1] = []

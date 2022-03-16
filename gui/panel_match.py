@@ -313,7 +313,7 @@ class panelMatch(wx.MiniFrame):
         """Destroy this frame."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -326,7 +326,7 @@ class panelMatch(wx.MiniFrame):
         """Selected tool."""
         
         # get the tool
-        if evt != None:
+        if evt is not None:
             tool = 'errors'
             if evt and evt.GetId() == ID_matchErrors:
                 tool = 'errors'
@@ -667,7 +667,7 @@ class panelMatch(wx.MiniFrame):
             for item in self.currentData:
                 for match in item[-1]:
                     error = match.delta(config.match['units'])
-                    if item[errorCol] == None or abs(item[errorCol]) > abs(error):
+                    if item[errorCol] is None or abs(item[errorCol]) > abs(error):
                         item[errorCol] = error
             
             # get match summary

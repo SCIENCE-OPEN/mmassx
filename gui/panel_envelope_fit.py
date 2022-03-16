@@ -628,7 +628,7 @@ class panelEnvelopeFit(wx.MiniFrame):
             data = []
         else:
             data = self.currentFit.ncomposition.items()
-            data.sort()
+            data = sorted(data)
         
         # clear previous data and set new
         self.resultsList.DeleteAllItems()

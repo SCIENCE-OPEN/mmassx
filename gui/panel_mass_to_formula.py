@@ -313,7 +313,7 @@ class panelMassToFormula(wx.MiniFrame):
         """Destroy this frame."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -612,7 +612,7 @@ class panelMassToFormula(wx.MiniFrame):
         
         # enable/disable profile check
         self.checkPattern_check.Enable(True)
-        if self.currentDocument == None or not self.currentDocument.spectrum.hasprofile():
+        if self.currentDocument is None or not self.currentDocument.spectrum.hasprofile():
             self.checkPattern_check.Enable(False)
         
         # check mass
@@ -625,13 +625,13 @@ class panelMassToFormula(wx.MiniFrame):
         # update values
         self.mass_value.ChangeValue(str(mass))
         
-        if charge != None:
+        if charge is not None:
             self.charge_value.ChangeValue(str(charge))
         
-        if tolerance != None:
+        if tolerance is not None:
             self.tolerance_value.ChangeValue(str(tolerance))
         
-        if units != None:
+        if units is not None:
             self.unitsDa_radio.SetValue(bool(units == 'Da'))
             self.unitsPpm_radio.SetValue(bool(units == 'ppm'))
         
@@ -824,11 +824,11 @@ class panelMassToFormula(wx.MiniFrame):
             rdbe = '%.1f' % item[5]
             
             hc = 'n/a'
-            if item[4] != None:
+            if item[4] is not None:
                 hc = '%.1f' % item[4]
             
             similarity = 'n/a'
-            if item[6] != None:
+            if item[6] is not None:
                 similarity = '%.1f' % item[6]
             
             # add data
@@ -855,7 +855,7 @@ class panelMassToFormula(wx.MiniFrame):
         """Compare theoretical and real isotopic pattern."""
         
         # check document
-        if self.currentDocument == None or not self.currentDocument.spectrum.hasprofile():
+        if self.currentDocument is None or not self.currentDocument.spectrum.hasprofile():
             return None
         
         # get baseline window
@@ -904,7 +904,7 @@ class panelMassToFormula(wx.MiniFrame):
         )
         
         # calc similarity
-        if rms != None:
+        if rms is not None:
             rms = (1-rms)*100
         
         return rms

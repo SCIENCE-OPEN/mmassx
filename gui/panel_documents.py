@@ -390,7 +390,7 @@ class panelDocuments(wx.Panel):
         if itemType in ('annotation', 'match'):
             matchData = self.documentTree.GetItemData(item)
             points = [matchData.mz]
-            if matchData.theoretical != None:
+            if matchData.theoretical is not None:
                 points.append(matchData.theoretical)
             self.parent.updateMassPoints(points)
     # ----
@@ -525,7 +525,7 @@ class panelDocuments(wx.Panel):
             if itemType == 'match':
                 menu.Enable(ID_sequenceMatchDelete, True)
                 menu.Enable(ID_sequenceMatchesDelete, True)
-            if itemType != None:
+            if itemType is not None:
                 menu.Enable(ID_documentNotationsDelete, True)
                 menu.Enable(ID_documentClose, True)
         
@@ -568,13 +568,13 @@ class panelDocuments(wx.Panel):
         # delete annotation
         if itemType == 'annotation':
             annotIndex = self._getAnnotationIndex(item)
-            if annotIndex != None:
+            if annotIndex is not None:
                 self.parent.onDocumentAnnotationsDelete(annotIndex=annotIndex)
         
         # delete sequence match
         elif itemType == 'match':
             matchIndex = self._getMatchIndex(item)
-            if matchIndex != None:
+            if matchIndex is not None:
                 self.parent.onSequenceMatchesDelete(matchIndex=matchIndex)
     # ----
     
@@ -646,7 +646,7 @@ class panelDocuments(wx.Panel):
         """Select document"""
         
         # deselect all documents
-        if docIndex == None:
+        if docIndex is None:
             self.documentTree.Unselect()
             self.parent.onDocumentSelected(None)
             return
@@ -676,7 +676,7 @@ class panelDocuments(wx.Panel):
         """Delete selected document."""
         
         # check document
-        if docIndex == None:
+        if docIndex is None:
             return
         
         # remove from tree
@@ -688,7 +688,7 @@ class panelDocuments(wx.Panel):
         """Enable/disable selected document."""
         
         # check document
-        if docIndex == None:
+        if docIndex is None:
             return
         
         # get item
@@ -704,7 +704,7 @@ class panelDocuments(wx.Panel):
         """Update document title."""
         
         # check document
-        if docIndex == None:
+        if docIndex is None:
             return
         
         # get item
@@ -725,7 +725,7 @@ class panelDocuments(wx.Panel):
         """Update bullet of selected document."""
         
         # check document
-        if docIndex == None:
+        if docIndex is None:
             return
         
         # get document item
@@ -741,7 +741,7 @@ class panelDocuments(wx.Panel):
         """Set new annotations for document."""
         
         # check document
-        if docIndex == None:
+        if docIndex is None:
             return
         
         # get item
@@ -778,7 +778,7 @@ class panelDocuments(wx.Panel):
         """Select sequence"""
         
         # check index
-        if docIndex == None or seqIndex == None:
+        if docIndex is None or seqIndex is None:
             return
         
         # get item
@@ -794,7 +794,7 @@ class panelDocuments(wx.Panel):
         """Append new sequence to the tree."""
         
         # check document
-        if docIndex == None:
+        if docIndex is None:
             return
         
         # get document item
@@ -813,7 +813,7 @@ class panelDocuments(wx.Panel):
         """Delete selected sequence."""
         
         # check document
-        if docIndex == None or seqIndex == None:
+        if docIndex is None or seqIndex is None:
             return
         
         # collapse document first
@@ -834,7 +834,7 @@ class panelDocuments(wx.Panel):
         """Set new label for sequence."""
         
         # check document
-        if docIndex == None or seqIndex == None:
+        if docIndex is None or seqIndex is None:
             return
         
         # get item
@@ -850,7 +850,7 @@ class panelDocuments(wx.Panel):
         """Set new matches for sequence."""
         
         # check document
-        if docIndex == None or seqIndex == None:
+        if docIndex is None or seqIndex is None:
             return
         
         # get item
@@ -884,7 +884,7 @@ class panelDocuments(wx.Panel):
         """Set new sequences for current document."""
         
         # check document
-        if docIndex == None:
+        if docIndex is None:
             return
         
         # collapse document first
@@ -1055,7 +1055,7 @@ class documentsTree(wx.TreeCtrl):
         """Get item by its data."""
         
         # get root
-        if root == None:
+        if root is None:
             root = self.GetRootItem()
         
         # check children
@@ -1219,13 +1219,13 @@ class documentsTree(wx.TreeCtrl):
         
         # get error
         error = notationData.delta(config.main['errorUnits'])
-        if error != None and config.main['errorUnits'] == 'ppm':
+        if error is not None and config.main['errorUnits'] == 'ppm':
             error = round(error, config.main['ppmDigits'])
-        elif error != None:
+        elif error is not None:
             error = round(error, config.main['mzDigits'])
         
         # make label
-        if error != None:
+        if error is not None:
             label = '%s (%s %s) %s' % (mz, error, config.main['errorUnits'], notationData.label)
         else:
             label = '%s %s' % (mz, notationData.label)
@@ -1258,7 +1258,7 @@ class documentsTree(wx.TreeCtrl):
             child, cookie = self.GetNextChild(self.GetRootItem(), cookie)
         
         # select parent document
-        if item != None:
+        if item is not None:
             item = self.getParentItem(item, 1)
             self.SetItemBold(item, True)
     # ----

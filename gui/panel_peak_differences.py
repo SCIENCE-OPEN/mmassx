@@ -253,7 +253,7 @@ class panelPeakDifferences(wx.MiniFrame):
         """Hide this frame."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -601,7 +601,7 @@ class panelPeakDifferences(wx.MiniFrame):
                     match = False
                     
                     # match specified value
-                    if self.currentDifference != None and (diffMin <= diff <= diffMax):
+                    if self.currentDifference is not None and (diffMin <= diff <= diffMax):
                         match = 'value'
                     
                     # match amino acids

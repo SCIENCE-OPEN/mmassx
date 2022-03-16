@@ -670,7 +670,7 @@ class panelProcessing(wx.MiniFrame):
         """Close panel."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -683,12 +683,12 @@ class panelProcessing(wx.MiniFrame):
         """Selected tool."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
         # get the tool
-        if evt != None:
+        if evt is not None:
             tool = 'peakpicking'
             if evt.GetId() == ID_processingMath:
                 tool = 'math'
@@ -1154,7 +1154,7 @@ class panelProcessing(wx.MiniFrame):
             return
         
         # check document
-        if self.currentDocument == None and not self.currentTool in ('math', 'batch'):
+        if self.currentDocument is None and not self.currentTool in ('math', 'batch'):
             wx.Bell()
             return
         
@@ -1380,7 +1380,7 @@ class panelProcessing(wx.MiniFrame):
         self.mathSpectrumA_choice.Clear()
         
         # check document
-        if self.currentDocument == None:
+        if self.currentDocument is None:
             self.mathSpectrumA_choice.Append('None')
             self.mathSpectrumA_choice.Select(0)
             return
@@ -2094,7 +2094,7 @@ class panelProcessing(wx.MiniFrame):
     def clearPreview(self):
         """Clear tmp preview spectrum."""
         
-        if self.previewData != None:
+        if self.previewData is not None:
             self.previewData = None
             self.parent.updateTmpSpectrum(None)
     # ----

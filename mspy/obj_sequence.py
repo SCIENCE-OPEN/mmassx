@@ -355,7 +355,7 @@ class sequence:
         """Get formula."""
         
         # check formula buffer
-        if self._formula != None:
+        if self._formula is not None:
             return self._formula
         
         # get composition
@@ -377,7 +377,7 @@ class sequence:
         """Get elemental composition."""
         
         # check composition buffer
-        if self._composition != None:
+        if self._composition is not None:
             return self._composition
         
         self._composition = {}
@@ -442,7 +442,7 @@ class sequence:
         """Get mass."""
         
         # get mass
-        if self._mass == None:
+        if self._mass is None:
             self._mass = obj_compound.compound(self.formula()).mass()
         
         # return mass
@@ -526,7 +526,7 @@ class sequence:
         keys['f'] = ''
         if 'f' in template and self.fragmentSerie:
             keys['f'] = self.fragmentSerie
-            if self.fragmentIndex != None:
+            if self.fragmentIndex is not None:
                 keys['f'] += str(self.fragmentIndex)
             for gain in self.fragmentGains:
                 keys['f'] += ' +'+gain
@@ -740,7 +740,7 @@ class sequence:
         
         # set break points
         breakPoints = range(len(self))
-        if breakPoint != None:
+        if breakPoint is not None:
             breakPoints = [breakPoint]
         
         # make peptides for all break points
@@ -799,7 +799,7 @@ class sequence:
         """
         
         # check specified position only
-        if position != None:
+        if position is not None:
             for mod in self.modifications:
                 if (strict or mod[2]=='f'):
                     if mod[1] == position \
@@ -870,7 +870,7 @@ class sequence:
         """Remove modification from sequence."""
         
         # remove all modifications
-        if name == None:
+        if name is None:
             del self.modifications[:]
         
         # remove modification

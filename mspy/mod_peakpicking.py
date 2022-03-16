@@ -125,7 +125,7 @@ def labelpeak(signal, mz=None, minX=None, maxX=None, pickingHeight=0.75, baselin
         raise TypeError("Baseline must be NumPy array!")
     
     # check m/z value or range
-    if mz == None and minX == None and maxX == None:
+    if mz is None and minX is None and maxX is None:
         raise TypeError("m/z value or range must be specified!")
     
     # check signal data
@@ -133,13 +133,13 @@ def labelpeak(signal, mz=None, minX=None, maxX=None, pickingHeight=0.75, baselin
         return None
     
     # check m/z value
-    if mz != None:
+    if mz is not None:
         minX = mz
     if minX <= 0:
         return False
     
     # get index of given m/z or range maximum
-    if mz != None:
+    if mz is not None:
         imax = mod_signal.locate(signal, mz)
     else:
         i1 = mod_signal.locate(signal, minX)
@@ -171,11 +171,11 @@ def labelpeak(signal, mz=None, minX=None, maxX=None, pickingHeight=0.75, baselin
     rightMZ = mod_signal.interpolate(signal[iright-1], signal[iright], y=h)
     
     # check range
-    if mz == None and (leftMZ < minX or rightMZ > maxX) and (leftMZ != rightMZ):
+    if mz is None and (leftMZ < minX or rightMZ > maxX) and (leftMZ != rightMZ):
         return None
     
     # label peak in the newly found selection
-    if mz != None and leftMZ != rightMZ:
+    if mz is not None and leftMZ != rightMZ:
         peak = labelpeak(
             signal = signal,
             minX = leftMZ,
@@ -217,7 +217,7 @@ def labelscan(signal, minX=None, maxX=None, pickingHeight=0.75, absThreshold=0.,
         raise TypeError("Baseline must be NumPy array!")
     
     # crop data
-    if minX != None and maxX != None:
+    if minX is not None and maxX is not None:
         i1 = mod_signal.locate(signal, minX)
         i2 = mod_signal.locate(signal, maxX)
         signal = signal[i1:i2]
@@ -298,7 +298,7 @@ def labelscan(signal, minX=None, maxX=None, pickingHeight=0.75, absThreshold=0.,
                 continue
             
             # try to group with previous peak
-            if previous != None and leftMZ < previous:
+            if previous is not None and leftMZ < previous:
                 if peak[1] > buff[-1][1]:
                     buff[-1] = peak
                     previous = rightMZ
@@ -389,7 +389,7 @@ def envcentroid(isotopes, pickingHeight=0.5, intensity='maximum'):
     for x, isotope in enumerate(isotopes):
         if isotope.intensity >= minInt:
             i2 = x
-            if i1 == None:
+            if i1 is None:
                 i1 = x
     
     mz1 = isotopes[i1].mz
@@ -502,7 +502,7 @@ def deisotope(peaklist, maxCharge=1, mzTolerance=0.15, intTolerance=0.5, isotope
         CHECK_FORCE_QUIT()
         
         # skip assigned peaks
-        if parent.isotope != None:
+        if parent.isotope is not None:
             continue
         
         # try all charge states

@@ -963,7 +963,7 @@ class canvas(wx.Window):
         """Get corresponding data point from current object and xPos."""
         
         # check current object
-        if self.currentObject == None:
+        if self.currentObject is None:
             return None
         
         # get corresponding point
@@ -995,7 +995,7 @@ class canvas(wx.Window):
         """Set DC width and height."""
         
         # get size
-        if width == None:
+        if width is None:
             (width, height) = self.GetClientSize()
         
         # set size
@@ -1076,7 +1076,7 @@ class canvas(wx.Window):
         self.mouseTracker = False
         
         # set DC
-        if dc == None:
+        if dc is None:
             dc = wx.BufferedDC(wx.ClientDC(self), self.plotBuffer)
         dc.SetBackground(wx.Brush(self.properties['canvasColour'], wx.SOLID))
         dc.Clear()
@@ -1088,11 +1088,11 @@ class canvas(wx.Window):
         self.gelsCount = graphics.countGels()
         
         # get lower left and upper right corners of plot
-        if xAxis == None or yAxis == None:
+        if xAxis is None or yAxis is None:
             p1, p2 = graphics.getBoundingBox()
-            if xAxis == None:
+            if xAxis is None:
                 xAxis = (p1[0], p2[0])
-            if yAxis == None:
+            if yAxis is None:
                 yAxis = (p1[1], p2[1])
             self.viewMemory[0] = [(xAxis, yAxis)]
         
@@ -1185,7 +1185,7 @@ class canvas(wx.Window):
     def drawOutside(self, dc, filterSize):
         """Used for printing and exporting."""
         
-        if self.lastDraw != None:
+        if self.lastDraw is not None:
             graphics, xAxis, yAxis = self.lastDraw
             self.draw(graphics, xAxis, yAxis, dc, filterSize=filterSize)
     # ----
@@ -1663,7 +1663,7 @@ class canvas(wx.Window):
             return
         
         # check current object
-        if self.currentObject == None:
+        if self.currentObject is None:
             return
         
         # hide cursor
@@ -1763,7 +1763,7 @@ class canvas(wx.Window):
             intensity = None
             if self.currentObject:
                 point = self.getPoint(isotope, coord='screen')
-                if point != None:
+                if point is not None:
                     intensity = min(point[1], maxYPlot-5)
                     intensity = max(intensity, minYPlot+5)
             
@@ -2070,7 +2070,7 @@ class canvas(wx.Window):
         """Zoom plot to selected range"""
         
         # set X axis
-        if xAxis == None:
+        if xAxis is None:
             xAxis = self.getCurrentXRange()
         elif self.properties['checkLimits']:
             minX, maxX = self.getMaxXRange()
@@ -2083,7 +2083,7 @@ class canvas(wx.Window):
                 xAxis = self.getCurrentXRange()
             
         # set Y axis
-        if yAxis == None:
+        if yAxis is None:
             if self.properties['autoScaleY']:
                 yAxis = self.getMaxYRange(xAxis[0], xAxis[1])
             else:
@@ -2095,7 +2095,7 @@ class canvas(wx.Window):
                 yAxis = (yAxis[1], yAxis[0])
             
         # draw plot
-        if not xAxis == None or not yAxis == None:
+        if not xAxis is None or not yAxis is None:
             self.draw(self.lastDraw[0], xAxis, yAxis)
             self.rememberView(xAxis, yAxis)
     # ----
@@ -2353,9 +2353,9 @@ class canvas(wx.Window):
         """ Remember current zoom. """
         
         # get axis
-        if xAxis == None:
+        if xAxis is None:
             xAxis = self.getCurrentXRange()
-        if yAxis == None:
+        if yAxis is None:
             yAxis = self.getCurrentYRange()
             
         # remember current zoom

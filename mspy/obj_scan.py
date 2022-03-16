@@ -546,7 +546,7 @@ class scan:
         )
         
         # check peaklist
-        if peaklist == None:
+        if peaklist is None:
             return False
         
         # update peaklist

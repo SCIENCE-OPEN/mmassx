@@ -936,7 +936,7 @@ class panelSequence(wx.MiniFrame):
         """Hide this frame."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -1041,7 +1041,7 @@ class panelSequence(wx.MiniFrame):
         """Selected tool."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -1050,7 +1050,7 @@ class panelSequence(wx.MiniFrame):
             self.matchPanel.Close()
         
         # get the tool
-        if evt != None:
+        if evt is not None:
             tool = 'editor'
             if evt and evt.GetId() == ID_sequenceEditor:
                 tool = 'editor'
@@ -1066,7 +1066,7 @@ class panelSequence(wx.MiniFrame):
         # block some tools for cyclic or custom sequence
         if tool == 'editor':
             pass
-        elif self.currentSequence == None:
+        elif self.currentSequence is None:
             wx.Bell()
             return
         elif self.currentSequence.chainType != 'aminoacids' and not tool in ('editor', 'fragment'):
@@ -1157,7 +1157,7 @@ class panelSequence(wx.MiniFrame):
         # set filters
         filterIn = []
         filterOut = []
-        if self.currentSequence == None or self.currentSequence.chainType == 'aminoacids':
+        if self.currentSequence is None or self.currentSequence.chainType == 'aminoacids':
             filterIn = ['_InternalAA']
             DnD = False
         else:
@@ -1288,7 +1288,7 @@ class panelSequence(wx.MiniFrame):
         self.updateSequenceInfo()
         
         # check sequence
-        if self.currentSequence == None:
+        if self.currentSequence is None:
             return
         
         # set editor
@@ -1305,19 +1305,19 @@ class panelSequence(wx.MiniFrame):
             self.updateModificationsList()
             
             # update digest panel
-            if self.currentDigest != None:
+            if self.currentDigest is not None:
                 self.currentDigest = None
                 self.updateDigestList()
                 self.updateCoverage()
             
             # update fragment panel
             self.updateAvailableFragments()
-            if self.currentFragments != None:
+            if self.currentFragments is not None:
                 self.currentFragments = None
                 self.updateFragmentsList()
             
             # update search panel
-            if self.currentSearch != None:
+            if self.currentSearch is not None:
                 self.currentSearch = None
                 self.updateSearchList()
             
@@ -1958,7 +1958,7 @@ class panelSequence(wx.MiniFrame):
         self.currentSequence = sequence
         
         # check sequence
-        if self.currentSequence == None:
+        if self.currentSequence is None:
             self.sequenceType_choice.Enable(False)
             self.sequenceCyclic_check.Enable(False)
             self.sequenceTitle_value.Enable(False)
@@ -1976,7 +1976,7 @@ class panelSequence(wx.MiniFrame):
             self.sequenceAccession_value.ChangeValue(self.currentSequence.accession)
         
         # select editor
-        if self.currentSequence == None or self.currentSequence.chainType == 'aminoacids':
+        if self.currentSequence is None or self.currentSequence.chainType == 'aminoacids':
             self.sequenceType_choice.Select(0)
             self.sequenceCanvas.setData(self.currentSequence)
             self.sequenceEditorSizer.Hide(2)
@@ -2001,19 +2001,19 @@ class panelSequence(wx.MiniFrame):
         self.updateModificationsList()
         
         # update digest panel
-        if self.currentDigest != None:
+        if self.currentDigest is not None:
             self.currentDigest = None
             self.updateDigestList()
             self.updateCoverage()
         
         # update fragment panel
         self.updateAvailableFragments()
-        if self.currentFragments != None:
+        if self.currentFragments is not None:
             self.currentFragments = None
             self.updateFragmentsList()
         
         # update search panel
-        if self.currentSearch != None:
+        if self.currentSearch is not None:
             self.currentSearch = None
             self.updateSearchList()
         
@@ -2268,7 +2268,7 @@ class panelSequence(wx.MiniFrame):
         self.modificationsList.DeleteAllItems()
         
         # check sequence
-        if self.currentSequence == None:
+        if self.currentSequence is None:
             return
         
         currentMods = []
@@ -2332,7 +2332,7 @@ class panelSequence(wx.MiniFrame):
         """Update available fragments."""
         
         # no sequence defined
-        if self.currentSequence == None:
+        if self.currentSequence is None:
             self.fragmentIntA_check.Enable()
             self.fragmentIntB_check.Enable()
             self.fragmentNLadder_check.Enable()
@@ -2389,9 +2389,9 @@ class panelSequence(wx.MiniFrame):
         for index, item in enumerate(self.currentDigest):
             
             # filter data
-            if self._digestFilter == 1 and item[5] == None:
+            if self._digestFilter == 1 and item[5] is None:
                 continue
-            elif self._digestFilter == -1 and item[5] != None:
+            elif self._digestFilter == -1 and item[5] is not None:
                 continue
             
             # format data
@@ -2399,7 +2399,7 @@ class panelSequence(wx.MiniFrame):
             mz = mzFormat % (item[2])
             
             error = ''
-            if item[5] != None:
+            if item[5] is not None:
                 error = errFormat % (item[5])
             
             # add data
@@ -2413,7 +2413,7 @@ class panelSequence(wx.MiniFrame):
             self.digestList.SetItemData(row, index)
             
             # mark matched
-            if item[5] != None:
+            if item[5] is not None:
                 self.digestList.SetItemTextColour(row, (0,200,0))
                 self.digestList.SetItemFont(row, fontMatched)
         
@@ -2449,9 +2449,9 @@ class panelSequence(wx.MiniFrame):
         for index, item in enumerate(self.currentFragments):
             
             # filter data
-            if self._fragmentsFilter == 1 and item[5] == None:
+            if self._fragmentsFilter == 1 and item[5] is None:
                 continue
-            elif self._fragmentsFilter == -1 and item[5] != None:
+            elif self._fragmentsFilter == -1 and item[5] is not None:
                 continue
             
             # format data
@@ -2459,7 +2459,7 @@ class panelSequence(wx.MiniFrame):
             mz = mzFormat % (item[2])
             
             error = ''
-            if item[5] != None:
+            if item[5] is not None:
                 error = errFormat % (item[5])
             
             # add data
@@ -2473,13 +2473,13 @@ class panelSequence(wx.MiniFrame):
             self.fragmentsList.SetItemData(row, index)
             
             # mark filtered and matched fragments
-            if item[6].fragmentFiltered and item[5] == None:
+            if item[6].fragmentFiltered and item[5] is None:
                 self.fragmentsList.SetItemTextColour(row, (150,150,150))
                 self.fragmentsList.SetItemFont(row, fontFiltered)
-            elif item[6].fragmentFiltered and item[5] != None:
+            elif item[6].fragmentFiltered and item[5] is not None:
                 self.fragmentsList.SetItemTextColour(row, (0,200,0))
                 self.fragmentsList.SetItemFont(row, fontFiltered)
-            elif item[5] != None:
+            elif item[5] is not None:
                 self.fragmentsList.SetItemTextColour(row, (0,200,0))
                 self.fragmentsList.SetItemFont(row, fontMatched)
         
@@ -2566,7 +2566,7 @@ class panelSequence(wx.MiniFrame):
         for peptide in self.currentDigest:
             section = [peptide[6].history[-1][1]+1, peptide[6].history[-1][2]]
             totalRanges.append(section)
-            if peptide[5] != None:
+            if peptide[5] is not None:
                 matchedRanges.append(section)
         
         # get coverages
@@ -2742,7 +2742,7 @@ class panelSequence(wx.MiniFrame):
         """Clear matched data."""
         
         # update digest panel
-        if self.currentDigest != None:
+        if self.currentDigest is not None:
             for item in self.currentDigest:
                 item[5] = None # error col
                 item[-1] = [] # matches
@@ -2750,7 +2750,7 @@ class panelSequence(wx.MiniFrame):
             self.updateCoverage()
         
         # update fragment panel
-        if self.currentFragments != None:
+        if self.currentFragments is not None:
             for item in self.currentFragments:
                 item[5] = None # error col
                 item[-1] = [] # matches
@@ -3079,7 +3079,7 @@ class sequenceCanvas(wx.TextCtrl):
         # make sequence
         if isinstance(sequence, mspy.obj_sequence.sequence):
             self.currentSequence = sequence
-        elif sequence == None:
+        elif sequence is None:
             self.currentSequence = mspy.obj_sequence.sequence('')
         
         # get regular amino acids
@@ -3306,7 +3306,7 @@ class sequenceCanvas(wx.TextCtrl):
         """Show current sequence in canvas."""
         
         # check sequence
-        if self.currentSequence == None:
+        if self.currentSequence is None:
             self.ChangeValue('')
             return
         
@@ -3398,7 +3398,7 @@ class sequenceCanvas(wx.TextCtrl):
         self.currentSequence = sequence
         
         # disable editor
-        if self.currentSequence == None:
+        if self.currentSequence is None:
             self.refresh()
             self.enable(False)
             return
@@ -3474,7 +3474,7 @@ class sequenceGrid(wx.StaticBoxSizer):
         # make sequence
         if isinstance(sequence, mspy.obj_sequence.sequence):
             self.currentSequence = sequence
-        elif sequence == None:
+        elif sequence is None:
             self.currentSequence = mspy.obj_sequence.sequence('')
         
         # make items grid
@@ -3553,7 +3553,7 @@ class sequenceGrid(wx.StaticBoxSizer):
             item.SetBackgroundColour(wx.NullColour)
         
         # update items
-        if self.currentSequence != None:
+        if self.currentSequence is not None:
             for x, monomer in enumerate(self.currentSequence):
                 self.items[x].ChangeValue(monomer)
         
@@ -3566,7 +3566,7 @@ class sequenceGrid(wx.StaticBoxSizer):
         """Disable unset items."""
         
         # check sequence
-        if self.currentSequence == None:
+        if self.currentSequence is None:
             for item in self.items:
                 item.Disable()
                 item.SetBackgroundColour((230,230,230))
@@ -3611,7 +3611,7 @@ class sequenceGrid(wx.StaticBoxSizer):
         self.currentSequence = sequence
         
         # disable editor
-        if self.currentSequence == None:
+        if self.currentSequence is None:
             self.refresh()
             self.enable(False)
             return
