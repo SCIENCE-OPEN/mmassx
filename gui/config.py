@@ -356,6 +356,7 @@ massToFormula={
     'METLINScript': 'http://metlin.scripps.edu/metabo_list_adv.php',
     'HMDBScript': 'http://www.hmdb.ca/search',
     'LipidMAPSScript': 'http://www.lipidmaps.org/data/structure/LMSDSearch.php',
+    'KEGGScript': 'https://www.kegg.jp/kegg-bin/search_ligand',
 }
 
 massDefectPlot={

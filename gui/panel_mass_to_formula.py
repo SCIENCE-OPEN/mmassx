@@ -418,6 +418,8 @@ class panelMassToFormula(wx.MiniFrame):
             server = 'HMDB'
         elif evt.GetId() == ID_massToFormulaSearchLipidMaps:
             server = 'Lipid MAPS'
+        elif evt.GetId() == ID_massToFormulaSearchKEGG:
+            server = 'KEGG'
         else:
             wx.Bell()
             return
@@ -491,6 +493,7 @@ class panelMassToFormula(wx.MiniFrame):
         menu.Append(ID_massToFormulaSearchMETLIN, "Search in METLIN", "")
         menu.Append(ID_massToFormulaSearchHMDB, "Search in HMDB", "")
         menu.Append(ID_massToFormulaSearchLipidMaps, "Search in Lipid MAPS", "")
+        menu.Append(ID_massToFormulaSearchKEGG, "Search in KEGG", "")
         menu.AppendSeparator()
         menu.Append(ID_listCopyFormula, "Copy Formula")
         menu.Append(ID_listCopy, "Copy List")
@@ -502,6 +505,7 @@ class panelMassToFormula(wx.MiniFrame):
         self.Bind(wx.EVT_MENU, self.onItemSearch, id=ID_massToFormulaSearchMETLIN)
         self.Bind(wx.EVT_MENU, self.onItemSearch, id=ID_massToFormulaSearchHMDB)
         self.Bind(wx.EVT_MENU, self.onItemSearch, id=ID_massToFormulaSearchLipidMaps)
+        self.Bind(wx.EVT_MENU, self.onItemSearch, id=ID_massToFormulaSearchKEGG)
         self.Bind(wx.EVT_MENU, self.onItemCopyFormula, id=ID_listCopyFormula)
         self.Bind(wx.EVT_MENU, self.onListCopy, id=ID_listCopy)
         
@@ -931,7 +935,7 @@ class panelMassToFormula(wx.MiniFrame):
         
         # get method
         method = 'post'
-        if server in ['ChemSpider', 'HMDB']:
+        if server in ['ChemSpider', 'HMDB', 'KEGG']:
             method = 'get'
         
         # get formula
@@ -997,6 +1001,11 @@ class panelMassToFormula(wx.MiniFrame):
             buff += '      <input type="hidden" name="Mode" value="ProcessTextOntologySearch" />\n'
             buff += '      <input type="hidden" name="ResultsPerPage" value="50" />\n'
             buff += '      <input type="text" name="Formula" value="%s" />\n' % (formula)
+            
+        elif server == 'KEGG':
+            buff += '      <input type="hidden" name="DATABASE" value="compound" />\n'
+            buff += '      <input type="hidden" name="column" value="entry+name+formula" />\n'
+            buff += '      <input type="text" name="query" value="%s" />\n' % (formula)
         
         # page end
         buff += '    </div>\n\n'
