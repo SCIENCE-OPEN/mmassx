@@ -995,7 +995,9 @@ class panelMassToFormula(wx.MiniFrame):
             buff += '      <input type="text" name="formula" value="%s"  />\n' % (formula)
         
         elif server == 'HMDB':
+            # e.g. https://hmdb.ca/unearth/q?query=C4H9N3O2&searcher=metabolites            buff += '      <input type="hidden" name="searcher" value="metabolites" />\n'
             buff += '      <input type="text" name="query" value="%s"  />\n' % (formula)
+            buff += '      <input type="text" name="searcher" value="metabolites"  />\n'
         
         elif server == 'Lipid MAPS':
             buff += '      <input type="hidden" name="Mode" value="ProcessTextOntologySearch" />\n'
