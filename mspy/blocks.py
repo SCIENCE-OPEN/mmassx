@@ -586,7 +586,7 @@ def saveMonomers(path=os.path.join(blocksdir, 'monomers.xml')):
     buff = '<?xml version="1.0" encoding="utf-8" ?>\n'
     buff += '<mspyMonomers version="1.0">\n'
     
-    abbrs = monomers.keys()
+    abbrs = list(monomers.keys())
     abbrs.sort()
     for abbr in abbrs:
         if monomers[abbr].category != '_InternalAA':

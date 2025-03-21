@@ -1,16 +1,95 @@
-This fork of the mMass 5.5.0 repo (xxao\\mMass) has been extensively updated to run with 
-- python 3.9 
-- numPy 1.20.3  
+# mMassX
+
+This work continues [gyellen fork](https://github.com/gyellen/mMass), which is based on [xxao original v5.5.0](https://github.com/xxao/mMass).
+
+## Requirements
+
+- conda (recommended)
+
+or
+
+- python 3.9.19
+- numPy 1.20.3
+- wxPython 4.1.1
+- wxwidgets 3.1.5
+- pandas 1.3.4
+
+## Installation
+
+- create new virtual environment or activate virtual environment from file `environment.yml`
+
+```
+# new
+
+$ conda create --prefix ./.mmass_env
+$ conda activate ./.mmass_env
+$ (.mmass_env) conda install python=3.9.19
+$ (.mmass_env) conda install -c conda-forge wxwidgets=3.1.5 wxpython=4.1.1 numpy=1.20.3 pandas=1.3.4
+```
+
+```
+# from `environment.yml`
+
+$ conda env create --prefix .mmass_env -f environment.yml
+$ conda activate .mmass_env
+```
+
+- build `mspy`
+
+```
+$ cd mspy
+$ rm -rf build
+$ python3 setup.py build_ext --inplace
+```
+
+- configs (use default configs if needed)
+
+```
+$ cp -r configs ~/.mmass/
+```
+
+- run or debug in VS Code
+
+```
+$ conda activate ./.mmass_env
+$ (.mmass_env) python3 ./mmass.py
+```
+
+## Contribution guide
+
+- download repository
+
+```
+$ git clone git@github.com:SCIENCE-OPEN/mmassx.git
+$ cd mmassx
+```
+
+- to avoid changing line endings each commit
+
+```
+# linux
+$ git config core.autocrlf input
+
+# windows
+$ git config core.autocrlf true
+```
+
+- for `.editorconfig` support, install in VS Code official extension `EditorConfig for VS Code`
+
+# Gyellen fork of official mMass Repository ([link](https://github.com/gyellen/mMass))
+
+This fork of the mMass 5.5.0 repo (xxao\\mMass) has been extensively updated to run with
+- python 3.9
+- numPy 1.20.3
 - wxPython 4.1.1
 - pandas 1.3.4
-	
-Some additional changes have been made to allow 
+
+Some additional changes have been made to allow
 - zooming in on annotated or unannotated peak
 - import of .csv files
 - lookup in KEGG for mass-to-formula
 
-========= original readme: =========
-# Official mMass Repository
+# Official mMass Repository ([link](https://github.com/xxao/mMass))
 
 This is the official source code backup repository for
 [mMass](http://www.mmass.org) software. Although mMass is no longer actively
