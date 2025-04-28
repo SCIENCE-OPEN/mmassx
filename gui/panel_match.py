@@ -20,13 +20,13 @@ import threading
 import wx
 
 # load modules
-from .ids import *
-from . import mwx
-from . import images
-from . import config
+from ids import *
+import mwx
+import images
+import config
 import mspy
 import mspy.plot
-from . import doc
+import doc
 
 
 # FLOATING PANEL WITH MATCH TOOLS
@@ -36,7 +36,7 @@ class panelMatch(wx.MiniFrame):
     """Data match tool."""
     
     def __init__(self, parentTool, mainFrame, module):
-        wx.MiniFrame.__init__(self, parentTool, -1, 'Match Data', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.MAXIMIZE_BOX))
+        wx.MiniFrame.__init__(self, parentTool, -1, 'Match Data', size=(400, 300), style=wx.DEFAULT_FRAME_STYLE & ~ (wx.RESIZE_BOX | wx.MAXIMIZE_BOX))
         
         self.parentTool = parentTool
         self.mainFrame = mainFrame
@@ -53,7 +53,7 @@ class panelMatch(wx.MiniFrame):
         
         # make gui items
         self.makeGUI()
-        self.Bind(wx.EVT_CLOSE, self.onClose)
+        wx.EVT_CLOSE(self, self.onClose)
         
         # select default tool
         self.onToolSelected(tool=self.currentTool)
@@ -313,7 +313,7 @@ class panelMatch(wx.MiniFrame):
         """Destroy this frame."""
         
         # check processing
-        if self.processing is not None:
+        if self.processing != None:
             wx.Bell()
             return
         
@@ -326,7 +326,7 @@ class panelMatch(wx.MiniFrame):
         """Selected tool."""
         
         # get the tool
-        if evt is not None:
+        if evt != None:
             tool = 'errors'
             if evt and evt.GetId() == ID_matchErrors:
                 tool = 'errors'
@@ -364,13 +364,13 @@ class panelMatch(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            #self.MakeModal(True)
+            self.MakeModal(True)
             self.mainSizer.Show(4)
         else:
-            #self.MakeModal(False)
+            self.MakeModal(False)
             self.mainSizer.Hide(4)
             self.processing = None
-            mspy.mod_stopper.start()
+            mspy.start()
         
         # fit layout
         self.Layout()
@@ -383,8 +383,8 @@ class panelMatch(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.is_alive():
-            mspy.mod_stopper.stop()
+        if self.processing and self.processing.isAlive():
+            mspy.stop()
         else:
             wx.Bell()
     # ----
@@ -469,7 +469,7 @@ class panelMatch(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.is_alive():
+        while self.processing and self.processing.isAlive():
             self.gauge.pulse()
         
         # update gui
@@ -614,50 +614,67 @@ class panelMatch(wx.MiniFrame):
                 massCol = 1
                 chargeCol = None
                 errorCol = 2
+                # $$
+                matchCol = -1
                 matchObject = doc.annotation
             elif self.currentModule == 'digest':
                 massCol = 2
                 chargeCol = 3
                 errorCol = 5
+                # $$
+                matchCol = -1
                 matchObject = doc.match
             elif self.currentModule == 'fragment':
                 massCol = 2
                 chargeCol = 3
                 errorCol = 5
+                # $$
+                matchCol = -1
                 matchObject = doc.match
             elif self.currentModule == 'compounds':
                 massCol = 1
                 chargeCol = 2
                 errorCol = 5
+                # $$ 22.04
+                matchCol = 6
+                # $$ 22.04
+                measuredCol = 7
                 matchObject = doc.annotation
             
             # clear previous match
             for item in self.currentData:
                 item[errorCol] = None
-                item[-1] = []
+                # $$
+                item[matchCol] = []
+                if measuredCol != None:
+                    item[measuredCol] = None
             
             # match data
             self.currentErrors = []
             self.currentCalibrationPoints = []
             
-            digits = '%0.' + str(config.main['mzDigits']) + 'f'
+            digits = '%0.' + `config.main['mzDigits']` + 'f'
             for pIndex, peak in enumerate(self.currentPeaklist):
                 for x, item in enumerate(self.currentData):
                     
-                    mspy.mod_stopper.CHECK_FORCE_QUIT()
+                    mspy.CHECK_FORCE_QUIT()
                     
                     # check charge
                     if (chargeCol==None or peak.charge==None or config.match['ignoreCharge'] or peak.charge==item[chargeCol]):
                         
                         # check mass tolerance
-                        error = mspy.mod_basics.delta(peak.mz, item[massCol], config.match['units'])
+                        error = mspy.delta(peak.mz, item[massCol], config.match['units'])
                         if abs(error) <= config.match['tolerance']:
                             
                             # create new match object
                             match = matchObject(label='', mz=peak.mz, ai=peak.ai, base=peak.base, theoretical=item[massCol])
                             match.peakIndex = pIndex
-                            self.currentData[x][-1].append(match)
-                            
+                            # $$
+                            self.currentData[x][matchCol].append(match)
+                            # $$
+                            if measuredCol != None:
+                                self.currentData[x][measuredCol] = peak.mz
+
                             # errors and calibration points
                             label = 'Peak ' + digits % peak.mz
                             self.currentErrors.append([peak.mz, error])
@@ -665,22 +682,27 @@ class panelMatch(wx.MiniFrame):
             
             # show best error only
             for item in self.currentData:
-                for match in item[-1]:
+                # $$
+                for match in item[matchCol]:
                     error = match.delta(config.match['units'])
-                    if item[errorCol] is None or abs(item[errorCol]) > abs(error):
+                    if item[errorCol] == None or abs(item[errorCol]) > abs(error):
                         item[errorCol] = error
             
             # get match summary
             self.makeMatchSummary()
         
         # task canceled
-        except mspy.mod_stopper.ForceQuit:
+        except mspy.ForceQuit:
             self.currentErrors = []
             self.currentCalibrationPoints = []
             self.currentSummary = []
             for item in self.currentData:
                 item[errorCol] = None
-                item[-1] = []
+                # $$
+                item[matchCol] = []
+                # $$
+                if measuredCol != None:
+                    item[measuredCol] = None
             return
     # ----
     
@@ -713,7 +735,7 @@ class panelMatch(wx.MiniFrame):
         # make peaklist object
         if self.currentPeaklist:
             peaks = self.makeCurrentPeaklist()
-            peaklist = mspy.plot.spectrum(mspy.obj_scan.scan(peaklist=peaks), tickColour=(170,170,170), showLabels=False)
+            peaklist = mspy.plot.spectrum(mspy.scan(peaklist=peaks), tickColour=(170,170,170), showLabels=False)
             container.append(peaklist)
         
         # set units
@@ -737,8 +759,8 @@ class panelMatch(wx.MiniFrame):
         
         # add new data
         for row, item in enumerate(self.currentSummary):
-            self.summaryList.InsertItem(row, item[0])
-            self.summaryList.SetItem(row, 1, str(item[1]))
+            self.summaryList.InsertStringItem(row, item[0])
+            self.summaryList.SetStringItem(row, 1, str(item[1]))
             self.summaryList.SetItemData(row, row)
         
         # update background
@@ -770,10 +792,10 @@ class panelMatch(wx.MiniFrame):
         f = abs(maxY - minY) / basePeak.intensity
         for peak in self.currentPeaklist:
             intensity = (peak.intensity * f) + minY
-            peaklist.append(mspy.obj_peak.peak(mz=peak.mz, ai=intensity, base=minY))
+            peaklist.append(mspy.peak(mz=peak.mz, ai=intensity, base=minY))
         
         # convert to mspy.peaklist
-        return mspy.obj_peaklist.peaklist(peaklist)
+        return mspy.peaklist(peaklist)
     # ----
     
     
@@ -784,12 +806,20 @@ class panelMatch(wx.MiniFrame):
         
         # get items name
         if self.currentModule == 'massfilter':
+            # $$
+            matchCol = -1
             itemName = 'reference masses'
         elif self.currentModule == 'digest':
+            # $$
+            matchCol = -1
             itemName = 'peptides'
         elif self.currentModule == 'fragment':
+            # $$
+            matchCol = -1
             itemName = 'fragments'
         elif self.currentModule == 'compounds':
+            # $$ 22.04
+            matchCol = 6
             itemName = 'compounds'
         
         # get searched peaks
@@ -803,7 +833,8 @@ class panelMatch(wx.MiniFrame):
         # get matched peaks
         sumMatched = 0
         for item in self.currentData:
-            if item[-1]:
+            # $$
+            if item[matchCol]:
                 sumMatched += 1
         label = 'Number of %s matched' % itemName
         self.currentSummary.append((label, sumMatched))
@@ -816,7 +847,8 @@ class panelMatch(wx.MiniFrame):
             buff[round(peak.mz, 6)] = peak.intensity
         matchedInt = 0
         for item in self.currentData:
-            for n in item[-1]:
+            # $$
+            for n in item[matchCol]:
                 mz = round(n.mz,6)
                 if mz in buff:
                     matchedInt += buff[mz]
@@ -831,9 +863,10 @@ class panelMatch(wx.MiniFrame):
         if self.currentModule == 'digest':
             sumPeptides = []
             for item in self.currentData:
-                if item[-1]:
+                # $$
+                if item[matchCol]:
                     sumPeptides.append([item[6].history[-1][1]+1, item[6].history[-1][2]])
-            coverage = mspy.mod_proteo.coverage(sumPeptides, self.currentSummaryData['sequenceLength'])
+            coverage = mspy.coverage(sumPeptides, self.currentSummaryData['sequenceLength'])
             value = '%0.f %s' % (coverage, '%')
             self.currentSummary.append(('Sequence length', self.currentSummaryData['sequenceLength']))
             self.currentSummary.append(('Sequence coverage', value))
@@ -859,7 +892,8 @@ class panelMatch(wx.MiniFrame):
                 
                 if not name in series:
                     series[name] = []
-                if item[-1]:
+                # $$
+                if item[matchCol]:
                     series[name].append(frag.fragmentIndex)
                 
             for serie in sorted(series.keys()):

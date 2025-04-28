@@ -20,18 +20,16 @@ import numpy
 from numpy.linalg import solve as solveLinEq
 
 # load stopper
-from .mod_stopper import CHECK_FORCE_QUIT
+from mod_stopper import CHECK_FORCE_QUIT
 
-def cmp(a, b):
-    return (a > b) - (a < b) 
 
-# DATA RE-CALIBRATION
+# DATA RE-CALIBRATION $$
 # -------------------
 
 def calibration(data, model='linear'):
     """Calculate calibration constants for given references.
         data (list or (measured mass, reference mass)) - calibration data
-        model ('linear' or 'quadratic') - fitting model
+        model ('linear' or 'quadratic' or 'cubic') - fitting model
     """
     
     # single point calibration
@@ -46,6 +44,9 @@ def calibration(data, model='linear'):
     elif model=='quadratic':
         model = _quadraticModel
         initials = (1., 0, 0)
+    elif model=='cubic':
+        model = _cubicModel
+        initials = (1., 0, 0, 0)
     
     # calculate calibration constants
     params = _leastSquaresFit(model, initials, data)
@@ -68,6 +69,12 @@ def _quadraticModel(params, x):
     
     a, b, c = params
     return a*x*x + b*x + c
+
+def _cubicModel(params, x):
+    """Function for quadratic model."""
+    
+    a, b, c, d = params
+    return a*x**3 + b*x**2 + c*x + d
 # ----
 
 

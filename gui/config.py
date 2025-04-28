@@ -69,7 +69,7 @@ else:
         except: pass
 
 if not os.path.exists(confdir):
-    raise IOError ("Configuration folder cannot be found!")
+    raise IOError("Configuration folder cannot be found!")
 
 
 # INIT DEFAULT VALUES
@@ -211,7 +211,7 @@ processing={
         'multiplier': 1,
     },
     'crop':{
-        'lowMass': 90,
+        'lowMass': 500,
         'highMass': 5000,
     },
     'baseline':{
@@ -229,8 +229,8 @@ processing={
         'relIntThreshold': 0.0,
         'pickingHeight': 0.75,
         'baseline': 1,
-        'smoothing': 0,
-        'deisotoping': 0,
+        'smoothing': 1,
+        'deisotoping': 1,
         'monoisotopic': 0,
         'removeShoulders': 0,
     },
@@ -339,7 +339,7 @@ massToFormula={
     'tolerance': 1.,
     'units': 'ppm',
     'formulaMin': '',
-    'formulaMax': 'P3S2',
+    'formulaMax': '',
     'autoCHNO': 1,
     'checkPattern': 1,
     'rules': ['HC','NOPSC','NOPS','RDBE', 'RDBEInt'],
@@ -354,9 +354,8 @@ massToFormula={
     'PubChemScript':'http://pubchem.ncbi.nlm.nih.gov/search/search.cgi',
     'ChemSpiderScript': 'http://www.chemspider.com/Search.aspx',
     'METLINScript': 'http://metlin.scripps.edu/metabo_list_adv.php',
-    'HMDBScript': 'http://www.hmdb.ca/unearth/q?',
+    'HMDBScript': 'http://www.hmdb.ca/search',
     'LipidMAPSScript': 'http://www.lipidmaps.org/data/structure/LMSDSearch.php',
-    'KEGGScript': 'https://www.kegg.jp/kegg-bin/search_ligand',
 }
 
 massDefectPlot={
@@ -373,9 +372,10 @@ massDefectPlot={
 
 compoundsSearch={
     'massType': 0,
-    'maxCharge': -1,
+    'maxCharge': 1,
     'radicals': 0,
-    'adducts':  [], #['Na','K'],
+    'adducts':  [],
+    'isotopes': [],
 }
 
 peakDifferences={
@@ -388,8 +388,8 @@ peakDifferences={
 
 comparePeaklists={
     'compare': 'peaklists',
-    'tolerance': 10,
-    'units': 'ppm',
+    'tolerance': 0.2,
+    'units': 'Da',
     'ignoreCharge': 0,
     'ratioCheck': 0,
     'ratioDirection': 1,
@@ -1340,7 +1340,7 @@ def saveConfig(path=os.path.join(confdir, 'config.xml')):
     
     # save config file
     try:
-        save = open(path, 'wb')
+        save = file(path, 'w')
         save.write(buff.encode("utf-8"))
         save.close()
         return True

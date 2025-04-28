@@ -29,7 +29,7 @@ import re
 import random
 import mspy
 import socket
-import http.client
+import httplib
 import webbrowser
 import tempfile
 import wx
@@ -37,49 +37,49 @@ import wx.aui
 import numpy
 
 # load modules
-from .ids import *
-from . import mwx
-from . import images
-from gui import config
-from gui import libs
-from . import doc
+from ids import *
+import mwx
+import images
+import config
+import libs
+import doc
 
-from .panel_about import panelAbout
-from .panel_calibration import panelCalibration
-from .panel_compare_peaklists import panelComparePeaklists
-from .panel_compounds_search import panelCompoundsSearch
-from .panel_document_info import panelDocumentInfo
-from .panel_document_export import panelDocumentExport
-from .panel_documents import panelDocuments
-from .panel_envelope_fit import panelEnvelopeFit
-from .panel_mascot import panelMascot
-from .panel_mass_calculator import panelMassCalculator
-from .panel_mass_filter import panelMassFilter
-from .panel_mass_to_formula import panelMassToFormula
-from .panel_mass_defect_plot import panelMassDefectPlot
-from .panel_peak_differences import panelPeakDifferences
-from .panel_periodic_table import panelPeriodicTable
-from .panel_peaklist import panelPeaklist
-from .panel_processing import panelProcessing
-from .panel_profound import panelProfound
-from .panel_prospector import panelProspector
-from .panel_sequence import panelSequence
-from .panel_spectrum import panelSpectrum, dlgViewRange, dlgSpectrumOffset
-from .panel_spectrum_generator import panelSpectrumGenerator
+from panel_about import panelAbout
+from panel_calibration import panelCalibration
+from panel_compare_peaklists import panelComparePeaklists
+from panel_compounds_search import panelCompoundsSearch
+from panel_document_info import panelDocumentInfo
+from panel_document_export import panelDocumentExport
+from panel_documents import panelDocuments
+from panel_envelope_fit import panelEnvelopeFit
+from panel_mascot import panelMascot
+from panel_mass_calculator import panelMassCalculator
+from panel_mass_filter import panelMassFilter
+from panel_mass_to_formula import panelMassToFormula
+from panel_mass_defect_plot import panelMassDefectPlot
+from panel_peak_differences import panelPeakDifferences
+from panel_periodic_table import panelPeriodicTable
+from panel_peaklist import panelPeaklist
+from panel_processing import panelProcessing
+from panel_profound import panelProfound
+from panel_prospector import panelProspector
+from panel_sequence import panelSequence
+from panel_spectrum import panelSpectrum, dlgViewRange, dlgSpectrumOffset
+from panel_spectrum_generator import panelSpectrumGenerator
 
-from .dlg_compounds_editor import dlgCompoundsEditor
-from .dlg_enzymes_editor import dlgEnzymesEditor
-from .dlg_mascot_editor import dlgMascotEditor
-from .dlg_modifications_editor import dlgModificationsEditor
-from .dlg_monomers_editor import dlgMonomersEditor
-from .dlg_presets_editor import dlgPresetsEditor
-from .dlg_references_editor import dlgReferencesEditor
+from dlg_compounds_editor import dlgCompoundsEditor
+from dlg_enzymes_editor import dlgEnzymesEditor
+from dlg_mascot_editor import dlgMascotEditor
+from dlg_modifications_editor import dlgModificationsEditor
+from dlg_monomers_editor import dlgMonomersEditor
+from dlg_presets_editor import dlgPresetsEditor
+from dlg_references_editor import dlgReferencesEditor
 
-from .dlg_error import dlgError
-from .dlg_preferences import dlgPreferences
-from .dlg_select_scans import dlgSelectScans
-from .dlg_select_sequences import dlgSelectSequences
-from .dlg_clipboard_editor import dlgClipboardEditor
+from dlg_error import dlgError
+from dlg_preferences import dlgPreferences
+from dlg_select_scans import dlgSelectScans
+from dlg_select_sequences import dlgSelectSequences
+from dlg_clipboard_editor import dlgClipboardEditor
 
 
 # MAIN FRAME
@@ -144,9 +144,9 @@ class mainFrame(wx.Frame):
         
         # bind events
         self.DragAcceptFiles(True)
-        self.Bind(wx.EVT_CLOSE, self.onQuit) 
-        self.Bind(wx.EVT_SIZE, self.onSize)
-        self.Bind(wx.EVT_DROP_FILES, self.onDocumentDropped)
+        wx.EVT_CLOSE(self, self.onQuit)
+        wx.EVT_SIZE(self, self.onSize)
+        wx.EVT_DROP_FILES(self, self.onDocumentDropped)
         
         # show app
         self.Layout()
@@ -173,7 +173,7 @@ class mainFrame(wx.Frame):
         document.Append(ID_documentNew, "New"+HK_documentNew, "")
         document.Append(ID_documentNewFromClipboard, "New from Clipboard"+HK_documentNewFromClipboard, "")
         document.Append(ID_documentOpen, "Open..."+HK_documentOpen, "")
-        document.Append(ID_documentRecent, "Open Recent", self.menuRecent)
+        document.AppendMenu(ID_documentRecent, "Open Recent", self.menuRecent)
         document.AppendSeparator()
         document.Append(ID_documentClose, "Close"+HK_documentClose, "")
         document.Append(ID_documentCloseAll, "Close All"+HK_documentCloseAll, "")
@@ -225,7 +225,7 @@ class mainFrame(wx.Frame):
         viewCanvas.AppendSeparator()
         viewCanvas.Append(ID_viewTracker, "Cursor Tracker", "", wx.ITEM_CHECK)
         viewCanvas.Append(ID_viewCheckLimits, "Check Limits", "", wx.ITEM_CHECK)
-        view.Append(-1, "Spectrum Canvas", viewCanvas)
+        view.AppendMenu(-1, "Spectrum Canvas", viewCanvas)
         
         viewLabels = wx.Menu()
         title = ("Show Labels", "Hide Labels")
@@ -242,7 +242,7 @@ class mainFrame(wx.Frame):
         viewLabels.AppendSeparator()
         viewLabels.Append(ID_viewOverlapLabels, "Allow Overlapping"+HK_viewOverlapLabels, "", wx.ITEM_CHECK)
         viewLabels.Append(ID_viewAllLabels, "Labels in All Documents"+HK_viewAllLabels, "", wx.ITEM_CHECK)
-        view.Append(-1, "Peak Labels", viewLabels)
+        view.AppendMenu(-1, "Peak Labels", viewLabels)
         
         viewNotations = wx.Menu()
         title = ("Show Notations", "Hide Notations")
@@ -251,7 +251,7 @@ class mainFrame(wx.Frame):
         viewNotations.Append(ID_viewNotationMarks, "Marks", "", wx.ITEM_CHECK)
         viewNotations.Append(ID_viewNotationLabels, "Labels", "", wx.ITEM_CHECK)
         viewNotations.Append(ID_viewNotationMz, "m/z", "", wx.ITEM_CHECK)
-        view.Append(-1, "Notations", viewNotations)
+        view.AppendMenu(-1, "Notations", viewNotations)
         
         viewSpectrumRuler = wx.Menu()
         viewSpectrumRuler.Append(ID_viewSpectrumRulerMz, "m/z", "", wx.ITEM_CHECK)
@@ -261,7 +261,7 @@ class mainFrame(wx.Frame):
         viewSpectrumRuler.Append(ID_viewSpectrumRulerCursorMass, "Neutral Mass (Cursor)", "", wx.ITEM_CHECK)
         viewSpectrumRuler.Append(ID_viewSpectrumRulerParentMass, "Neutral Mass (Parent)", "", wx.ITEM_CHECK)
         viewSpectrumRuler.Append(ID_viewSpectrumRulerArea, "Area", "", wx.ITEM_CHECK)
-        view.Append(-1, "Spectrum Ruler", viewSpectrumRuler)
+        view.AppendMenu(-1, "Spectrum Ruler", viewSpectrumRuler)
         
         viewPeaklistColumns = wx.Menu()
         viewPeaklistColumns.Append(ID_viewPeaklistColumnMz, "m/z", "", wx.ITEM_CHECK)
@@ -275,7 +275,7 @@ class mainFrame(wx.Frame):
         viewPeaklistColumns.Append(ID_viewPeaklistColumnFwhm, "FWHM", "", wx.ITEM_CHECK)
         viewPeaklistColumns.Append(ID_viewPeaklistColumnResol, "Resolution", "", wx.ITEM_CHECK)
         viewPeaklistColumns.Append(ID_viewPeaklistColumnGroup, "Group", "", wx.ITEM_CHECK)
-        view.Append(-1, "Peak List Columns", viewPeaklistColumns)
+        view.AppendMenu(-1, "Peak List Columns", viewPeaklistColumns)
         
         view.AppendSeparator()
         view.Append(ID_viewAutoscale, "Autoscale Intensity"+HK_viewAutoscale, "", wx.ITEM_CHECK)
@@ -545,12 +545,12 @@ class mainFrame(wx.Frame):
         linksMSTools.Append(ID_linksProspector, "Protein Prospector", "")
         linksMSTools.Append(ID_linksProfound, "ProFound", "")
         linksMSTools.Append(ID_linksBiomedMSTools, "Biomed MS Tools", "")
-        links.Append(-1, "MS Tools", linksMSTools)
+        links.AppendMenu(-1, "MS Tools", linksMSTools)
         
         linksModifications = wx.Menu()
         linksModifications.Append(ID_linksUniMod, "UniMod", "")
         linksModifications.Append(ID_linksDeltaMass, "Delta Mass", "")
-        links.Append(-1, "Modifications", linksModifications)
+        links.AppendMenu(-1, "Modifications", linksModifications)
         
         linksSequenceDB = wx.Menu()
         linksSequenceDB.Append(ID_linksUniProt, "UniProt", "")
@@ -558,18 +558,18 @@ class mainFrame(wx.Frame):
         linksSequenceDB.Append(ID_linksEMBLEBI, "EMBL EBI", "")
         linksSequenceDB.Append(ID_linksPIR, "PIR", "")
         linksSequenceDB.Append(ID_linksNCBI, "NCBI", "")
-        links.Append(-1, "Sequence Databases", linksSequenceDB)
+        links.AppendMenu(-1, "Sequence Databases", linksSequenceDB)
         
         linksSequenceTools = wx.Menu()
         linksSequenceTools.Append(ID_linksBLAST, "BLAST", "")
         linksSequenceTools.Append(ID_linksClustalW, "ClustalW", "")
         linksSequenceTools.Append(ID_linksFASTA, "FASTA", "")
         linksSequenceTools.Append(ID_linksMUSCLE, "MUSCLE", "")
-        links.Append(-1, "Sequence Tools", linksSequenceTools)
+        links.AppendMenu(-1, "Sequence Tools", linksSequenceTools)
         
         linksStructures = wx.Menu()
         linksStructures.Append(ID_linksPDB, "RCSB PDB", "")
-        links.Append(-1, "Protein Structures", linksStructures)
+        links.AppendMenu(-1, "Protein Structures", linksStructures)
         
         self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_linksExpasy)
         self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_linksMatrixScience)
@@ -646,14 +646,15 @@ class mainFrame(wx.Frame):
         
         # init toolbar
         self.toolbar = self.CreateToolBar(mwx.MAIN_TOOLBAR_STYLE)
-        self.toolbar.SetToolBitmapSize(mwx.MAIN_TOOLBAR_TOOLSIZE)
+        # $$ next line could be removed
+        # self.toolbar.SetToolBitmapSize(mwx.MAIN_TOOLBAR_TOOLSIZE)
         self.toolbar.SetFont(wx.SMALL_FONT)
         
         # document
         if wx.Platform != '__WXMAC__':
-            self.toolbar.AddTool(ID_documentOpen, "Open", images.lib['toolsOpen'], wx.NullBitmap, shortHelp="Open document...", longHelp="Open document")
-            self.toolbar.AddTool(ID_documentSave, "Save", images.lib['toolsSave'], wx.NullBitmap, shortHelp="Save document", longHelp="Save current document")
-            self.toolbar.AddTool(ID_documentPrintSpectrum, "Print", images.lib['toolsPrint'], wx.NullBitmap, shortHelp="Print spectrum...", longHelp="Print spectrum")
+            self.toolbar.AddLabelTool(ID_documentOpen, "Open", images.lib['toolsOpen'], shortHelp="Open document...", longHelp="Open document")
+            self.toolbar.AddLabelTool(ID_documentSave, "Save", images.lib['toolsSave'], shortHelp="Save document", longHelp="Save current document")
+            self.toolbar.AddLabelTool(ID_documentPrintSpectrum, "Print", images.lib['toolsPrint'], shortHelp="Print spectrum...", longHelp="Print spectrum")
             
             self.toolbar.Bind(wx.EVT_TOOL, self.onDocumentOpen, id=ID_documentOpen)
             self.toolbar.Bind(wx.EVT_TOOL, self.onDocumentSave, id=ID_documentSave)
@@ -662,37 +663,37 @@ class mainFrame(wx.Frame):
             self.toolbar.AddSeparator()
         
         # tools
-        self.toolbar.AddTool(ID_toolsProcessing, "Processing", images.lib['toolsProcessing'], wx.NullBitmap, shortHelp="Data processing...", longHelp="Mass spectrum processing")
-        self.toolbar.AddTool(ID_toolsCalibration, "Calibration", images.lib['toolsCalibration'], wx.NullBitmap, shortHelp="Re-calibrate data...", longHelp="Mass spectrum calibration")
+        self.toolbar.AddLabelTool(ID_toolsProcessing, "Processing", images.lib['toolsProcessing'], shortHelp="Data processing...", longHelp="Mass spectrum processing")
+        self.toolbar.AddLabelTool(ID_toolsCalibration, "Calibration", images.lib['toolsCalibration'], shortHelp="Re-calibrate data...", longHelp="Mass spectrum calibration")
         
         if wx.Platform != '__WXMAC__':
              self.toolbar.AddSeparator()
         
-        self.toolbar.AddTool(ID_toolsSequence, "Sequence", images.lib['toolsSequence'], wx.NullBitmap, shortHelp="Sequence editor...", longHelp="Sequence editor and tool")
+        self.toolbar.AddLabelTool(ID_toolsSequence, "Sequence", images.lib['toolsSequence'], shortHelp="Sequence editor...", longHelp="Sequence editor and tool")
         
         if wx.Platform != '__WXMAC__':
              self.toolbar.AddSeparator()
         
-        self.toolbar.AddTool(ID_toolsPeriodicTable, "Elements", images.lib['toolsPeriodicTable'], wx.NullBitmap, shortHelp="Periodic Table...", longHelp="Periodic table of elements")
-        self.toolbar.AddTool(ID_toolsMassCalculator, "Masscalc", images.lib['toolsMassCalculator'], wx.NullBitmap, shortHelp="Mass calculator...", longHelp="Calculate ion series and isotopic pattern")
-        self.toolbar.AddTool(ID_toolsMassToFormula, "Formulator", images.lib['toolsMassToFormula'], wx.NullBitmap, shortHelp="Mass to formula...", longHelp="Generate molecular formulae for specified mass")
-        self.toolbar.AddTool(ID_toolsMassDefectPlot, "Mass Defect", images.lib['toolsMassDefectPlot'], wx.NullBitmap, shortHelp="Mass defect plot...", longHelp="Show various mass defect plots for current peak list")
+        self.toolbar.AddLabelTool(ID_toolsPeriodicTable, "Elements", images.lib['toolsPeriodicTable'], shortHelp="Periodic Table...", longHelp="Periodic table of elements")
+        self.toolbar.AddLabelTool(ID_toolsMassCalculator, "Masscalc", images.lib['toolsMassCalculator'], shortHelp="Mass calculator...", longHelp="Calculate ion series and isotopic pattern")
+        self.toolbar.AddLabelTool(ID_toolsMassToFormula, "Formulator", images.lib['toolsMassToFormula'], shortHelp="Mass to formula...", longHelp="Generate molecular formulae for specified mass")
+        self.toolbar.AddLabelTool(ID_toolsMassDefectPlot, "Mass Defect", images.lib['toolsMassDefectPlot'], shortHelp="Mass defect plot...", longHelp="Show various mass defect plots for current peak list")
         
         if wx.Platform != '__WXMAC__':
              self.toolbar.AddSeparator()
         
-        self.toolbar.AddTool(ID_toolsMassFilter, "Mass Filter", images.lib['toolsMassFilter'], wx.NullBitmap, shortHelp="Mass filter...", longHelp="Filter spectrum contaminants")
-        self.toolbar.AddTool(ID_toolsCompoundsSearch, "Compounds", images.lib['toolsCompoundsSearch'], wx.NullBitmap, shortHelp="Compounds search...", longHelp="Search for compounds")
-        self.toolbar.AddTool(ID_toolsPeakDifferences, "Differences", images.lib['toolsPeakDifferences'], wx.NullBitmap, shortHelp="Peak differences...", longHelp="Calculate peak differences")
-        self.toolbar.AddTool(ID_toolsComparePeaklists, "Compare", images.lib['toolsComparePeaklists'], wx.NullBitmap, shortHelp="Compare peak lists...", longHelp="Compare multiple peaklists")
-        self.toolbar.AddTool(ID_toolsSpectrumGenerator, "Generator", images.lib['toolsSpectrumGenerator'], wx.NullBitmap, shortHelp="Generate mass spectrum...", longHelp="Generate mass spectrum from current peak list")
-        self.toolbar.AddTool(ID_toolsEnvelopeFit, "Envelope Fit", images.lib['toolsEnvelopeFit'], wx.NullBitmap, shortHelp="Calculate atom exchange...", longHelp="Calculate atom exchange from peak envelope")
+        self.toolbar.AddLabelTool(ID_toolsMassFilter, "Mass Filter", images.lib['toolsMassFilter'], shortHelp="Mass filter...", longHelp="Filter spectrum contaminants")
+        self.toolbar.AddLabelTool(ID_toolsCompoundsSearch, "Compounds", images.lib['toolsCompoundsSearch'], shortHelp="Compounds search...", longHelp="Search for compounds")
+        self.toolbar.AddLabelTool(ID_toolsPeakDifferences, "Differences", images.lib['toolsPeakDifferences'], shortHelp="Peak differences...", longHelp="Calculate peak differences")
+        self.toolbar.AddLabelTool(ID_toolsComparePeaklists, "Compare", images.lib['toolsComparePeaklists'], shortHelp="Compare peak lists...", longHelp="Compare multiple peaklists")
+        self.toolbar.AddLabelTool(ID_toolsSpectrumGenerator, "Generator", images.lib['toolsSpectrumGenerator'], shortHelp="Generate mass spectrum...", longHelp="Generate mass spectrum from current peak list")
+        self.toolbar.AddLabelTool(ID_toolsEnvelopeFit, "Envelope Fit", images.lib['toolsEnvelopeFit'], shortHelp="Calculate atom exchange...", longHelp="Calculate atom exchange from peak envelope")
         
         if wx.Platform != '__WXMAC__':
             self.toolbar.AddSeparator()
         
-        self.toolbar.AddTool(ID_toolsMascot, "Mascot", images.lib['toolsMascot'], wx.NullBitmap, shortHelp="Mascot search...", longHelp="Send data to Mascot server")
-        self.toolbar.AddTool(ID_toolsProfound, "ProFound", images.lib['toolsProfound'], wx.NullBitmap, shortHelp="ProFound search...", longHelp="Send data to ProFound server")
+        self.toolbar.AddLabelTool(ID_toolsMascot, "Mascot", images.lib['toolsMascot'], shortHelp="Mascot search...", longHelp="Send data to Mascot server")
+        self.toolbar.AddLabelTool(ID_toolsProfound, "ProFound", images.lib['toolsProfound'], shortHelp="ProFound search...", longHelp="Send data to ProFound server")
         
         self.toolbar.Bind(wx.EVT_TOOL, self.onToolsProcessing, id=ID_toolsProcessing)
         self.toolbar.Bind(wx.EVT_TOOL, self.onToolsCalibration, id=ID_toolsCalibration)
@@ -713,9 +714,9 @@ class mainFrame(wx.Frame):
         if wx.Platform != '__WXMAC__':
             self.toolbar.AddSeparator()
         
-        self.toolbar.AddTool(ID_toolsDocumentInfo, "Notes", images.lib['toolsDocumentInfo'], wx.NullBitmap, shortHelp="Document information and notes...", longHelp="Show document information and notes")
-        self.toolbar.AddTool(ID_toolsDocumentReport, "Report", images.lib['toolsDocumentReport'], wx.NullBitmap, shortHelp="Analysis report", longHelp="Make analysis report for current document")
-        self.toolbar.AddTool(ID_toolsDocumentExport, "Export", images.lib['toolsDocumentExport'], wx.NullBitmap, shortHelp="Export data...", longHelp="Export spectrum, peaklist or image")
+        self.toolbar.AddLabelTool(ID_toolsDocumentInfo, "Notes", images.lib['toolsDocumentInfo'], shortHelp="Document information and notes...", longHelp="Show document information and notes")
+        self.toolbar.AddLabelTool(ID_toolsDocumentReport, "Report", images.lib['toolsDocumentReport'], shortHelp="Analysis report", longHelp="Make analysis report for current document")
+        self.toolbar.AddLabelTool(ID_toolsDocumentExport, "Export", images.lib['toolsDocumentExport'], shortHelp="Export data...", longHelp="Export spectrum, peaklist or image")
         
         self.toolbar.Bind(wx.EVT_TOOL, self.onDocumentInfo, id=ID_toolsDocumentInfo)
         self.toolbar.Bind(wx.EVT_TOOL, self.onDocumentReport, id=ID_toolsDocumentReport)
@@ -781,13 +782,13 @@ class mainFrame(wx.Frame):
         
         # set frame manager properties
         artProvider = self.AUIManager.GetArtProvider()
-        artProvider.SetColour(wx.aui.AUI_DOCKART_SASH_COLOUR, self.documentsPanel.GetBackgroundColour())
-        artProvider.SetColour(wx.aui.AUI_DOCKART_INACTIVE_CAPTION_COLOUR, self.documentsPanel.GetBackgroundColour())
+        artProvider.SetColor(wx.aui.AUI_DOCKART_SASH_COLOUR, self.documentsPanel.GetBackgroundColour())
+        artProvider.SetColor(wx.aui.AUI_DOCKART_INACTIVE_CAPTION_COLOUR, self.documentsPanel.GetBackgroundColour())
         artProvider.SetMetric(wx.aui.AUI_DOCKART_SASH_SIZE, mwx.SASH_SIZE)
         artProvider.SetMetric(wx.aui.AUI_DOCKART_GRIPPER_SIZE, mwx.GRIPPER_SIZE)
         if mwx.SASH_COLOUR:
             self.SetOwnBackgroundColour(mwx.SASH_COLOUR)
-            artProvider.SetColour(wx.aui.AUI_DOCKART_SASH_COLOUR, mwx.SASH_COLOUR)
+            artProvider.SetColor(wx.aui.AUI_DOCKART_SASH_COLOUR, mwx.SASH_COLOUR)
         
         # set last layout
         self.onWindowLayout(layout=config.main['layout'])
@@ -823,7 +824,7 @@ class mainFrame(wx.Frame):
         # get frame size
         config.main['appMaximized'] = int(self.IsMaximized())
         if not self.IsMaximized():
-            size = self.GetSize()
+            size = self.GetSizeTuple()
             config.main['appWidth'] = size[0]
             config.main['appHeight'] = size[1]
         
@@ -882,6 +883,7 @@ class mainFrame(wx.Frame):
         # clear visibility history
         self.documentsSoloCurrent = None
         self.documentsSoloPrevious = {}
+        
         # append document
         self.spectrumPanel.appendLastSpectrum()
         self.documentsPanel.appendLastDocument()
@@ -908,7 +910,7 @@ class mainFrame(wx.Frame):
         """Set current document."""
         
         # get document and application title
-        if docIndex is not None:
+        if docIndex != None:
             docData = self.documents[docIndex]
             title = 'mMass - %s' % (docData.title)
             if docData.dirty:
@@ -998,7 +1000,7 @@ class mainFrame(wx.Frame):
         """Document content has changed."""
         
         # check selection
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             return
         
         # update spectrum panel
@@ -1214,7 +1216,7 @@ class mainFrame(wx.Frame):
         """Create blank document."""
         
         # make document
-        if document is None:
+        if document == None:
             document = doc.document()
             document.title = 'Blank Document'
         
@@ -1264,7 +1266,7 @@ class mainFrame(wx.Frame):
         """Duplicate selected document."""
         
         # check document
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             wx.Bell()
             return False
         
@@ -1293,7 +1295,7 @@ class mainFrame(wx.Frame):
             lastDir = ''
             if os.path.exists(config.main['lastDir']):
                 lastDir = config.main['lastDir']
-            wildcard =  "All supported formats|fid;*.msd;*.baf;*.yep;*.mzData;*.mzdata*;*.mzXML;*.mzxml;*.mzML;*.mzml;*.xml;*.XML;*.mgf;*.MGF;*.txt;*.xy;*.asc;*.csv|All files|*.*"
+            wildcard =  "All supported formats|fid;*.msd;*.baf;*.yep;*.mzData;*.mzdata*;*.mzXML;*.mzxml;*.mzML;*.mzml;*.xml;*.XML;*.mgf;*.MGF;*.txt;*.xy;*.asc|All files|*.*"
             dlg = wx.FileDialog(self, "Open Document", lastDir, "", wildcard=wildcard, style=wx.FD_OPEN|wx.FD_MULTIPLE|wx.FD_FILE_MUST_EXIST)
             if dlg.ShowModal() == wx.ID_OK:
                 paths = dlg.GetPaths()
@@ -1312,7 +1314,7 @@ class mainFrame(wx.Frame):
         """Open dropped documents."""
         
         # get paths
-        if evt is not None:
+        if evt != None:
             paths = evt.GetFiles()
         
         # open documents
@@ -1356,9 +1358,9 @@ class mainFrame(wx.Frame):
         """Close current document."""
         
         # check document
-        if docIndex is None:
+        if docIndex == None:
             docIndex = self.currentDocument
-        if docIndex is None:
+        if docIndex == None:
             wx.Bell()
             return False
         
@@ -1504,9 +1506,9 @@ class mainFrame(wx.Frame):
         """Save current document."""
         
         # check document
-        if docIndex is None:
+        if docIndex == None:
             docIndex = self.currentDocument
-        if docIndex is None:
+        if docIndex == None:
             wx.Bell()
             return False
         
@@ -1525,7 +1527,7 @@ class mainFrame(wx.Frame):
             
             # ask for name
             fileName = document.title+'.msd'
-            dlg = wx.FileDialog(self, "Save", config.main['lastDir'], fileName, "mMass Spectrum Document|*.msd", wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT)
+            dlg = wx.FileDialog(self, "Save", config.main['lastDir'], fileName, "mMass Spectrum Document|*.msd", wx.SAVE|wx.OVERWRITE_PROMPT)
             if dlg.ShowModal() == wx.ID_OK:
                 path = dlg.GetPath()
                 config.main['lastDir'] = os.path.split(path)[0]
@@ -1541,7 +1543,7 @@ class mainFrame(wx.Frame):
         # get document XML
         process = threading.Thread(target=self.runDocumentSave, kwargs={'docIndex':docIndex})
         process.start()
-        while process.is_alive():
+        while process.isAlive():
             gauge.pulse()
         
         # save file
@@ -1549,7 +1551,7 @@ class mainFrame(wx.Frame):
         if self.currentDocumentXML:
             gauge.setLabel('Saving data...')
             try:
-                save = open(path, 'wb')
+                save = file(path, 'w')
                 save.write(self.currentDocumentXML.encode("utf-8"))
                 save.close()
                 failed = False
@@ -1644,7 +1646,7 @@ class mainFrame(wx.Frame):
         """Print report."""
         
         # check document
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             wx.Bell()
             return
         
@@ -1668,8 +1670,7 @@ class mainFrame(wx.Frame):
             
             # make report file
             reportHTML = self.documents[self.currentDocument].report(image=imagePath)
-            self.documents[self.currentDocument].annotationsAsDataFrame().to_clipboard(index=False)
-            reportFile = open(reportPath, 'wb')
+            reportFile = file(reportPath, 'w')
             reportFile.write(reportHTML.encode("utf-8"))
             reportFile.close()
             
@@ -1708,7 +1709,7 @@ class mainFrame(wx.Frame):
         """Show document information panel."""
         
         # check document
-        if not self.documentInfoPanel and self.currentDocument is None:
+        if not self.documentInfoPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -1724,7 +1725,7 @@ class mainFrame(wx.Frame):
             self.documentInfoPanel.Show(True)
         
         # set current document
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             self.documentInfoPanel.setData(self.documents[self.currentDocument])
             self.documentInfoPanel.Raise()
         else:
@@ -1773,7 +1774,7 @@ class mainFrame(wx.Frame):
         """Disable all documents except one."""
         
         # remeber current visibility
-        if self.documentsSoloCurrent is None:
+        if self.documentsSoloCurrent == None:
             self.documentsSoloPrevious = {}
             for x, document in enumerate(self.documents):
                 self.documentsSoloPrevious[x] = document.visible
@@ -1829,7 +1830,7 @@ class mainFrame(wx.Frame):
         """Flip spectrum vertically."""
         
         # check document
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             wx.Bell()
             return
         
@@ -1845,7 +1846,7 @@ class mainFrame(wx.Frame):
         """Offset spectrum."""
         
         # set offset for current document
-        if evt.GetId() == ID_documentOffset and self.currentDocument is not None:
+        if evt.GetId() == ID_documentOffset and self.currentDocument != None:
             if config.spectrum['normalize']:
                 wx.Bell()
                 return
@@ -1859,7 +1860,7 @@ class mainFrame(wx.Frame):
                 dlg.Destroy()
         
         # clear offset for current document
-        elif evt.GetId() == ID_documentClearOffset and self.currentDocument is not None:
+        elif evt.GetId() == ID_documentClearOffset and self.currentDocument != None:
             self.documents[self.currentDocument].offset = [0,0]
             self.spectrumPanel.updateSpectrumProperties(self.currentDocument)
         
@@ -1881,7 +1882,7 @@ class mainFrame(wx.Frame):
         """Change document colour."""
         
         # check document
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             wx.Bell()
             return
         
@@ -1932,7 +1933,7 @@ class mainFrame(wx.Frame):
         """Change document style."""
         
         # check document
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             wx.Bell()
             return
         
@@ -1955,7 +1956,7 @@ class mainFrame(wx.Frame):
         """Delete all annotations and sequence matches."""
         
         # check selection
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             return
         
         # backup annotations and matches
@@ -1977,12 +1978,12 @@ class mainFrame(wx.Frame):
         """Delete annotations."""
         
         # check selection
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             return
         
         # delete annotations
         self.documents[self.currentDocument].backup(('annotations'))
-        if annotIndex is not None:
+        if annotIndex != None:
             del self.documents[self.currentDocument].annotations[annotIndex]
         else:
             del self.documents[self.currentDocument].annotations[:]
@@ -1996,13 +1997,13 @@ class mainFrame(wx.Frame):
         """Use annotations for calibration."""
         
         # check selection
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             return
         
         # get annotations
         annotations = []
         for annotation in self.documents[self.currentDocument].annotations:
-            if annotation.theoretical is not None:
+            if annotation.theoretical != None:
                 annotations.append([annotation.label, annotation.theoretical, annotation.mz])
         if not annotations:
             wx.Bell()
@@ -2290,7 +2291,7 @@ class mainFrame(wx.Frame):
         """Undo last operation."""
         
         # check document
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2379,7 +2380,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set data
@@ -2392,12 +2393,12 @@ class mainFrame(wx.Frame):
         """Show sequence tools panel."""
         
         # check document
-        if not self.sequencePanel and self.currentDocument is None:
+        if not self.sequencePanel and self.currentDocument == None:
             wx.Bell()
             return
         
         # select first sequence in document or make new
-        if not self.sequencePanel and self.currentDocument is not None and self.currentSequence is None and evt and evt.GetId()==ID_toolsSequence:
+        if not self.sequencePanel and self.currentDocument != None and self.currentSequence == None and evt and evt.GetId()==ID_toolsSequence:
             if self.documents[self.currentDocument].sequences:
                 self.documentsPanel.selectSequence(self.currentDocument, 0)
             else:
@@ -2405,7 +2406,7 @@ class mainFrame(wx.Frame):
                 return
         
         # disable tools if no sequence selected
-        if not self.sequencePanel and self.currentSequence is None and evt and evt.GetId()!=ID_toolsSequence:
+        if not self.sequencePanel and self.currentSequence == None and evt and evt.GetId()!=ID_toolsSequence:
             wx.Bell()
             return
         
@@ -2437,7 +2438,7 @@ class mainFrame(wx.Frame):
         
         # get current document sequence
         seqData = None
-        if self.currentDocument is not None and self.currentSequence is not None:
+        if self.currentDocument != None and self.currentSequence != None:
             seqData = self.documents[self.currentDocument].sequences[self.currentSequence]
         
         # set data
@@ -2450,7 +2451,7 @@ class mainFrame(wx.Frame):
         """Show calibration tools panel."""
         
         # check document
-        if not self.calibrationPanel and self.currentDocument is None:
+        if not self.calibrationPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2467,7 +2468,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set data
@@ -2510,7 +2511,7 @@ class mainFrame(wx.Frame):
             self.massCalculatorPanel.Show(True)
         
         # set no formula
-        if formula is None:
+        if formula == None:
             self.massCalculatorPanel.setData(None)
             self.massCalculatorPanel.Raise()
         
@@ -2521,10 +2522,10 @@ class mainFrame(wx.Frame):
             baseline = None
             
             # try to approximate intensity and baseline
-            if self.currentDocument is not None and charge is not None and self.documents[self.currentDocument].spectrum.hasprofile():
-                compound = mspy.obj_compound.compound(formula)
+            if self.currentDocument != None and charge != None and self.documents[self.currentDocument].spectrum.hasprofile():
+                compound = mspy.compound(formula)
                 mz = compound.mz(charge=charge, agentFormula=agentFormula, agentCharge=agentCharge)[0]
-                peak = mspy.mod_peakpicking.labelpeak(
+                peak = mspy.labelpeak(
                     signal = self.documents[self.currentDocument].spectrum.profile,
                     mz = mz,
                     pickingHeight = 0.95
@@ -2566,7 +2567,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set data
@@ -2579,7 +2580,7 @@ class mainFrame(wx.Frame):
         """docstring for onToolsMassDefectPlot"""
         
         # check document
-        if not self.massDefectPlotPanel and self.currentDocument is None:
+        if not self.massDefectPlotPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2596,7 +2597,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set data
@@ -2609,7 +2610,7 @@ class mainFrame(wx.Frame):
         """Show mass filter tool panel."""
         
         # check document
-        if not self.massFilterPanel and self.currentDocument is None:
+        if not self.massFilterPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2626,7 +2627,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set data
@@ -2639,7 +2640,7 @@ class mainFrame(wx.Frame):
         """Show compounds search tool panel."""
         
         # check document
-        if not self.compoundsSearchPanel and self.currentDocument is None:
+        if not self.compoundsSearchPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2656,7 +2657,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set data
@@ -2669,7 +2670,7 @@ class mainFrame(wx.Frame):
         """Show differences tool panel."""
         
         # check document
-        if not self.peakDifferencesPanel and self.currentDocument is None:
+        if not self.peakDifferencesPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2686,7 +2687,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set current document
@@ -2726,7 +2727,7 @@ class mainFrame(wx.Frame):
         """Show spectrum generator tool panel."""
         
         # check document
-        if not self.spectrumGeneratorPanel and self.currentDocument is None:
+        if not self.spectrumGeneratorPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2743,7 +2744,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set data
@@ -2756,7 +2757,7 @@ class mainFrame(wx.Frame):
         """Show envelope fit panel."""
         
         # check document
-        if not self.envelopeFitPanel and self.currentDocument is None:
+        if not self.envelopeFitPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2773,13 +2774,13 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # get data from sequence
-        if sequence is not None:
+        if sequence != None:
             formula = sequence.formula()
-            if scale is None and config.envelopeFit['loss'] == 'H' and config.envelopeFit['gain'] == 'H{2}':
+            if scale == None and config.envelopeFit['loss'] == 'H' and config.envelopeFit['gain'] == 'H{2}':
                 scale = (0, len(sequence) - sequence.count('P') - 1)
         
         # set data
@@ -2792,7 +2793,7 @@ class mainFrame(wx.Frame):
         """Show Mascot search panel."""
         
         # check document
-        if not self.mascotPanel and self.currentDocument is None:
+        if not self.mascotPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2813,7 +2814,7 @@ class mainFrame(wx.Frame):
             tool = 'mis'
         elif evt and evt.GetId() == ID_mascotSQ:
             tool = 'sq'
-        elif self.currentDocument is not None and self.documents[self.currentDocument].spectrum.precursorMZ:
+        elif self.currentDocument != None and self.documents[self.currentDocument].spectrum.precursorMZ:
             tool = 'mis'
         
         self.mascotPanel.onToolSelected(tool=tool)
@@ -2825,7 +2826,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set data
@@ -2838,7 +2839,7 @@ class mainFrame(wx.Frame):
         """Show ProFound search panel."""
         
         # check document
-        if not self.profoundPanel and self.currentDocument is None:
+        if not self.profoundPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2856,7 +2857,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set data
@@ -2869,7 +2870,7 @@ class mainFrame(wx.Frame):
         """Show MS-Fit search panel."""
         
         # check document
-        if not self.prospectorPanel and self.currentDocument is None:
+        if not self.prospectorPanel and self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2888,7 +2889,7 @@ class mainFrame(wx.Frame):
             tool = 'msfit'
         elif evt and evt.GetId() == ID_prospectorMSTag:
             tool = 'mstag'
-        elif self.currentDocument is not None and self.documents[self.currentDocument].spectrum.precursorMZ:
+        elif self.currentDocument != None and self.documents[self.currentDocument].spectrum.precursorMZ:
             tool = 'mstag'
         
         self.prospectorPanel.onToolSelected(tool=tool)
@@ -2897,7 +2898,7 @@ class mainFrame(wx.Frame):
         
         # get current document
         docData = None
-        if self.currentDocument is not None:
+        if self.currentDocument != None:
             docData = self.documents[self.currentDocument]
         
         # set data
@@ -2910,7 +2911,7 @@ class mainFrame(wx.Frame):
         """Swap peaklist and spectrum data."""
         
         # check document
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             wx.Bell()
             return
         
@@ -2950,7 +2951,7 @@ class mainFrame(wx.Frame):
         """Set current sequence."""
         
         # get sequence
-        if seqIndex is not None:
+        if seqIndex != None:
             seqData = self.documents[self.currentDocument].sequences[seqIndex]
         else:
             seqData = None
@@ -2974,13 +2975,13 @@ class mainFrame(wx.Frame):
         """Append new sequence to current document."""
         
         # check selection
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             wx.Bell()
             return
         
         # create new sequence
         if not seqData:
-            seqData = mspy.obj_sequence.sequence('', title='Untitled Sequence')
+            seqData = mspy.sequence('', title='Untitled Sequence')
             seqData.matches = []
         
         # append sequence
@@ -3002,7 +3003,7 @@ class mainFrame(wx.Frame):
         """Import sequence from file to current document."""
         
         # check selection
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             wx.Bell()
             return
         
@@ -3056,7 +3057,7 @@ class mainFrame(wx.Frame):
         # check selection
         docIndex = self.currentDocument
         seqIndex = self.currentSequence
-        if self.currentDocument is None or self.currentSequence is None:
+        if self.currentDocument == None or self.currentSequence == None:
             return
         
         # update sequence panel
@@ -3080,12 +3081,12 @@ class mainFrame(wx.Frame):
         """Delete sequence matches."""
         
         # check selection
-        if self.currentDocument is None or self.currentSequence is None:
+        if self.currentDocument == None or self.currentSequence == None:
             return
         
         # delete matches
         self.documents[self.currentDocument].backup(('sequences'))
-        if matchIndex is not None:
+        if matchIndex != None:
             del self.documents[self.currentDocument].sequences[self.currentSequence].matches[matchIndex]
         else:
             del self.documents[self.currentDocument].sequences[self.currentSequence].matches[:]
@@ -3099,7 +3100,7 @@ class mainFrame(wx.Frame):
         """Use sequence matches for calibration."""
         
         # check selection
-        if self.currentDocument is None or self.currentSequence is None:
+        if self.currentDocument == None or self.currentSequence == None:
             return
         
         # get matches
@@ -3119,7 +3120,7 @@ class mainFrame(wx.Frame):
         """Sort current sequences by title."""
         
         # check selection
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             return
         
         # update document
@@ -3142,7 +3143,7 @@ class mainFrame(wx.Frame):
         """Show isotopic pattern of current sequence."""
         
         # check selection
-        if self.currentDocument is None or self.currentSequence is None:
+        if self.currentDocument == None or self.currentSequence == None:
             wx.Bell()
             return
         
@@ -3159,7 +3160,7 @@ class mainFrame(wx.Frame):
         """Send current sequence to envelope fit tool."""
         
         # check selection
-        if self.currentDocument is None or self.currentSequence is None:
+        if self.currentDocument == None or self.currentSequence == None:
             wx.Bell()
             return
         
@@ -3230,7 +3231,7 @@ class mainFrame(wx.Frame):
         # run process
         process = threading.Thread(target=self.runLibrarySave, kwargs={'library':library})
         process.start()
-        while process.is_alive():
+        while process.isAlive():
             gauge.pulse()
         gauge.close()
         
@@ -3509,7 +3510,7 @@ class mainFrame(wx.Frame):
             # load document
             process = threading.Thread(target=self.runDocumentParser, kwargs={'path':path, 'docType':docType, 'scan':scan})
             process.start()
-            while process.is_alive():
+            while process.isAlive():
                 gauge.pulse()
             
             # append document
@@ -3542,7 +3543,7 @@ class mainFrame(wx.Frame):
     
     def importDocumentFromClipboard(self, rawData, dataType='profile'):
         """Parse data and make new document."""
-
+        
         before = len(self.documents)
         
         # init processing gauge
@@ -3552,7 +3553,7 @@ class mainFrame(wx.Frame):
         # load document
         process = threading.Thread(target=self.runDocumentXYParser, kwargs={'rawData':rawData, 'dataType':dataType})
         process.start()
-        while process.is_alive():
+        while process.isAlive():
             gauge.pulse()
         
         # append document
@@ -3584,7 +3585,7 @@ class mainFrame(wx.Frame):
         gauge.show()
         process = threading.Thread(target=self.runCompassXport, kwargs={'path':path})
         process.start()
-        while process.is_alive():
+        while process.isAlive():
             gauge.pulse()
         gauge.close()
         
@@ -3757,9 +3758,9 @@ class mainFrame(wx.Frame):
         
         # finalize data
         if dataType == 'peaklist':
-            spectrum = mspy.obj_scan.scan(peaklist=data)
+            spectrum = mspy.scan(peaklist=data)
         else:
-            spectrum = mspy.obj_scan.scan(profile=data)
+            spectrum = mspy.scan(profile=data)
         
         # add new document
         document = doc.document()
@@ -3796,11 +3797,11 @@ class mainFrame(wx.Frame):
         if library == 'compounds':
             self.tmpLibrarySaved = libs.saveCompounds()
         elif library == 'modifications':
-            self.tmpLibrarySaved = mspy.blocks.saveModifications(os.path.join(config.confdir,'modifications.xml'))
+            self.tmpLibrarySaved = mspy.saveModifications(os.path.join(config.confdir,'modifications.xml'))
         elif library == 'monomers':
-            self.tmpLibrarySaved = mspy.blocks.saveMonomers(os.path.join(config.confdir,'monomers.xml'))
+            self.tmpLibrarySaved = mspy.saveMonomers(os.path.join(config.confdir,'monomers.xml'))
         elif library == 'enzymes':
-            self.tmpLibrarySaved = mspy.blocks.saveEnzymes(os.path.join(config.confdir,'enzymes.xml'))
+            self.tmpLibrarySaved = mspy.saveEnzymes(os.path.join(config.confdir,'enzymes.xml'))
         elif library == 'references':
             self.tmpLibrarySaved = libs.saveReferences()
         elif library == 'mascot':
@@ -3833,7 +3834,7 @@ class mainFrame(wx.Frame):
             return 'mzML'
         elif extension == '.mgf':
             return 'MGF'
-        elif extension in ('.xy', '.txt', '.asc', '.csv'):
+        elif extension in ('.xy', '.txt', '.asc'):
             return 'XY'
         elif extension in ('.fa', '.fsa', '.faa', '.fasta'):
             return 'FASTA'
@@ -3916,7 +3917,7 @@ class mainFrame(wx.Frame):
         gauge.show()
         process = threading.Thread(target=self.getDocumentScanList, kwargs={'path':path, 'docType':docType})
         process.start()
-        while process.is_alive():
+        while process.isAlive():
             gauge.pulse()
         gauge.close()
         
@@ -3953,7 +3954,7 @@ class mainFrame(wx.Frame):
         gauge.show()
         process = threading.Thread(target=self.getDocumentSequences, kwargs={'path':path, 'docType':docType})
         process.start()
-        while process.is_alive():
+        while process.isAlive():
             gauge.pulse()
         gauge.close()
         
@@ -4004,7 +4005,7 @@ class mainFrame(wx.Frame):
         selected = self.documentsPanel.getSelectedItemType()
         
         # hide annotation marks
-        if not selected or self.currentDocument is None:
+        if not selected or self.currentDocument == None:
             self.spectrumPanel.updateNotationMarks(None, refresh=refresh)
             return
         
@@ -4023,7 +4024,7 @@ class mainFrame(wx.Frame):
             points += [[a.mz, a.ai, a.label] for a in document.annotations]
         
         # get sequence matches
-        elif selected in ('sequence', 'match') and self.currentSequence is not None:
+        elif selected in ('sequence', 'match') and self.currentSequence != None:
             sequence = self.documents[self.currentDocument].sequences[self.currentSequence]
             points += [[m.mz, m.ai, m.label] for m in sequence.matches]
         
@@ -4049,7 +4050,7 @@ class mainFrame(wx.Frame):
             return
         
         # document
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             enable = False
             document = None
         else:
@@ -4116,7 +4117,7 @@ class mainFrame(wx.Frame):
         self.toolbar.EnableTool(ID_toolsDocumentReport, enable)
         
         # sequence
-        if self.currentDocument is None or self.currentSequence is None:
+        if self.currentDocument == None or self.currentSequence == None:
             enable = False
             sequence = None
         else:
@@ -4190,10 +4191,10 @@ class mainFrame(wx.Frame):
     
     def getAvailableUpdates(self):
         """Check for available updates."""
-        return False
+        
         # get latest version available
         socket.setdefaulttimeout(5)
-        conn = http.client.HTTPConnection('www.mmass.org')
+        conn = httplib.HTTPConnection('www.mmass.org')
         try:
             conn.connect()
             url = '/update.php?version=%s&platform=%s' % (config.version, platform.platform())
@@ -4223,7 +4224,7 @@ class mainFrame(wx.Frame):
         """Get spectrum profile from current document."""
         
         # check document
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             return None
         
         # get spectrum
@@ -4232,7 +4233,7 @@ class mainFrame(wx.Frame):
         # get current view selection
         if currentView:
             minX, maxX = self.spectrumPanel.getCurrentRange()
-            points = mspy.mod_signal.crop(points, minX, maxX)
+            points = mspy.crop(points, minX, maxX)
         
         return points
     # ----
@@ -4242,7 +4243,7 @@ class mainFrame(wx.Frame):
         """Get peaklist from current document."""
         
         # check document
-        if self.currentDocument is None:
+        if self.currentDocument == None:
             return None
         
         peaklist = []
@@ -4266,7 +4267,7 @@ class mainFrame(wx.Frame):
         
         # get peaklist
         for peak in whitelist:
-            if 'X' in filters and peak.charge is None:
+            if 'X' in filters and peak.charge == None:
                 continue
             elif 'I' in filters and not peak.isotope in (0, None):
                 continue
@@ -4276,7 +4277,7 @@ class mainFrame(wx.Frame):
                 peaklist.append(peak)
         
         # finalize peaklist
-        peaklist = mspy.obj_peaklist.peaklist(peaklist)
+        peaklist = mspy.peaklist(peaklist)
         
         return peaklist
     # ----
