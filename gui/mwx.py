@@ -21,11 +21,14 @@ import copy
 import wx
 
 # load modules
-from ids import *
-import images
-import config
+from .ids import *
+from . import images
+from gui import config
 import mspy
 
+def cmp(a, b):
+    try: return (a > b) - (a < b) 
+    except: return 0
 
 # GUI CONSTANTS
 # -------------
@@ -184,7 +187,7 @@ def appInit():
     
     # set MAC
     if wx.Platform == '__WXMAC__':
-        wx.SystemOptions.SetOptionInt("mac.listctrl.always_use_generic", config.main['macListCtrlGeneric'])
+        wx.SystemOptions.SetOption("mac.listctrl.always_use_generic", config.main['macListCtrlGeneric'])
         wx.ToolTip.SetDelay(1500)
         if config.main['reverseScrolling']:
             global SCROLL_DIRECTION
@@ -214,7 +217,7 @@ class bgrPanel(wx.Panel):
         self.image = image
         
         # set paint event to tile image
-        wx.EVT_PAINT(self, self._onPaint)
+        self.Bind(wx.EVT_PAINT, self._onPaint)
     # ----
     
     
@@ -245,7 +248,7 @@ class sortListCtrl(wx.ListCtrl):
         
         self._defaultColour = self.GetBackgroundColour()
         self._altColour = self.GetBackgroundColour()
-        self._currentAttr = wx.ListItemAttr()
+        self._currentAttr = wx.ItemAttr()
         
         self._getItemTextFn = None
         self._getItemAttrFn = None
@@ -258,7 +261,7 @@ class sortListCtrl(wx.ListCtrl):
     def OnGetItemText(self, row, col):
         """Get text for selected cell."""
         
-        if self._getItemTextFn != None:
+        if self._getItemTextFn is not None:
             return self._getItemTextFn(row, col)
         else:
             return unicode(self._data[row][col])
@@ -270,7 +273,7 @@ class sortListCtrl(wx.ListCtrl):
         
         # get user defined attr
         attr = None
-        if self._getItemAttrFn != None:
+        if self._getItemAttrFn is not None:
             attr = self._getItemAttrFn(row)
         
         # set background colour
@@ -351,7 +354,7 @@ class sortListCtrl(wx.ListCtrl):
         """Sort items."""
         
         comp = cmp(item1[self._currentColumn], item2[self._currentColumn])
-        if comp == 0 and self._secondarySortColumn != None:
+        if comp == 0 and self._secondarySortColumn is not None:
             comp = cmp(item1[self._secondarySortColumn], item2[self._secondarySortColumn])
         
         return comp * self._currentDirection
@@ -371,7 +374,7 @@ class sortListCtrl(wx.ListCtrl):
         
         # compare values
         comp = cmp(item1, item2)
-        if comp == 0 and self._secondarySortColumn != None:
+        if comp == 0 and self._secondarySortColumn is not None:
             item1 = self._data[key1][self._secondarySortColumn]
             item2 = self._data[key2][self._secondarySortColumn]
             comp = cmp(item1, item2)
@@ -440,10 +443,10 @@ class sortListCtrl(wx.ListCtrl):
         
         # get column and direction
         direction = self._currentDirection
-        if col == None:
+        if col is None:
             col = self._currentColumn
         else:
-            if self._currentColumn != col:
+            if self._currentColumn is not col:
                 direction = LISTCTRL_SORT
         
         # sort
@@ -592,16 +595,16 @@ class scrollTextCtrl(wx.TextCtrl):
             return
         
         # check limits
-        if self._min != None and new < self._min:
+        if self._min is not None and new < self._min:
             new = self._min
-        elif self._max != None and new > self._max:
+        elif self._max is not None and new > self._max:
             new = self._max
         
         # format value
         if new > 10000 or new < -10000:
             format = '%0.1e'
         else:
-            format = '%0.' + `self._digits` + 'f'
+            format = '%0.' + str(self._digits) + 'f'
         new = format % new
         
         # set new value
@@ -661,7 +664,7 @@ class formulaCtrl(wx.TextCtrl):
         """Check current formula."""
         
         try:
-            formula = mspy.compound(self.GetValue())
+            formula = mspy.obj_compound.compound(self.GetValue())
             self.SetBackgroundColour(wx.NullColour)
         except:
             self.SetBackgroundColour((250,100,100))
@@ -747,7 +750,7 @@ class gaugePanel(wx.Dialog):
         """Show panel."""
         
         self.Center()
-        self.MakeModal(True)
+        #self.MakeModal(True)
         self.Show()
         
         try: wx.Yield()
@@ -758,17 +761,17 @@ class gaugePanel(wx.Dialog):
     def close(self):
         """Hide panel"""
         
-        self.MakeModal(False)
+        #self.MakeModal(False)
         self.Destroy()
     # ----
     
 
 
-class validator(wx.PyValidator):
+class validator(wx.Validator):
     """Text validator."""
     
     def __init__(self, flag):
-        wx.PyValidator.__init__(self)
+        wx.Validator.__init__(self)
         self.flag = flag
         self.Bind(wx.EVT_CHAR, self.OnChar)
     # ----

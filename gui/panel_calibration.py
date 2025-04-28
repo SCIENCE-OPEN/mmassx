@@ -22,11 +22,11 @@ import wx
 import numpy
 
 # load modules
-from ids import *
-import mwx
-import images
-import config
-import libs
+from .ids import *
+from . import mwx
+from . import images
+from . import config
+from . import libs
 import mspy
 import mspy.plot
 
@@ -49,7 +49,7 @@ class panelCalibration(wx.MiniFrame):
         self.currentReferences = None
         
         # make gui items
-        self.makeGUI()
+        self.Bind(wx.EVT_CLOSE, self.onClose)
         wx.EVT_CLOSE(self, self.onClose)
         
         # select default tool
@@ -312,7 +312,7 @@ class panelCalibration(wx.MiniFrame):
         """Hide this frame."""
         
         # check processing
-        if self.processing != None:
+        if self.processing is not None:
             wx.Bell()
             return
         
@@ -327,10 +327,10 @@ class panelCalibration(wx.MiniFrame):
         self.gauge.SetValue(0)
         
         if status:
-            self.MakeModal(True)
+            #self.MakeModal(True)
             self.mainSizer.Show(3)
         else:
-            self.MakeModal(False)
+            #self.MakeModal(False)
             self.mainSizer.Hide(3)
             self.processing = None
         
@@ -346,7 +346,7 @@ class panelCalibration(wx.MiniFrame):
         """Selected tool."""
         
         # get the tool
-        if evt != None:
+        if evt is not None:
             tool = 'references'
             if evt.GetId() == ID_calibrationReferences:
                 tool = 'references'
@@ -417,9 +417,9 @@ class panelCalibration(wx.MiniFrame):
         # recalculate errors
         if self.currentReferences:
             for x, item in enumerate(self.currentReferences):
-                if item[2] != None and item[3] != None:
-                    self.currentReferences[x][4] = mspy.delta(item[2], item[1], config.calibration['units'])
-                    self.currentReferences[x][5] = mspy.delta(item[3], item[1], config.calibration['units'])
+                if item[2] is not None and item[3] is not None:
+                    self.currentReferences[x][4] = mspy.mod_basics.delta(item[2], item[1], config.calibration['units'])
+                    self.currentReferences[x][5] = mspy.mod_basics.delta(item[3], item[1], config.calibration['units'])
         
         # update GUI
         self.updateReferencesList()
@@ -563,7 +563,7 @@ class panelCalibration(wx.MiniFrame):
         self.processing.start()
         
         # pulse gauge while working
-        while self.processing and self.processing.isAlive():
+        while self.processing and self.processing.is_alive():
             self.gauge.pulse()
         
         # empty references
@@ -598,8 +598,8 @@ class panelCalibration(wx.MiniFrame):
             return
         
         # add new data
-        mzFormat = '%0.' + `config.main['mzDigits']` + 'f'
-        ppmFormat = '%0.' + `config.main['ppmDigits']` + 'f'
+        mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
+        ppmFormat = '%0.' + str(config.main['ppmDigits']) + 'f'
         fontSkipped = wx.Font(mwx.SMALL_FONT_SIZE, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_ITALIC, wx.NORMAL)
         fontUsed = wx.SMALL_FONT
         for row, item in enumerate(self.currentReferences):
@@ -610,11 +610,11 @@ class panelCalibration(wx.MiniFrame):
             calibrated = ''
             errorBefore = ''
             errorAfter = ''
-            if item[2] != None:
+            if item[2] is not None:
                 measured = mzFormat % (item[2])
-            if item[3] != None:
+            if item[3] is not None:
                 calibrated = mzFormat % (item[3])
-            if item[4] != None and item[5] != None:
+            if item[4] is not None and item[5] is not None:
                 if config.calibration['units'] == 'Da':
                     errorBefore = "%.3f" % item[4]
                     errorAfter = "%.3f" % item[5]
@@ -623,13 +623,13 @@ class panelCalibration(wx.MiniFrame):
                     errorAfter = "%.3f" % item[5]
             
             # add data
-            self.referencesList.InsertStringItem(row, '')
-            self.referencesList.SetStringItem(row, 0, item[0])
-            self.referencesList.SetStringItem(row, 1, theoretical)
-            self.referencesList.SetStringItem(row, 2, measured)
-            self.referencesList.SetStringItem(row, 3, calibrated)
-            self.referencesList.SetStringItem(row, 4, errorBefore)
-            self.referencesList.SetStringItem(row, 5, errorAfter)
+            self.referencesList.InsertItem(row, '')
+            self.referencesList.SetItem(row, 0, item[0])
+            self.referencesList.SetItem(row, 1, theoretical)
+            self.referencesList.SetItem(row, 2, measured)
+            self.referencesList.SetItem(row, 3, calibrated)
+            self.referencesList.SetItem(row, 4, errorBefore)
+            self.referencesList.SetItem(row, 5, errorAfter)
             self.referencesList.SetItemData(row, row)
             
             # mark skipped
@@ -664,7 +664,7 @@ class panelCalibration(wx.MiniFrame):
             # get after points
             pointsAfter = []
             for item in self.currentReferences:
-                if item[6] and item[5] != None:
+                if item[6] and item[5] is not None:
                     pointsAfter.append([item[2], item[5]])
                     intensities.append(item[5])
             if pointsAfter:
@@ -675,7 +675,7 @@ class panelCalibration(wx.MiniFrame):
             # get before points
             pointsBefore = []
             for item in self.currentReferences:
-                if item[6] and item[4] != None:
+                if item[6] and item[4] is not None:
                     pointsBefore.append([item[2], item[4]])
                     intensities.append(item[4])
             if pointsBefore:
@@ -712,7 +712,7 @@ class panelCalibration(wx.MiniFrame):
         # make peaklist
         if self.currentDocument and self.currentDocument.spectrum.peaklist:
             peaks = self.makeCurrentPeaklist(minY, maxY)
-            obj = mspy.plot.spectrum(mspy.scan(peaklist=peaks), tickColour=(170,170,170), showLabels=False)
+            obj = mspy.plot.spectrum(mspy.obj_scan.scan(peaklist=peaks), tickColour=(170,170,170), showLabels=False)
             container.append(obj)
         
         # set units
@@ -753,14 +753,14 @@ class panelCalibration(wx.MiniFrame):
             # set references
             self.currentReferences = []
             for ref in references:
-                delta = mspy.delta(ref[2], ref[1], config.calibration['units'])
+                delta = mspy.mod_basics.delta(ref[2], ref[1], config.calibration['units'])
                 self.currentReferences.append([ref[0], ref[1], ref[2], None, delta, None, True])
             
             # get calibration
             self.calcCalibration()
         
         # enable clipboard
-        elif self.currentCalibration and document!=None:
+        elif self.currentCalibration and document is not None:
             self.apply_butt.SetLabel('Apply Recent')
             self.apply_butt.Enable(True)
         
@@ -785,7 +785,7 @@ class panelCalibration(wx.MiniFrame):
         for item in self.currentReferences:
             item[3] = None
             item[5] = None
-            if item[6] and item[2]!=None:
+            if item[6] and item[2]is not None:
                 points.append([item[2], item[1]])
         
         # get calibration
@@ -799,10 +799,10 @@ class panelCalibration(wx.MiniFrame):
             
             # recalculate assigned peaks
             for x, item in enumerate(self.currentReferences):
-                if item[2]!=None:
+                if item[2] is not None:
                     calibrated = model(params, item[2])
                     self.currentReferences[x][3] = calibrated
-                    self.currentReferences[x][5] = mspy.delta(calibrated, item[1], config.calibration['units'])
+                    self.currentReferences[x][5] = mspy.mod_basics.delta(calibrated, item[1], config.calibration['units'])
             
             # enable buttons
             self.apply_butt.Enable(True)
@@ -836,7 +836,7 @@ class panelCalibration(wx.MiniFrame):
         # find peaks within tolerance
         for x, item in enumerate(self.currentReferences):
             for peak in peaklist:
-                delta = mspy.delta(peak.mz, item[1], config.calibration['units'])
+                delta = mspy.mod_basics.delta(peak.mz, item[1], config.calibration['units'])
                 if abs(delta) <= config.calibration['tolerance']:
                     if self.currentReferences[x][2]==None or abs(delta) < abs(self.currentReferences[x][4]):
                         self.currentReferences[x][2] = peak.mz
@@ -874,7 +874,7 @@ class panelCalibration(wx.MiniFrame):
                 theoretical -= 1
             
             title = 'Peak %.2f' % (peak.mz)
-            delta = mspy.delta(peak.mz, theoretical, config.calibration['units'])
+            delta = mspy.mod_basics.delta(peak.mz, theoretical, config.calibration['units'])
             self.currentReferences.append([title, theoretical, peak.mz, None, delta, None, True])
         
         # get calibration
@@ -918,7 +918,7 @@ class panelCalibration(wx.MiniFrame):
         points = []
         for x in range(100):
             mz = minX+step*x
-            error = mspy.delta(mz, fn(params, mz), config.calibration['units'])
+            error = mspy.mod_basics.delta(mz, fn(params, mz), config.calibration['units'])
             points.append((mz, error))
         
         return points
@@ -938,10 +938,10 @@ class panelCalibration(wx.MiniFrame):
         f = abs(maxY - minY) / basePeak.intensity
         for peak in self.currentDocument.spectrum.peaklist:
             intensity = (peak.intensity * f) + minY
-            peaklist.append(mspy.peak(mz=peak.mz, ai=intensity, base=minY))
+            peaklist.append(mspy.mod_basics.peak(mz=peak.mz, ai=intensity, base=minY))
         
         # convert to mspy.peaklist
-        return mspy.peaklist(peaklist)
+        return mspy.obj_peaklist.peaklist(peaklist)
     # ----
     
     
