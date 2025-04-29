@@ -2,6 +2,10 @@
 
 This work continues [gyellen fork](https://github.com/gyellen/mMass), which is based on [xxao original v5.5.0](https://github.com/xxao/mMass).
 
+## Changelog
+
+[changelog.md](changelog.md)
+
 ## Requirements
 
 - conda (recommended)
