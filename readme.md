@@ -1,5 +1,11 @@
 # mMassX
 
+[![GitHub Release](https://img.shields.io/github/release/science-open/mmassx.svg?style=flat)](https://github.com/SCIENCE-OPEN/mmassx/releases)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-3.0.en.html)
+[![Ask Me Anything !](https://img.shields.io/badge/Ask%20about-anything-1abc9c.svg)](https://github.com/asus-linux-drivers/asus-numberpad-driver/issues/new/choose)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+![Badge](https://hitscounter.dev/api/hit?url=https%3A%2F%2Fgithub.com%2Fscience-open%2Fmmassx&label=Visitors&icon=suit-heart-fill&color=%23e35d6a)
+
 This work continues [gyellen fork](https://github.com/gyellen/mMass), which is based on [xxao original v5.5.0](https://github.com/xxao/mMass).
 
 ## Changelog
