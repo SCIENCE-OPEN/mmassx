@@ -14,6 +14,10 @@ This work continues [gyellen fork](https://github.com/gyellen/mMass), which is b
 
 ## Requirements
 
+- (Windows) download .exe from the [releases](https://github.com/SCIENCE-OPEN/mmassx/releases) page
+
+or 
+
 - conda (recommended)
 
 or
@@ -23,6 +27,7 @@ or
 - wxPython 4.1.1
 - wxwidgets 3.1.5
 - pandas 1.3.4
+- (dev) pyinstaller 6.9.0
 
 ## Installation
 
@@ -85,6 +90,10 @@ $ git config core.autocrlf true
 ```
 
 - for `.editorconfig` support, install in VS Code official extension `EditorConfig for VS Code`
+
+## Maintenance guide
+
+- `.exe` is generated using `$ pyinstaller --clean mmass.spec`
 
 # Gyellen fork of official mMass Repository ([link](https://github.com/gyellen/mMass))
 
