@@ -586,8 +586,7 @@ def saveMonomers(path=os.path.join(blocksdir, 'monomers.xml')):
     buff = '<?xml version="1.0" encoding="utf-8" ?>\n'
     buff += '<mspyMonomers version="1.0">\n'
     
-    abbrs = list(monomers.keys())
-    abbrs.sort()
+    abbrs = sorted(monomers.keys())
     for abbr in abbrs:
         if monomers[abbr].category != '_InternalAA':
             buff += '  <monomer abbr="%s" name="%s" formula="%s" category="%s" losses="%s" />\n' % (monomers[abbr].abbr, monomers[abbr].name, monomers[abbr].formula, monomers[abbr].category, ';'.join(monomers[abbr].losses))
@@ -612,8 +611,7 @@ def saveEnzymes(path=os.path.join(blocksdir, 'enzymes.xml')):
     buff = '<?xml version="1.0" encoding="utf-8" ?>\n'
     buff += '<mspyEnzymes version="1.0">\n'
     
-    names = enzymes.keys()
-    names.sort()
+    names = sorted(enzymes.keys())
     for name in names:
         buff += '  <enzyme name="%s">\n' % (_escape(enzymes[name].name))
         buff += '    <expression><![CDATA[%s]]></expression>\n' % (enzymes[name].expression)
@@ -641,8 +639,7 @@ def saveModifications(path=os.path.join(blocksdir, 'modifications.xml')):
     buff = '<?xml version="1.0" encoding="utf-8" ?>\n'
     buff += '<mspyModifications version="1.0">\n'
     
-    names = modifications.keys()
-    names.sort()
+    names = sorted(modifications.keys())
     for name in names:
         buff += '  <modification name="%s">\n' % (_escape(modifications[name].name))
         buff += '    <description>%s</description>\n' % (_escape(modifications[name].description))
