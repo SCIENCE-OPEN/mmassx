@@ -150,9 +150,8 @@ class parseMZML():
             parser = xml.sax.make_parser()
             parser.setContentHandler(handler)
             try:
-                document = file(self.path)
-                parser.parse(document)
-                document.close()
+                with open(self.path, 'r', encoding='utf-8') as document:
+                    parser.parse(document)
                 data = handler.data
             except stopParsing:
                 data = handler.data
