@@ -31,6 +31,9 @@ or
 
 ## Installation
 
+- (Windows) download .exe from the [releases](https://github.com/SCIENCE-OPEN/mmassx/releases) page
+
+or 
 - create new virtual environment or activate virtual environment from file `environment.yml`
 
 ```
