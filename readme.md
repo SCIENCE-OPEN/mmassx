@@ -96,7 +96,7 @@ $ git config core.autocrlf true
 
 ## Compounds datasets
 
-- HMDB database was processed by these steps:
+- **HMDB database** was processed by these steps:
 
   - downloaded `All Metabolites` manually from the https://hmdb.ca/downloads and unzipped into `$ cd HMDB` & `$ unzip hmdb_metabolites.zip`
   - downloaded `.xml` were split into multiple `.xml` files using
@@ -106,17 +106,18 @@ $ git config core.autocrlf true
   $ xml_split < ../hmdb_metabolites.xml
   ```
   - converted split `.xml` to one `.csv` using `$ python split_xml_to_one_csv.py hmdb_metabolites_split_output hmdb_metabolites.csv`
-  - sanitized and split one `.csv` into `.xml|.csv` by status column (`detected`, `quantified`, ..) using ```$ python3 sanitize_csv_and_create_split_up_csv_and_xml.py hmdb_metabolites.csv
-  ...
+  - sanitized and split one `.csv` into `.xml|.csv` by status column (`detected`, `quantified`, ..) using `$ python3 sanitize_csv_and_create_split_up_csv_and_xml.py hmdb_metabolites.csv` with output:
+  ```
   Final XML saved: hmdb_metabolites_quantified_processed.xml
-Fixed CSV saved: hmdb_metabolites_quantified_processed.csv
-Final XML saved: hmdb_metabolites_detected_processed.xml
-Fixed CSV saved: hmdb_metabolites_detected_processed.csv
-Final XML saved: hmdb_metabolites_expected_processed.xml
-Fixed CSV saved: hmdb_metabolites_expected_processed.csv
-Final XML saved: hmdb_metabolites_predicted_processed.xml
-Fixed CSV saved: hmdb_metabolites_predicted_processed.csv
-Processing complete```
+  Fixed CSV saved: hmdb_metabolites_quantified_processed.csv
+  Final XML saved: hmdb_metabolites_detected_processed.xml
+  Fixed CSV saved: hmdb_metabolites_detected_processed.csv
+  Final XML saved: hmdb_metabolites_expected_processed.xml
+  Fixed CSV saved: hmdb_metabolites_expected_processed.csv
+  Final XML saved: hmdb_metabolites_predicted_processed.xml
+  Fixed CSV saved: hmdb_metabolites_predicted_processed.csv
+  Processing complete
+  ```
 
 ## Maintenance guide
 
