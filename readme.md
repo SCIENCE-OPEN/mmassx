@@ -27,7 +27,8 @@ or
 - wxPython 4.1.1
 - wxwidgets 3.1.5
 - pandas 1.3.4
-- (dev) pyinstaller 6.9.0
+- (dev, generating .exe) pyinstaller 6.9.0
+- (dev, processing KEGG database) httpx 0.28.1
 
 ## Installation
 
@@ -42,7 +43,7 @@ or
 $ conda create --prefix ./.mmass_env
 $ conda activate ./.mmass_env
 $ (.mmass_env) conda install python=3.9.19
-$ (.mmass_env) conda install -c conda-forge wxwidgets=3.1.5 wxpython=4.1.1 numpy=1.20.3 pandas=1.3.4 pyinstaller 6.9.0 # (dev) pyinstaller 6.9.0
+$ (.mmass_env) conda install -c conda-forge wxwidgets=3.1.5 wxpython=4.1.1 numpy=1.20.3 pandas=1.3.4 # (dev) pyinstaller=6.9.0 httpx=0.28.1
 ```
 
 ```
@@ -94,11 +95,11 @@ $ git config core.autocrlf true
 
 - for `.editorconfig` support, install in VS Code official extension `EditorConfig for VS Code`
 
-## Compounds datasets
+## Compound datasets
 
 - **HMDB database** was processed by these steps:
 
-  - downloaded `All Metabolites` manually from the https://hmdb.ca/downloads and unzipped into `$ cd HMDB` & `$ unzip hmdb_metabolites.zip`
+  - downloaded `All Metabolites` manually from the https://hmdb.ca/downloads and unzipped into `$ cd datasets/HMDB` & `$ unzip hmdb_metabolites.zip`
   - downloaded `.xml` were split into multiple `.xml` files using
   ```
   $ mkdir -p hmdb_metabolites_split_output
@@ -106,7 +107,7 @@ $ git config core.autocrlf true
   $ xml_split < ../hmdb_metabolites.xml
   ```
   - converted split `.xml` to one `.csv` using `$ python split_xml_to_one_csv.py hmdb_metabolites_split_output hmdb_metabolites.csv`
-  - sanitized and split one `.csv` into `.xml|.csv` by status column (`detected`, `quantified`, ..) using `$ python3 sanitize_csv_and_create_split_up_csv_and_xml.py hmdb_metabolites.csv` with output:
+  - sanitized and split one `.csv` into `.xml|.csv` by status column (`detected`, `quantified`, ..) using `$ cd datasets` & `$ python3 sanitize_csv_and_create_split_up_csv_and_xml.py HMDB/hmdb_metabolites.csv` with output:
   ```
   Final XML saved: hmdb_metabolites_quantified_processed.xml
   Fixed CSV saved: hmdb_metabolites_quantified_processed.csv
@@ -117,6 +118,21 @@ $ git config core.autocrlf true
   Final XML saved: hmdb_metabolites_predicted_processed.xml
   Fixed CSV saved: hmdb_metabolites_predicted_processed.csv
   Processing complete
+  ```
+
+- **KEGG database** was processed by these steps:
+
+  - downloaded `All Metabolites` from API using `$ python3 download.py` with output:
+  ```
+  Found 19464 missing compounds. Downloading in batches...
+  ...
+  Download complete in 924.56 seconds.
+  ```
+  - sanitized output `.csv` into `.xml|.csv` using `$ cd datasets` & `$ python3 sanitize_csv_and_create_split_up_csv_and_xml.py KEGG/kegg_metabolites.csv` with output:
+  ```
+  Final XML saved: kegg_metabolites_processed.xml
+  Fixed CSV saved: kegg_metabolites_processed.csv
+  Processing complete.
   ```
 
 ## Maintenance guide

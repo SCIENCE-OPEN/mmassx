@@ -25,7 +25,7 @@ if exist "%BUILD_DIR%" (
 mkdir "%BUILD_DIR%"
 
 echo [2/7] Copying project from %SOURCE_DIR% to %BUILD_DIR% (excluding .git and .mmass_env) ...
-robocopy "%SOURCE_DIR%" "%BUILD_DIR%" /E /XO /XD .git .mmass_env
+robocopy "%SOURCE_DIR%" "%BUILD_DIR%" /E /XO /XD .git .mmass_env datasets
 
 echo [3/7] Creating Conda environment with Python 3.9.19...
 call "%CONDA_BAT%" create -y --prefix "%ENV_DIR%" python=3.9.19

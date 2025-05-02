@@ -28,12 +28,15 @@ GREEK_LETTERS = {
 
 SANITIZING_LOG_FILE = None  # will be set dynamically per file
 
+def get_compound_name(row):
+    return row.get("name", "").strip() or row.get("name_1", "").strip()
+
 def replace_greek_letters(text):
     return ''.join(GREEK_LETTERS.get(char, char) for char in text)
 
 def log_error(message, row_id, row_data, sanitized_name=None, action_taken=None):
     try:
-        name = row_data.get("name", "N/A")
+        name = get_compound_name(row_data)
         formula = row_data.get("chemical_formula", "N/A")
         if sanitized_name:
             message += f" | Name sanitized from '{name}' to '{sanitized_name}'"
@@ -101,7 +104,7 @@ def loadCompoundsWrapper(path, expected_name=None):
         return False
 
 def save_fixed_csv(csv_filename, rows, status=None):
-    status_suffix = f"_{status}" if status else ""
+    status_suffix = f"_{status}" if status and status != "default" else ""
     filename = os.path.splitext(os.path.basename(csv_filename))[0] + status_suffix + "_processed.csv"
     with open(filename, "w", encoding="utf-8", newline="") as csv_file:
         fieldnames = [f for f in rows[0].keys() if f != "UNKNOWN_FIELD"]
@@ -113,7 +116,7 @@ def save_fixed_csv(csv_filename, rows, status=None):
     print(f"Fixed CSV saved: {filename}")
 
 def save_final_xml(csv_filename, compounds, status=None):
-    status_suffix = f"_{status}" if status else ""
+    status_suffix = f"_{status}" if status and status != "default" else ""
     filename = os.path.splitext(os.path.basename(csv_filename))[0] + status_suffix + "_processed.xml"
     root = ET.Element("mMassCompounds", version="1.0")
     group = ET.SubElement(root, "group", name="ProcessedGroup")
@@ -152,7 +155,7 @@ def process_csv_files(input_path):
                     for row_id, row in enumerate(reader, start=last_row):
                         last_row = row_id + 1
                         row = {key.strip() if key else "UNKNOWN_FIELD": value for key, value in row.items()}
-                        compound_name = row.get("name", "").strip()
+                        compound_name = get_compound_name(row)
                         chemical_formula = row.get("chemical_formula", "").strip()
                         if not compound_name or not chemical_formula:
                             continue
@@ -173,7 +176,7 @@ def process_csv_files(input_path):
                     last_row += 1
 
         for status, rows in fixed_rows_by_status.items():
-            valid_compounds = [(r["name"].strip(), r["chemical_formula"].strip()) for r in rows]
+            valid_compounds = [(get_compound_name(r), r["chemical_formula"].strip()) for r in rows]
             save_final_xml(csv_file_path, valid_compounds, status)
             save_fixed_csv(csv_file_path, rows, status)
 
