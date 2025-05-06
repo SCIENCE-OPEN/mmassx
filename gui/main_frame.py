@@ -4232,7 +4232,7 @@ class mainFrame(wx.Frame):
         # get current view selection
         if currentView:
             minX, maxX = self.spectrumPanel.getCurrentRange()
-            points = mspy.crop(points, minX, maxX)
+            points = mspy.mod_signal.crop(points, minX, maxX)
         
         return points
     # ----

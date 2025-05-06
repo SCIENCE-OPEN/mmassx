@@ -23,7 +23,7 @@ import wx
 from . import mwx
 from . import config
 import mspy
-
+import mspy.plot
 
 # SCAN SELECTION DIALOG
 # ---------------------

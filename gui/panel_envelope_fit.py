@@ -26,7 +26,7 @@ from . import images
 from . import config
 from . import libs
 import mspy
-
+import mspy.plot
 
 # FLOATING PANEL WITH ENVELOPE FIT TOOL
 # -------------------------------------
