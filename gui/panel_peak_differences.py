@@ -464,7 +464,7 @@ class panelPeakDifferences(wx.MiniFrame):
             label = mzFormat % self.currentDifferences[x][0][0]
             self.differencesGrid.SetColLabelValue(x, label)
             self.differencesGrid.SetRowLabelValue(x, label)
-            self.differencesGrid.SetColAttr(x, cellAttr)
+            self.differencesGrid.SetColAttr(x, cellAttr.Clone())
         
         # paste data
         mzFormat = '%0.' + str(config.main['mzDigits']) + 'f'
@@ -520,12 +520,12 @@ class panelPeakDifferences(wx.MiniFrame):
         cellAttr = wx.grid.GridCellAttr()
         cellAttr.SetAlignment(wx.ALIGN_TOP, wx.ALIGN_LEFT)
         cellAttr.SetReadOnly(True)
-        self.matchesGrid.SetColAttr(0, cellAttr)
+        self.matchesGrid.SetColAttr(0, cellAttr.Clone())
         
         cellAttr = wx.grid.GridCellAttr()
         cellAttr.SetAlignment(wx.ALIGN_TOP, wx.ALIGN_RIGHT)
         cellAttr.SetReadOnly(True)
-        self.matchesGrid.SetColAttr(1, cellAttr)
+        self.matchesGrid.SetColAttr(1, cellAttr.Clone())
         
         # set format
         errFormat = '%0.' + str(config.main['mzDigits']) + 'f'
