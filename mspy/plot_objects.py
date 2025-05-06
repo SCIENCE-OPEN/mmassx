@@ -193,7 +193,7 @@ class container:
         # sort labels
         annots.sort()
         annots.reverse()
-        labels.sort()
+        labels.sort(key=lambda label: label[0])
         labels.reverse()
         labels = annots + labels
         
