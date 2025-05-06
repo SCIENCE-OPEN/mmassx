@@ -49,8 +49,8 @@ class panelCalibration(wx.MiniFrame):
         self.currentReferences = None
         
         # make gui items
+        self.makeGUI()
         self.Bind(wx.EVT_CLOSE, self.onClose)
-        wx.EVT_CLOSE(self, self.onClose)
         
         # select default tool
         self.onToolSelected(tool=self.currentTool)
@@ -178,8 +178,7 @@ class panelCalibration(wx.MiniFrame):
         # make controls
         references_label = wx.StaticText(ctrlPanel, -1, "References:")
         references_label.SetFont(wx.SMALL_FONT)
-        choices = libs.references.keys()
-        choices.sort()
+        choices = sorted(libs.references.keys())
         choices.insert(0,'Reference lists')
         self.references_choice = wx.Choice(ctrlPanel, -1, choices=choices, size=(250, mwx.SMALL_CHOICE_HEIGHT))
         self.references_choice.Select(0)
@@ -938,7 +937,7 @@ class panelCalibration(wx.MiniFrame):
         f = abs(maxY - minY) / basePeak.intensity
         for peak in self.currentDocument.spectrum.peaklist:
             intensity = (peak.intensity * f) + minY
-            peaklist.append(mspy.mod_basics.peak(mz=peak.mz, ai=intensity, base=minY))
+            peaklist.append(mspy.obj_peak.peak(mz=peak.mz, ai=intensity, base=minY))
         
         # convert to mspy.peaklist
         return mspy.obj_peaklist.peaklist(peaklist)
