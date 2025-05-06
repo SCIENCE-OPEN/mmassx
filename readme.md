@@ -27,8 +27,10 @@ or
 - wxPython 4.1.1
 - wxwidgets 3.1.5
 - pandas 1.3.4
+- (optional, linux only) distro 1.9.0
 - (dev, generating .exe) pyinstaller 6.9.0
 - (dev, processing KEGG database) httpx 0.28.1
+- (dev, precomputing ions cache) filelock 3.18.0
 
 ## Installation
 
@@ -43,7 +45,9 @@ or
 $ conda create --prefix ./.mmass_env
 $ conda activate ./.mmass_env
 $ (.mmass_env) conda install python=3.9.19
-$ (.mmass_env) conda install -c conda-forge wxwidgets=3.1.5 wxpython=4.1.1 numpy=1.20.3 pandas=1.3.4 # (dev) pyinstaller=6.9.0 httpx=0.28.1
+$ (.mmass_env) conda install -c conda-forge wxwidgets=3.1.5 wxpython=4.1.1 numpy=1.20.3 pandas=1.3.4 
+# (optional) distro=1.9.0
+# (dev) pyinstaller=6.9.0 httpx=0.28.1 joblib=1.5.0
 ```
 
 ```
@@ -64,7 +68,7 @@ $ python3 setup.py build_ext --inplace
 - configs (use default configs if needed)
 
 ```
-$ cp -r configs ~/.mmass/
+$ cp -r configs/* ~/.mmass/
 ```
 
 - run or debug in VS Code

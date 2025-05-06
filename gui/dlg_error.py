@@ -52,7 +52,13 @@ class dlgError(wx.Dialog):
         self.exception += '\nSystem: %s' % str(platform.system())
         self.exception += '\nMac: %s' % str(platform.mac_ver())
         self.exception += '\nMSW: %s' % str(platform.win32_ver())
-        self.exception += '\nLinux: %s' % str(platform.dist())
+        if platform.system() == "Linux":
+            try:
+                import distro
+                linux_info = '\nLinux: %s' % str(distro.linux_distribution())
+            except ImportError:
+                linux_info = '\nLinux: (distro package not installed)'
+            self.exception += linux_info
         self.exception += '\n-------------------------\n'
         self.exception += 'Add your comments:\n'
         
@@ -107,4 +113,3 @@ class dlgError(wx.Dialog):
         sys.exit()
     # ----
     
-
