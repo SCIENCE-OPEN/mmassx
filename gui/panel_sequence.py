@@ -431,11 +431,11 @@ class panelSequence(wx.MiniFrame):
         
         self.sequenceEditorSizer = wx.BoxSizer(wx.VERTICAL)
         if wx.Platform == '__WXMAC__':
-            self.sequenceEditorSizer.Add(sequenceTitleSizer, 0, wx.EXPAND|wx.ALIGN_CENTER|wx.ALL, mwx.PANEL_SPACE_MAIN)
+            self.sequenceEditorSizer.Add(sequenceTitleSizer, 0, wx.EXPAND|wx.ALL, mwx.PANEL_SPACE_MAIN)
         else:
-            self.sequenceEditorSizer.Add(sequenceTitleSizer, 0, wx.EXPAND|wx.ALIGN_CENTER|wx.LEFT|wx.RIGHT|wx.BOTTOM, mwx.PANEL_SPACE_MAIN)
-        self.sequenceEditorSizer.Add(self.sequenceCanvas, 1, wx.EXPAND|wx.ALIGN_CENTER|wx.LEFT|wx.RIGHT|wx.BOTTOM, mwx.PANEL_SPACE_MAIN)
-        self.sequenceEditorSizer.Add(self.sequenceGrid, 1, wx.EXPAND|wx.ALIGN_CENTER|wx.LEFT|wx.RIGHT|wx.BOTTOM, mwx.PANEL_SPACE_MAIN)
+            self.sequenceEditorSizer.Add(sequenceTitleSizer, 0, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.BOTTOM, mwx.PANEL_SPACE_MAIN)
+        self.sequenceEditorSizer.Add(self.sequenceCanvas, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.BOTTOM, mwx.PANEL_SPACE_MAIN)
+        self.sequenceEditorSizer.Add(self.sequenceGrid, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.BOTTOM, mwx.PANEL_SPACE_MAIN)
         self.sequenceEditorSizer.Hide(2)
         
         self.sequenceEditorSizer.Fit(panel)
@@ -511,8 +511,7 @@ class panelSequence(wx.MiniFrame):
         digestEnzyme_label = wx.StaticText(ctrlPanel, -1, "Enzyme:")
         digestEnzyme_label.SetFont(wx.SMALL_FONT)
         
-        enzymes = mspy.blocks.enzymes.keys()
-        enzymes.sort()
+        enzymes = sorted(mspy.blocks.enzymes.keys())
         self.digestEnzyme_choice = wx.Choice(ctrlPanel, -1, choices=enzymes, size=(140, mwx.SMALL_CHOICE_HEIGHT))
         if config.sequence['digest']['enzyme'] in enzymes:
             self.digestEnzyme_choice.Select(enzymes.index(config.sequence['digest']['enzyme']))
@@ -733,8 +732,7 @@ class panelSequence(wx.MiniFrame):
         searchEnzyme_label = wx.StaticText(ctrlPanel, -1, "Enzyme:")
         searchEnzyme_label.SetFont(wx.SMALL_FONT)
         
-        enzymes = mspy.blocks.enzymes.keys()
-        enzymes.sort()
+        enzymes = sorted(mspy.blocks.enzymes.keys())
         self.searchEnzyme_choice = wx.Choice(ctrlPanel, -1, choices=enzymes, size=(150, mwx.SMALL_CHOICE_HEIGHT))
         if config.sequence['search']['enzyme'] in enzymes:
             self.searchEnzyme_choice.Select(enzymes.index(config.sequence['search']['enzyme']))
@@ -990,10 +988,9 @@ class panelSequence(wx.MiniFrame):
         
         # get presets
         if self.currentTool == 'modifications':
-            presets = libs.presets['modifications'].keys()
+            presets = sorted(libs.presets['modifications'].keys())
         elif self.currentTool == 'fragment':
-            presets = libs.presets['fragments'].keys()
-        presets.sort()
+            presets = sorted(libs.presets['fragments'].keys())
         
         # make menu
         self.presets_popup = wx.Menu()
@@ -3537,7 +3534,7 @@ class sequenceGrid(wx.StaticBoxSizer):
         self.grid.AddGrowableCol(9)
         
         # add to self
-        self.Add(self.grid, 1, wx.EXPAND|wx.ALIGN_CENTER|wx.ALL, 10)
+        self.Add(self.grid, 1, wx.EXPAND|wx.ALL, 10)
         
         # lock items
         self._lockItems()

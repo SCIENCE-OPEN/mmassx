@@ -2980,7 +2980,7 @@ class mainFrame(wx.Frame):
         
         # create new sequence
         if not seqData:
-            seqData = mspy.sequence('', title='Untitled Sequence')
+            seqData = mspy.obj_sequence.sequence('', title='Untitled Sequence')
             seqData.matches = []
         
         # append sequence
