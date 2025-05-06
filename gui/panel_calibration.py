@@ -792,7 +792,7 @@ class panelCalibration(wx.MiniFrame):
         if (model=='linear' and len(points)>=1) or \
            (model=='quadratic' and len(points)>=3) or \
            (model=='cubic' and len(points)>=4):
-            self.currentCalibration = mspy.calibration(points, model)
+            self.currentCalibration = mspy.mod_calibration.calibration(points, model)
             model = self.currentCalibration[0]
             params = self.currentCalibration[1]
             
