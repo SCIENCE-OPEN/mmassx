@@ -183,4 +183,14 @@ class peak:
     # ----
     
     
+    def __lt__(self, other):
+        return self.mz < other.mz
+    # ----
+    
+    
+    def __eq__(self, other):
+        return isinstance(other, peak) and self.mz == other.mz
+    # ----
+    
+    
 
