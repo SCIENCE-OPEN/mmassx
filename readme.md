@@ -45,9 +45,9 @@ or
 $ conda create --prefix ./.mmass_env
 $ conda activate ./.mmass_env
 $ (.mmass_env) conda install python=3.9.19
-$ (.mmass_env) conda install -c conda-forge wxwidgets=3.1.5 wxpython=4.1.1 numpy=1.20.3 pandas=1.3.4 
+$ (.mmass_env) conda install -c conda-forge wxwidgets=3.1.5 wxpython=4.1.1 numpy=1.20.3 pandas=1.3.4 joblib=1.5.0
 # (optional) distro=1.9.0
-# (dev) pyinstaller=6.9.0 httpx=0.28.1 joblib=1.5.0
+# (dev) pyinstaller=6.9.0 httpx=0.28.1
 ```
 
 ```
