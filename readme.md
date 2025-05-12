@@ -30,7 +30,7 @@ or
 - (optional, linux only) distro 1.9.0
 - (dev, generating .exe) pyinstaller 6.9.0
 - (dev, processing KEGG database) httpx 0.28.1
-- (dev, precomputing ions cache) filelock 3.18.0
+- (optional, precomputing ions cache) joblib 1.5.0
 
 ## Installation
 
@@ -98,6 +98,47 @@ $ git config core.autocrlf true
 ```
 
 - for `.editorconfig` support, install in VS Code official extension `EditorConfig for VS Code`
+
+## Goodies
+
+- **An cache of ions** `~/.mmass/cache/ions/*.joblib` for current version of `configs/compounds.xml` is updated every time when is combination used in compound search window, this behaviour can be disabled in `config/config.xml`:
+
+```
+  </compoundsSearch>
+    ...
+    <param name="saveCache" value="1" type="int" />
+  </compoundsSearch>
+```
+
+all combinations for all compound may be precomputed by `python3 precompute_ions_cache.py`:
+
+```
+$ python3 precompute_ions_cache.py --home --group-name "HMDB v5_Detected_Test"
+Reading compounds from XML...
+Loaded 10 compounds.
+Using 6 worker(s)
+
+Scanning approximately 7200 configs...
+Checked 7200/7200 configs. New tasks: 2308
+Summary for charge 1:
+  Total configs:         7200
+  Already cached:        4892
+  New to generate:       2308
+Generating 2308 ion configs for charge 1...
+Progress [+1]: 2308/2308
+Done: 2308/2308 generated for charge 1
+Scanning approximately 7200 configs...
+Checked 7200/7200 configs. New tasks: 2308
+Summary for charge -1:
+  Total configs:         7200
+  Already cached:        4892
+  New to generate:       2308
+Generating 2308 ion configs for charge -1...
+Progress [-1]: 2308/2308
+Done: 2308/2308 generated for charge -1
+
+All done! Ion cache stored in: /home/ldrahnik/.mmass/cache/ions
+```
 
 ## Compound datasets
 

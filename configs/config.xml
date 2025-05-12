@@ -266,6 +266,7 @@
     <param name="maxCharge" value="-1" type="int" />
     <param name="radicals" value="0" type="int" />
     <param name="adducts" value="" type="str" />
+    <param name="saveCache" value="1" type="int" />
   </compoundsSearch>
 
   <peakDifferences>

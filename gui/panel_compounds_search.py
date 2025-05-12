@@ -92,6 +92,65 @@ FORMULAS = {
     '[M+3AMPP]+':'C36H30N6O-3',
 };
 
+from pathlib import Path
+import joblib
+import hashlib
+
+ION_CACHE_DIR = Path.home() / '.mmass' / 'cache' / 'ions'
+ION_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+def config_to_hash(name: str, adduct: str, charge: int, isotope: str, mass_type: int) -> str:
+    key = f"{name}|{adduct}|{charge}|{isotope or ''}|{mass_type}"
+    return hashlib.sha1(key.encode("utf-8")).hexdigest()[:16]
+
+def is_ion_cached(name, expression, adduct, charge, isotope, mass_type):
+    hash_id = config_to_hash(name, adduct, charge, isotope, mass_type)
+    folder = ION_CACHE_DIR / expression
+    return (folder / f"{hash_id}.joblib").exists() or (folder / f"{hash_id}.invalid").exists()
+
+def save_ions_to_cache(name, expression, adduct, charge, isotope, mass_type, ions):
+    hash_id = config_to_hash(name, adduct, charge, isotope, mass_type)
+    folder = ION_CACHE_DIR / expression
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"{hash_id}.joblib"
+    joblib.dump(ions, path)
+
+def mark_config_invalid(name, expression, adduct, charge, isotope, mass_type):
+    hash_id = config_to_hash(name, adduct, charge, isotope, mass_type)
+    folder = ION_CACHE_DIR / expression
+    folder.mkdir(parents=True, exist_ok=True)
+    path = folder / f"{hash_id}.invalid"
+    path.touch()
+
+def load_compound_ions(name: str, adducts, charge, isotopes, mass_type, expression):
+    """Load matching ions from per-config cache files using hashed filenames."""
+    folder = ION_CACHE_DIR / expression
+    if not folder.exists():
+        return None
+
+    ions = []
+
+    for adduct in adducts:
+        isotope_list = isotopes if isotopes else [""]
+        for isotope in isotope_list:
+            h = config_to_hash(name, adduct, charge, isotope, mass_type)
+            joblib_path = folder / f"{h}.joblib"
+            invalid_path = folder / f"{h}.invalid"
+
+            if invalid_path.exists():
+                print(f"[cache] Skipping {h}: marked invalid")
+                continue
+
+            if joblib_path.exists():
+                try:
+                    loaded = joblib.load(joblib_path)
+                    ions.extend(loaded)
+                except Exception as e:
+                    print(f"[{name}] Failed to load {joblib_path.name}: {e}")
+
+    return ions if ions else None
+
+
 # $$
 class CurrentCompound():
     # 0 name, 1 m/z, 2 z, 3 adduct, 4 formula, 5 error, 6 matches, 7 measured m/z
@@ -105,6 +164,9 @@ class CurrentCompound():
         self.error = error
         self.measuredMz = measuredMz
         self.matches = matches
+
+    def __reduce__(self):
+        return (self.__class__, (self.name, self.mz, self.z, self.adduct, self.formula, self.isotope, self.error, self.measuredMz, self.matches))
 
 class panelCompoundsSearch(wx.MiniFrame):
     """Compounds search tool."""
@@ -939,9 +1001,59 @@ class panelCompoundsSearch(wx.MiniFrame):
         self.generate_butt.Enable(False)
         self.match_butt.Enable(False)
         self.annotate_butt.Enable(False)
-        
-        # do processing
-        self.processing = threading.Thread(target=self.runGenerateIons, kwargs={'compounds':compounds})
+
+        # Try loading from per-compound cache, filtering to match selected config
+        print("Loading ions from cache with filtering based on GUI settings...")
+
+        adducts = config.compoundsSearch['adducts']
+        charge = config.compoundsSearch['maxCharge']
+        isotopes = config.compoundsSearch['isotopes']
+        massType = config.compoundsSearch['massType']
+
+        # get max charge and polarity
+        polarity = -1 if config.compoundsSearch['maxCharge'] < 0 else 1
+        #maxCharge = abs(config.compoundsSearch['maxCharge']) + 1
+        defaultAdduct = '[M-H]-' if polarity < 0 else '[M+H]+'
+        adducts = config.compoundsSearch['adducts'][:]
+        adducts.append(defaultAdduct) # always combine with the main ion
+
+        to_compute = {}
+
+        for name in compounds:
+            expression = compounds[name].expression
+            ions = load_compound_ions(name, adducts, polarity, isotopes, massType, expression)
+
+            if ions:
+                filtered = [
+                    ion for ion in ions
+                    if ion.adduct in adducts
+                    and ion.z == charge
+                    and (not isotopes or ion.isotope in isotopes or ion.isotope is None)
+                ]
+                self.currentCompounds.extend(filtered)
+            else:
+                to_compute[name] = compounds[name]
+
+        # update list immediately if any cached results
+        if self.currentCompounds:
+            if not to_compute:
+                print("Everything loaded from the cache...")
+            else:
+                print("Partially loaded from the cache...")
+            self.updateCompoundsList()
+
+        # if there's nothing left to compute, we're done
+        if not to_compute:
+            self.onProcessing(False)
+            self.generate_butt.Enable(True)
+            self.match_butt.Enable(True)
+            self.annotate_butt.Enable(True)
+            if self.matchPanel:
+                self.setMatchPanelData()
+            return
+
+        # otherwise compute only the missing ones
+        self.processing = threading.Thread(target=self.runGenerateIons, kwargs={'compounds': to_compute})
         self.processing.start()
         
         # pulse gauge while working
@@ -1209,15 +1321,15 @@ class panelCompoundsSearch(wx.MiniFrame):
             
             # add data
             row += 1
-            self.compoundsList.InsertStringItem(row, '')
-            self.compoundsList.SetStringItem(row, 0, item.name)
-            self.compoundsList.SetStringItem(row, 1, adduct)
-            self.compoundsList.SetStringItem(row, 2, isotope)
-            self.compoundsList.SetStringItem(row, 3, formula)
-            self.compoundsList.SetStringItem(row, 4, mz)
-            self.compoundsList.SetStringItem(row, 5, measured)
-            self.compoundsList.SetStringItem(row, 6, error)
-            self.compoundsList.SetStringItem(row, 7, z)
+            self.compoundsList.InsertItem(row, '')
+            self.compoundsList.SetItem(row, 0, item.name)
+            self.compoundsList.SetItem(row, 1, adduct)
+            self.compoundsList.SetItem(row, 2, isotope)
+            self.compoundsList.SetItem(row, 3, formula)
+            self.compoundsList.SetItem(row, 4, mz)
+            self.compoundsList.SetItem(row, 5, measured)
+            self.compoundsList.SetItem(row, 6, error)
+            self.compoundsList.SetItem(row, 7, z)
             self.compoundsList.SetItemData(row, index)
 
             # mark matched
@@ -1266,193 +1378,91 @@ class panelCompoundsSearch(wx.MiniFrame):
             self.setMatchPanelData()
     # ----
     
-    
     def runGenerateIons(self, compounds):
-        """Calculate compounds ions."""
-        # run task
+        """Calculate and cache compound ions."""
+
         try:
-            # get max charge and polarity
             polarity = -1 if config.compoundsSearch['maxCharge'] < 0 else 1
             maxCharge = abs(config.compoundsSearch['maxCharge']) + 1
             defaultAdduct = '[M-H]-' if polarity < 0 else '[M+H]+'
             adducts = config.compoundsSearch['adducts'][:]
-            adducts.append(defaultAdduct) # always combine with the main ion
+            adducts.append(defaultAdduct)
+            save_cache = config.compoundsSearch.get("saveCache", 1)
 
-            # generate compounds ions
             self.currentCompounds = []
+
             for name, compound in sorted(compounds.items()):
-                # check compound
                 if not compound.isvalid():
                     continue
-                
-                # walk in charges
+
                 for z in range(1, maxCharge):
                     mspy.mod_stopper.CHECK_FORCE_QUIT()
 
-                    # main ion
-                    #adduct = '[M-H]-' if polarity < 0 else '[M+H]+'
-                    #mz = compound.mz(z*polarity, agentCharge=1)[config.compoundsSearch['massType']]
-                    #self.currentCompounds.append(CurrentCompound(name=name, mz=mz, z=z*polarity, adduct=adduct, formula=compound.expression))                    
-                    
-                    # radicals
                     if config.compoundsSearch['radicals']:
-                        mz = compound.mz(z*polarity, agentFormula='e', agentCharge=-1)[config.compoundsSearch['massType']]
-                        self.currentCompounds.append(CurrentCompound(name=name, mz=mz, z=z*polarity, adduct='M*', formula=compound.expression))
+                        mz = compound.mz(z * polarity, agentFormula='e', agentCharge=-1)[config.compoundsSearch['massType']]
+                        radical_ion = CurrentCompound(name=name, mz=mz, z=z * polarity, adduct='M*', formula=compound.expression)
+                        self.currentCompounds.append(radical_ion)
 
-                    # add adducts
                     for adduct in adducts:
                         mspy.mod_stopper.CHECK_FORCE_QUIT()
-                        adductFormula = FORMULAS[adduct]
+                        adductFormula = FORMULAS.get(adduct, '')
 
                         if adduct in ('[M+Li]+', '[M+Na-2H]-', '[M+K-2H]-', '[M+Na]+', '[M+K]+', '[M+NH4]+'):
                             formula = '%s(%s)(H-1)' % (compound.expression, adductFormula)
                         elif adduct in ('[M+Cl]-', '[M-CH3]-', '[M-C3H10N]-', '[M-C5H12N]-'):
                             formula = '%s(%s)(H)' % (compound.expression, adductFormula)
-                        elif adduct in ('[2M+Na]+', '[2M+K]+', '[2M+NH4]+', '[2M+H]+', '[2M-H]-'): # TODO check formulas [2M-H]-
-                            formula = '%s(%s)(H-1)' % (2*compound.expression, adductFormula)
+                        elif adduct in ('[2M+Na]+', '[2M+K]+', '[2M+NH4]+', '[2M+H]+', '[2M-H]-'):
+                            formula = '%s(%s)(H-1)' % (2 * compound.expression, adductFormula)
                         elif adduct in ('[2M+Cl]-', '[2M+Na-2H]-', '[2M+K-2H]-'):
-                            formula = '%s(%s)(H)' % (2*compound.expression, adductFormula)
+                            formula = '%s(%s)(H)' % (2 * compound.expression, adductFormula)
                         elif adduct in ('[M-H2O-H]-', '[M-H2O+H]+', '[+MeOH+H]+', '[+ACN+H]+', '[M+FMP10]+', '[M+2FMP10]+', '[M+2FMP10-CH3]+', '[M+AMPP]+', '[M+2AMPP]+', '[M+3AMPP]+'):
                             formula = '%s(%s)' % (compound.expression, adductFormula)
                         else:
-                            # default adduct or something that was not yet defined
                             formula = '%s' % (compound.expression)
 
                         adductCompound = mspy.obj_compound.compound(formula)
-                        print('Adduct combination compound: %s, valid: %s' % (formula, adductCompound.isvalid()))
                         if not adductCompound.isvalid():
+                            if save_cache:
+                                mark_config_invalid(name, compound.expression, adduct, z * polarity, None, config.compoundsSearch['massType'])
                             continue
 
-                        mz = adductCompound.mz(z*polarity)[config.compoundsSearch['massType']]
-                        self.currentCompounds.append(CurrentCompound(
-                            name=name, mz=mz, z=z*polarity, adduct=adduct, formula=adductCompound.expression))
+                        ions = []
+                        mz = adductCompound.mz(z * polarity)[config.compoundsSearch['massType']]
+                        base_ion = CurrentCompound(name=name, mz=mz, z=z * polarity, adduct=adduct, formula=adductCompound.expression)
+                        ions.append(base_ion)
 
-                        # find single isotope combinations
-                        for iso in ('(13)C1', '(13)C2', '(13)C3', '(13)C4', '(13)C5', '(13)C6', '(15)N1', '(15)N2', '(15)N3', '(15)N4', '(15)N5', '(15)N6', '(15)N7', '(15)N8', '(15)N9'):
-                            if iso not in config.compoundsSearch['isotopes']:
+                        for iso in config.compoundsSearch['isotopes']:
+                            if iso not in FORMULAS:
                                 continue
-
-                            combinationFormula = '%s(%s)' % (formula, FORMULAS[iso])
-                            combinationCompound = mspy.obj_compound.compound(combinationFormula)
-
-                            print('1-Isotope combination: %s, valid: %s' % (combinationFormula, combinationCompound.isvalid()))
-                            if not combinationCompound.isvalid():
+                            iso_formula = '%s(%s)' % (formula, FORMULAS[iso])
+                            iso_comp = mspy.obj_compound.compound(iso_formula)
+                            if not iso_comp.isvalid():
                                 continue
+                            mz = iso_comp.mz(z * polarity)[config.compoundsSearch['massType']]
+                            ion = CurrentCompound(name=name, mz=mz, z=z * polarity, adduct=adduct, isotope=iso, formula=iso_comp.expression)
+                            ions.append(ion)
 
-                            mz = combinationCompound.mz(z*polarity)[config.compoundsSearch['massType']]
-                            self.currentCompounds.append(CurrentCompound(
-                                name=name, mz=mz, z=z*polarity, adduct=adduct, isotope=iso, formula=combinationCompound.expression))
-
-                        # find double isotope combinations
-                        for iso1 in ('(13)C1', '(13)C2', '(13)C3', '(13)C4', '(13)C5', '(13)C6'):
-                            if iso1 not in config.compoundsSearch['isotopes']:
+                        iso_pairs = [(i1, i2) for i1 in ('(13)C1', '(13)C2', '(13)C3', '(13)C4', '(13)C5', '(13)C6')
+                                            for i2 in ('(15)N1', '(15)N2', '(15)N3', '(15)N4', '(15)N5', '(15)N6', '(15)N7', '(15)N8', '(15)N9')
+                                            if i1 in config.compoundsSearch['isotopes'] and i2 in config.compoundsSearch['isotopes']]
+                        for iso1, iso2 in iso_pairs:
+                            combo_formula = '%s(%s)(%s)' % (formula, FORMULAS[iso1], FORMULAS[iso2])
+                            combo_comp = mspy.obj_compound.compound(combo_formula)
+                            if not combo_comp.isvalid():
                                 continue
-                            for iso2 in ('(15)N1', '(15)N2', '(15)N3', '(15)N4', '(15)N5', '(15)N6', '(15)N7', '(15)N8', '(15)N9'):
-                                if iso2 not in config.compoundsSearch['isotopes']:
-                                    continue
+                            mz = combo_comp.mz(z * polarity)[config.compoundsSearch['massType']]
+                            ion = CurrentCompound(name=name, mz=mz, z=z * polarity, adduct=adduct,
+                                                isotope=iso1 + iso2, formula=combo_comp.expression)
+                            ions.append(ion)
 
-                                combinationFormula = '%s(%s)(%s)' % (formula, FORMULAS[iso1], FORMULAS[iso2])
-                                combinationCompound = mspy.obj_compound.compound(combinationFormula)
+                        self.currentCompounds.extend(ions)
 
-                                print('2-Isotope combination: %s, valid: %s' % (combinationFormula, combinationCompound.isvalid()))
-                                if not combinationCompound.isvalid():
-                                    continue
+                        if save_cache:
+                            save_ions_to_cache(name, compound.expression, adduct, z * polarity, None, config.compoundsSearch['massType'], ions)
 
-                                isoCombination = '%s%s' % (iso1, iso2)
-                                mz = combinationCompound.mz(z*polarity)[config.compoundsSearch['massType']]
-                                self.currentCompounds.append(CurrentCompound(
-                                    name=name, mz=mz, z=z*polarity, adduct=adduct, isotope=isoCombination, formula=combinationCompound.expression))
-
-
-
-                    # $$ rewritten combination logic
-                    # first one is empty to make 2-isotopes combinations with the default adduct
-                    # TODO: original code supported adduct combinations like `Li - +MeOH+H` -- is it necessary?
-                    # for adduct in ('', '[M+Li]+', '[M+Na-2H]-', '[M+K-2H]-', '[M+Na]+', '[M+K]+'): # taken from the original code, might be necessary to add more adducts
-                    #     if adduct != '' and not adduct in config.compoundsSearch['adducts']:
-                    #         continue
-
-                    #     # don't make single isotope combinations for the default adduct as they've already been added in the previous steps
-                    #     if adduct != '':
-                    #         for iso in ('(13)C1', '(13)C2', '(13)C3', '(13)C4', '(13)C5', '(13)C6', '(15)N1', '(15)N2', '(15)N3', '(15)N4', '(15)N5', '(15)N6', '(15)N7', '(15)N8', '(15)N9'):
-                    #             if not iso in config.compoundsSearch['isotopes']:
-                    #                 continue
-
-                    #             formula = '%s(%s)(H-1)(%s)' % (compound.expression, FORMULAS[adduct], FORMULAS[iso])
-                    #             formula = mspy.obj_compound.compound(formula)
-
-                    #             if formula.isvalid():
-                    #                 mz = formula.mz(z*polarity)[config.compoundsSearch['massType']]
-                    #                 self.currentCompounds.append(CurrentCompound(name=name, mz=mz, z=z*polarity, adduct=adduct, isotope=iso, formula=formula.expression))
-
-                    # for adduct in ('', '[M+Cl]-'): # taken from the original code, might be necessary to add more adducts
-                    #     if adduct != '' and not adduct in config.compoundsSearch['adducts']:
-                    #         continue
-
-                    #     # don't make single isotope combinations for the default adduct as they've already been added in the previous steps
-                    #     if adduct != '':
-                    #         for iso in ('(13)C1', '(13)C2', '(13)C3', '(13)C4', '(13)C5', '(13)C6', '(15)N1', '(15)N2', '(15)N3', '(15)N4', '(15)N5', '(15)N6', '(15)N7', '(15)N8', '(15)N9'):
-                    #             if not iso in config.compoundsSearch['isotopes']:
-                    #                 continue
-
-                    #             formula = '%s(%s)(H)(%s)' % (compound.expression, FORMULAS[adduct], FORMULAS[iso])
-                    #             formula = mspy.obj_compound.compound(formula)
-
-                    #             if formula.isvalid():
-                    #                 mz = formula.mz(z*polarity)[config.compoundsSearch['massType']]
-                    #                 self.currentCompounds.append(CurrentCompound(name=name, mz=mz, z=z*polarity, adduct=adduct, isotope=iso, formula=formula.expression))
-
-                    #     for is1 in ('(13)C1', '(13)C2', '(13)C3', '(13)C4', '(13)C5', '(13)C6'):
-                    #         if not is1 in config.compoundsSearch['isotopes']:
-                    #             continue
-                    #         for is2 in ('(15)N1', '(15)N2', '(15)N3', '(15)N4', '(15)N5', '(15)N6', '(15)N7', '(15)N8', '(15)N9'):
-                    #             if not is2 in config.compoundsSearch['isotopes']:
-                    #                 continue
-
-                    #             isCombination = '%s%s' % (is1, is2)
-                    #             if adduct != '':
-                    #                 if adduct == '[M+Cl]-':
-                    #                     resAdduct = adduct
-                    #                     formula = '%s(%s)(H)(%s)(%s)' % (compound.expression, FORMULAS[adduct], FORMULAS[is1], FORMULAS[is2])
-                    #                 else:
-                    #                    resAdduct = adduct 
-                    #                    formula = '%s(%s)(H-1)(%s)(%s)' % (compound.expression, FORMULAS[adduct], FORMULAS[is1], FORMULAS[is2])
-                                
-                    #             elif polarity < 0 : 
-                    #                 resAdduct = '[M-H]-' if polarity < 0 else '[M+H]+'
-                    #                 formula = '%s(%s)(%s)' % (compound.expression, FORMULAS[is1], FORMULAS[is2])
-
-                                
-                    #             formula = mspy.obj_compound.compound(formula)
-                    #             if formula.isvalid():
-                    #                 mz = formula.mz(z*polarity)[config.compoundsSearch['massType']]
-                    #                 self.currentCompounds.append(CurrentCompound(name=name, mz=mz, z=z*polarity, adduct=resAdduct, isotope=isCombination, formula=formula.expression))
-
-                    # $$ old logic, left here for the reference
-                    # add combinations
-                    # for item1 in ('Li', '(13)C1', '(13)C2', '(13)C3', '(13)C4', '(13)C5', '(13)C6', '(13)C7', '(13)C8', '(13)C9', '(13)C10', '[M+Cl]-', '[M+Na-2H]-', '[M+K-2H]-', '[M+Na]+', '[M+K]+'):
-                    #     if item1 in common:
-                    #         for item2 in ('+ACN+H', '+MeOH+H', '-H2O', '(15)N1', '(15)N2', '(15)N3', '(15)N4', '(15)N5', '(15)N6', '(15)N7', '(15)N8', '(15)N9'):
-                    #             if item2 in common:
-                                    
-                    #                 if item2 in ('+ACN+H', '+MeOH+H', '(15)N1', '(15)N2', '(15)N3', '(15)N4', '(15)N5', '(15)N6',  '(15)N7', '(15)N8', '(15)N9'):
-                    #                     adduct = '%s%s' % (item1, item2)
-                    #                     formula = '%s(%s)(%s)' % (compound.expression, FORMULAS[item1], FORMULAS[item2])
-                    #                 elif item2 in ('-H2O'):
-                    #                     adduct = '%s%s' % (item1, item2)
-                    #                     formula = '%s(%s)(%s)(H-1)' % (compound.expression, FORMULAS[item1], FORMULAS[item2])
-                                    
-                    #                 formula = mspy.obj_compound.compound(formula)
-                    #                 if formula.isvalid():
-                    #                     mz = formula.mz(z*polarity)[config.compoundsSearch['massType']]
-                    #                     self.currentCompounds.append(CurrentCompound(name=name, mz=mz, z=z*polarity, adduct=adduct, formula=formula.expression))
-        
-        # task canceled
         except mspy.mod_stopper.ForceQuit:
             self.currentCompounds = []
-            return
-    # ----
-    
+            return    
     
     def calibrateByMatches(self, references):
         """Use matches for calibration."""
