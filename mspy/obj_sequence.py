@@ -107,7 +107,7 @@ class sequence:
     # ----
     
     
-    def __nonzero__(self):
+    def __bool__(self):
         """Check sequence length."""
         return bool(len(self.chain))
     # ----
@@ -239,99 +239,69 @@ class sequence:
     
     # SEQUENCE EDITOR ESSENTIALS
     
-    def __setslice__(self, start, stop, value):
-        """Insert sequence object (essential for sequence editor)."""
-        
-        # check slice
-        if stop < start:
-            raise ValueError('Invalid slice!')
-        
-        # check value
-        if not isinstance(value, sequence):
-            raise TypeError('Invalid object to instert!')
-        
-        # check chain type
-        if value.chainType != self.chainType:
-            raise TypeError('Invalid chain type to instert!')
-        
-        # break the links
-        value = copy.deepcopy(value)
-        
-        # delete slice
-        if stop != start:
-            del(self[start:stop])
-        
-        # insert sequence
-        self.chain = self.chain[:start] + value.chain + self.chain[start:]
-        
-        # shift modifications
-        for x, mod in enumerate(self.modifications):
-            if type(mod[1]) == int and mod[1] >= start:
-                self.modifications[x][1] += (len(value))
-        
-        # shift labels
-        for x, mod in enumerate(self.labels):
-            if type(mod[1]) == int and mod[1] >= start:
-                self.labels[x][1] += (len(value))
-        
-        # adding modifications not implemented
-        if value.modifications or value.labels:
-            raise NotImplementedError("Sequence __setslice__ doesn't support modifications and labels.")
-        
-        # clear some values
+    def __delitem__(self, key):
+        """Delete item of sequence (essential for sequence editor)."""
+
+        if isinstance(key, slice):
+            start, stop, step = key.indices(len(self.chain))
+            if stop < start:
+                raise ValueError("Invalid slice!")
+            self.chain = self.chain[:start] + self.chain[stop:]
+            self.modifications = [
+                m for m in self.modifications
+                if not (isinstance(m[1], int) and start <= m[1] < stop)
+            ]
+            self.labels = [
+                l for l in self.labels
+                if not (isinstance(l[1], int) and start <= l[1] < stop)
+            ]
+        elif isinstance(key, int):
+            del self.chain[key]
+            self.modifications = [
+                m for m in self.modifications if not (isinstance(m[1], int) and m[1] == key)
+            ]
+            self.labels = [
+                l for l in self.labels if not (isinstance(l[1], int) and l[1] == key)
+            ]
+        else:
+            raise TypeError("Invalid deletion key")
+
         self.history = [('init', 0, len(self.chain))]
         self.itemBefore = ''
         self.itemAfter = ''
         self.miscleavages = 0
-        
-        # clear buffers
         self.reset()
-    # ----
     
-    
-    def __delslice__(self, start, stop):
-        """Delete slice of sequence (essential for sequence editor)."""
-        
-        # check slice
-        if stop < start:
-            raise ValueError('Invalid slice!')
-        
-        # remove sequence
-        self.chain = self.chain[:start] + self.chain[stop:]
-        
-        # remove modifications
-        keep = []
-        for mod in self.modifications:
-            if type(mod[1]) == int and (mod[1] < start or mod[1] >= stop):
-                if mod[1] >= stop:
-                    mod[1] -= (stop - start)
-                keep.append(mod)
-            elif type(mod[1]) in (str, unicode) and (mod[1] in self.chain or mod[1] in ('nTerm', 'cTerm')):
-                keep.append(mod)
-        self.modifications = keep
-        
-        # remove labels
-        keep = []
-        for mod in self.labels:
-            if type(mod[1]) == int and (mod[1] < start or mod[1] >= stop):
-                if mod[1] >= stop:
-                    mod[1] -= (stop - start)
-                keep.append(mod)
-            elif type(mod[1]) in (str, unicode) and mod[1] in self.chain:
-                keep.append(mod)
-        self.labels = keep
-        
-        # clear some values
-        self.history = [('init', 0, len(self.chain))]
-        self.itemBefore = ''
-        self.itemAfter = ''
-        self.miscleavages = 0
-        
-        # clear buffers
-        self.reset()
-    #----
-    
-    
+    def __setitem__(self, key, value):
+        if isinstance(key, slice):
+            if not isinstance(value, sequence):
+                raise TypeError('Assigned value must be a sequence instance')
+            if value.chainType != self.chainType:
+                raise TypeError('Mismatched chain type')
+
+            value = copy.deepcopy(value)
+            self.chain[key] = value.chain
+
+            offset = key.start if key.start else 0
+            for x, mod in enumerate(self.modifications):
+                if isinstance(mod[1], int) and mod[1] >= offset:
+                    self.modifications[x][1] += len(value)
+
+            for x, label in enumerate(self.labels):
+                if isinstance(label[1], int) and label[1] >= offset:
+                    self.labels[x][1] += len(value)
+
+            if value.modifications or value.labels:
+                raise NotImplementedError("Modifications/labels in __setitem__ not supported")
+
+            self.history = [('init', 0, len(self.chain))]
+            self.itemBefore = ''
+            self.itemAfter = ''
+            self.miscleavages = 0
+            self.reset()
+        else:
+            self.chain[key] = value
+            self.reset()
     
     # GETTERS
     
