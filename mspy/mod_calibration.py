@@ -118,7 +118,7 @@ def _leastSquaresFit(model, parameters, data, maxIterations=None, limit=1e-7):
         if maxIterations and niter == maxIterations:
             break
     
-    return map(lambda p: p[0], next_p), next_chi_sq[0]
+    return list(map(lambda p: p[0], next_p)), next_chi_sq[0]
 # ----
 
 
