@@ -36,7 +36,8 @@ call "%CONDA_BAT%" install -y --prefix "%ENV_DIR%" -c conda-forge ^
     wxpython=4.1.1 ^
     numpy=1.20.3 ^
     pandas=1.3.4 ^
-    pyinstaller=6.9.0
+    pyinstaller=6.9.0 ^
+    joblib=1.5.0
 
 echo [5/7] Running PyInstaller build...
 cd /d "%BUILD_DIR%"

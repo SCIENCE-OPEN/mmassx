@@ -27,10 +27,10 @@ or
 - wxPython 4.1.1
 - wxwidgets 3.1.5
 - pandas 1.3.4
+- joblib 1.5.0
 - (optional, linux only) distro 1.9.0
 - (dev, generating .exe) pyinstaller 6.9.0
 - (dev, processing KEGG database) httpx 0.28.1
-- (optional, precomputing ions cache) joblib 1.5.0
 
 ## Installation
 
