@@ -27,7 +27,7 @@ or
 - wxPython 4.1.1
 - wxwidgets 3.1.5
 - pandas 1.3.4
-- joblib 1.5.0
+- (optional, precomputing/using ions cache) joblib 1.5.0
 - (optional, linux only) distro 1.9.0
 - (dev, generating .exe) pyinstaller 6.9.0
 - (dev, processing KEGG database) httpx 0.28.1
@@ -45,7 +45,8 @@ or
 $ conda create --prefix ./.mmass_env
 $ conda activate ./.mmass_env
 $ (.mmass_env) conda install python=3.9.19
-$ (.mmass_env) conda install -c conda-forge wxwidgets=3.1.5 wxpython=4.1.1 numpy=1.20.3 pandas=1.3.4 joblib=1.5.0
+$ (.mmass_env) conda install -c conda-forge wxwidgets=3.1.5 wxpython=4.1.1 numpy=1.20.3 pandas=1.3.4
+# (optional) joblib=1.5.0
 # (optional) distro=1.9.0
 # (dev) pyinstaller=6.9.0 httpx=0.28.1
 ```

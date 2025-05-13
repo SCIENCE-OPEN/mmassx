@@ -93,7 +93,11 @@ FORMULAS = {
 };
 
 from pathlib import Path
-import joblib
+try:
+    import joblib
+    HAS_JOBLIB = True
+except ImportError:
+    HAS_JOBLIB = False
 import hashlib
 
 ION_CACHE_DIR = Path.home() / '.mmass' / 'cache' / 'ions'
@@ -109,6 +113,8 @@ def is_ion_cached(name, expression, adduct, charge, isotope, mass_type):
     return (folder / f"{hash_id}.joblib").exists() or (folder / f"{hash_id}.invalid").exists()
 
 def save_ions_to_cache(name, expression, adduct, charge, isotope, mass_type, ions):
+    if not HAS_JOBLIB:
+        return
     hash_id = config_to_hash(name, adduct, charge, isotope, mass_type)
     folder = ION_CACHE_DIR / expression
     folder.mkdir(parents=True, exist_ok=True)
@@ -116,6 +122,8 @@ def save_ions_to_cache(name, expression, adduct, charge, isotope, mass_type, ion
     joblib.dump(ions, path)
 
 def mark_config_invalid(name, expression, adduct, charge, isotope, mass_type):
+    if not HAS_JOBLIB:
+        return
     hash_id = config_to_hash(name, adduct, charge, isotope, mass_type)
     folder = ION_CACHE_DIR / expression
     folder.mkdir(parents=True, exist_ok=True)
@@ -124,6 +132,10 @@ def mark_config_invalid(name, expression, adduct, charge, isotope, mass_type):
 
 def load_compound_ions(name: str, adducts, charge, isotopes, mass_type, expression):
     """Load matching ions from per-config cache files using hashed filenames."""
+
+    if not HAS_JOBLIB:
+        return None
+
     folder = ION_CACHE_DIR / expression
     if not folder.exists():
         return None
