@@ -435,6 +435,10 @@ class panelMassDefectPlot(wx.MiniFrame):
         buff = []
         for peak in peaklist:
             
+            # skip if mz is None
+            if peak.mz is None:
+                continue
+
             # remove isotopes
             if config.massDefectPlot['removeIsotopes'] and not peak.isotope in (0, None):
                 continue
