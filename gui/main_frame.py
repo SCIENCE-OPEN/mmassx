@@ -1669,9 +1669,8 @@ class mainFrame(wx.Frame):
             
             # make report file
             reportHTML = self.documents[self.currentDocument].report(image=imagePath)
-            reportFile = open(reportPath, 'w')
-            reportFile.write(reportHTML.encode("utf-8"))
-            reportFile.close()
+            with open(reportPath, 'w', encoding='utf-8') as reportFile:
+                reportFile.write(reportHTML)
             
             # show report
             path = 'file://%s?%s' % (reportPath, time.time())
