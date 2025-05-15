@@ -252,8 +252,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         self.tool_label = wx.StaticText(panel, -1, "Compounds:")
         self.tool_label.SetFont(wx.SMALL_FONT)
         
-        choices = libs.compounds.keys()
-        choices = sorted(choices)
+        choices = sorted(libs.compounds.keys())
         choices.insert(0,'Compounds lists')
         self.compounds_choice = wx.Choice(panel, -1, choices=choices, size=(250, mwx.SMALL_CHOICE_HEIGHT))
         self.compounds_choice.Select(0)

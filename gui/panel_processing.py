@@ -836,8 +836,7 @@ class panelProcessing(wx.MiniFrame):
         """Show presets."""
         
         # get presets
-        presets = libs.presets['processing'].keys()
-        presets.sort()
+        presets = sorted(libs.presets['processing'].keys())
         
         # make menu
         self.presets_popup = wx.Menu()

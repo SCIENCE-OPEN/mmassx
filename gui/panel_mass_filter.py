@@ -83,8 +83,7 @@ class panelMassFilter(wx.MiniFrame):
         references_label = wx.StaticText(panel, -1, "References:")
         references_label.SetFont(wx.SMALL_FONT)
         
-        choices = libs.references.keys()
-        choices = sorted(choices)
+        choices = sorted(libs.references.keys())
         choices.insert(0,'Reference lists')
         self.references_choice = wx.Choice(panel, -1, choices=choices, size=(200, mwx.SMALL_CHOICE_HEIGHT))
         self.references_choice.Select(0)

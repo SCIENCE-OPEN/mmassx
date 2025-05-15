@@ -120,7 +120,7 @@ class panelMascot(wx.MiniFrame):
         self.query_butt.Bind(wx.EVT_BUTTON, self.onToolSelected)
         
         server_label = wx.StaticText(panel, -1, "Server:")
-        choices=libs.mascot.keys()
+        choices=sorted(libs.mascot.keys())
         choices.insert(0, 'Select Server')
         self.server_choice = wx.Choice(panel, -1, choices=choices, size=(220, mwx.SMALL_CHOICE_HEIGHT))
         if config.mascot['common']['server'] in libs.mascot:

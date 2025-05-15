@@ -332,8 +332,7 @@ class panelDocumentInfo(wx.MiniFrame):
         """Show presets."""
         
         # get presets
-        presets = libs.presets['operator'].keys()
-        presets = sorted(presets)
+        presets = sorted(libs.presets['operator'].keys())
         
         # make menu
         self.presets_popup = wx.Menu()
