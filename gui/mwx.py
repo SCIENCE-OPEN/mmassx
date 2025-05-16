@@ -458,8 +458,8 @@ class sortListCtrl(wx.ListCtrl):
         """Delete all columns."""
         
         self._currentColumn = 0
-        while self.GetColumnCount():
-            self.DeleteColumn(0)
+        for i in reversed(range(self.GetColumnCount())):
+            self.DeleteColumn(i)
     # ----
     
     
