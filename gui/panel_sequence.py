@@ -2684,7 +2684,7 @@ class panelSequence(wx.MiniFrame):
         # get modifications
         modifications = []
         for mod in self.currentSequence.modifications:
-            if type(mod[1]) in (str, unicode):
+            if isinstance(mod[1], str):
                 modifications.append(mod)
         
         # check presets
@@ -3050,7 +3050,7 @@ class panelSequence(wx.MiniFrame):
             count = occupied.count(x)
             if type(x) == int and count > maxMods:
                 return False
-            elif type(x) in (str, unicode):
+            elif isinstance(x, str):
                 available = sequence.count(x)
                 for y in occupied:
                     if type(y) == int and sequence[y] == x:

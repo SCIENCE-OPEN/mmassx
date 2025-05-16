@@ -264,7 +264,7 @@ class sortListCtrl(wx.ListCtrl):
         if self._getItemTextFn is not None:
             return self._getItemTextFn(row, col)
         else:
-            return unicode(self._data[row][col])
+            return str(self._data[row][col])
     # ----
     
     
