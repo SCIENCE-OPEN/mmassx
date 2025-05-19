@@ -162,13 +162,22 @@ class _DerivVar:
             return self.deriv
         else:
             raise IndexError
-    
-    def __cmp__(self, other):
-        if isinstance(other, _DerivVar):
-            return cmp(self.value, other.value)
-        else:
-            return cmp(self.value, other)
-    
+
+    def __eq__(self, other):
+        return self.value == (other.value if isinstance(other, _DerivVar) else other)
+
+    def __lt__(self, other):
+        return self.value < (other.value if isinstance(other, _DerivVar) else other)
+
+    def __le__(self, other):
+        return self.value <= (other.value if isinstance(other, _DerivVar) else other)
+
+    def __gt__(self, other):
+        return self.value > (other.value if isinstance(other, _DerivVar) else other)
+
+    def __ge__(self, other):
+        return self.value >= (other.value if isinstance(other, _DerivVar) else other)
+
     def __add__(self, other):
         if isinstance(other, _DerivVar):
             return _DerivVar(self.value + other.value, self._mapderiv(lambda a,b: a+b, self.deriv, other.deriv))
