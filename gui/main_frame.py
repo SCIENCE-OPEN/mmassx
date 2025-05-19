@@ -1550,8 +1550,8 @@ class mainFrame(wx.Frame):
         if self.currentDocumentXML:
             gauge.setLabel('Saving data...')
             try:
-                save = open(path, 'w')
-                save.write(self.currentDocumentXML.encode("utf-8"))
+                save = open(path, 'w', encoding='utf-8')
+                save.write(self.currentDocumentXML)
                 save.close()
                 failed = False
             except IOError:
