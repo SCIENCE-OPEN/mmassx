@@ -562,21 +562,23 @@ class peaklist:
     
     
     # HELPERS
-    
     def _checkPeak(self, item):
-        """Check item to be a valid peak."""
-        
-        # peak instance
+        """Check item to be a valid peak with strict float values."""
+
+        # already a peak instance
         if isinstance(item, obj_peak.peak):
             return item
-        
-        # make peak from list or tuple
-        elif type(item) in (list, tuple) and len(item)==2:
-            return obj_peak.peak(item[0], item[1])
-        
-        # not valid peak data
-        raise TypeError('Item must be a peak object or list/tuple of two floats!')
-    # ----
+
+        # create peak from list/tuple of exactly two floats
+        elif isinstance(item, (list, tuple)) and len(item) == 2:
+            mz, ai = item
+            if type(mz) is float and type(ai) is float:
+                return obj_peak.peak(mz, ai)
+            else:
+                raise TypeError("Both values in item must be floats (not int, str, or other types).")
+
+        # fallback
+        raise TypeError("Item must be a peak object or a list/tuple of two floats.")
     
     
     def _setbasepeak(self):
