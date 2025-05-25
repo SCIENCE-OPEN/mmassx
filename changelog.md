@@ -1,5 +1,11 @@
 # Changelog
 
+### v6.0.1 (25.5.2025)
+
+- Fixed issues arising from the upgrade of the project to Python 3
+
+Authors: Marta Kaliaeva, Lukáš Drahník
+
 ### v6.0.0 (29.4.2025)
 
 The modifications have primarily affected the compound search functionality. However, there are also some GUI changes. The extended version of mmass (“mMassX“) includes the following new features/extensions:

@@ -47,7 +47,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='mmassx-6.0.0',
+    name='mmassx-6.0.1',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
