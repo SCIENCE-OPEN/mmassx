@@ -150,6 +150,7 @@ All done! Ion cache stored in: /home/ldrahnik/.mmass/cache/ions
   ```
   $ mkdir -p hmdb_metabolites_split_output
   $ cd hmdb_metabolites_split_output
+  $ # sudo apt install xml-twig-tools
   $ xml_split < ../hmdb_metabolites.xml
   ```
   - converted split `.xml` to one `.csv` using `$ python split_xml_to_one_csv.py hmdb_metabolites_split_output hmdb_metabolites.csv`
