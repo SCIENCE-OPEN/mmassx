@@ -168,7 +168,7 @@ All done! Ion cache stored in: /home/ldrahnik/.mmass/cache/ions
 
 - **KEGG database** was processed by these steps:
 
-  - downloaded `All Metabolites` from API using `$ python3 download.py` with output:
+  - downloaded `All Metabolites` from API using `$ cd datasets/KEGG` and `$ python3 download.py` with output:
   ```
   Found 19464 missing compounds. Downloading in batches...
   ...
