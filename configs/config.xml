@@ -450,7 +450,7 @@
   </prospector>
 
   <links>
-    <link name="mMassWhatsNew" value="http://www.mmass.org/download/history.php" />
+    <link name="mMassWhatsNew" value="https://github.com/SCIENCE-OPEN/mmassx/blob/master/changelog.md" />
     <link name="biomedmstools" value="http://ms.biomed.cas.cz/MSTools/" />
     <link name="blast" value="http://www.ebi.ac.uk/Tools/blastall/" />
     <link name="clustalw" value="http://www.ebi.ac.uk/Tools/clustalw/" />

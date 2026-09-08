@@ -81,7 +81,7 @@ class dlgError(wx.Dialog):
         self.exception_value = wx.TextCtrl(self, -1, self.exception, size=(400,250), style=wx.TE_MULTILINE)
         self.exception_value.SetFont(wx.SMALL_FONT)
         
-        message_label = wx.StaticText(self, -1, "Uups, another one...\nUnfortunately, you have probably found another bug in mMass.\nPlease send me this error report to support@mmass.org and I will try to fix it.\nI apologize for any inconvenience due to this bug.\nI strongly recommend to restart mMass now.")
+        message_label = wx.StaticText(self, -1, "Uups, another one...\nUnfortunately, you have probably found another bug in mMass.\nPlease report this error at https://github.com/SCIENCE-OPEN/mmassx/issues\nI apologize for any inconvenience due to this bug.\nI strongly recommend to restart mMass now.")
         message_label.SetFont(wx.SMALL_FONT)
         
         icon = wx.StaticBitmap(self, -1, images.lib['iconError'])

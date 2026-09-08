@@ -620,7 +620,6 @@ class mainFrame(wx.Frame):
         help.Append(ID_helpTwitter, "Twitter Account...", "")
         help.AppendSeparator()
         help.Append(ID_helpCite, "Papers to Cite...", "")
-        help.Append(ID_helpDonate, "Make a Donation...", "")
         help.AppendSeparator()
         help.Append(ID_helpUpdate, "Check for Update", "")
         if wx.Platform != '__WXMAC__':
@@ -632,7 +631,6 @@ class mainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_helpForum)
         self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_helpTwitter)
         self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_helpCite)
-        self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_helpDonate)
         self.Bind(wx.EVT_MENU, self.onHelpUpdate, id=ID_helpUpdate)
         self.Bind(wx.EVT_MENU, self.onHelpAbout, id=ID_helpAbout)
         
@@ -3251,7 +3249,6 @@ class mainFrame(wx.Frame):
             ID_helpForum: 'mMassForum',
             ID_helpTwitter: 'mMassTwitter',
             ID_helpCite: 'mMassCite',
-            ID_helpDonate: 'mMassDonate',
             ID_linksBiomedMSTools: 'biomedmstools',
             ID_linksBLAST: 'blast',
             ID_linksClustalW: 'clustalw',

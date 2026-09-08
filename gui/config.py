@@ -572,13 +572,12 @@ prospector={
 }
 
 links={
-    'mMassHomepage': 'http://www.mmass.org/',
-    'mMassForum': 'http://forum.mmass.org/',
+    'mMassHomepage': 'https://github.com/SCIENCE-OPEN/mmassx',
+    'mMassForum': 'https://github.com/SCIENCE-OPEN/mmassx/issues',
     'mMassTwitter':  'http://www.twitter.com/mmassorg/',
-    'mMassCite': 'http://www.mmass.org/donate/papers.php',
-    'mMassDonate': 'http://www.mmass.org/donate/',
-    'mMassDownload': 'http://www.mmass.org/download/',
-    'mMassWhatsNew': 'http://www.mmass.org/download/history.php',
+    'mMassCite': 'https://github.com/SCIENCE-OPEN/mmassx',
+    'mMassDownload': 'https://github.com/SCIENCE-OPEN/mmassx/releases',
+    'mMassWhatsNew': 'https://github.com/SCIENCE-OPEN/mmassx/blob/master/changelog.md',
     
     'biomedmstools': 'http://ms.biomed.cas.cz/MSTools/',
     'blast': 'http://www.ebi.ac.uk/Tools/blastall/',
@@ -874,7 +873,7 @@ def loadConfig(path=os.path.join(confdir, 'config.xml')):
         for linkTag in linkTags:
             name = linkTag.getAttribute('name')
             value = linkTag.getAttribute('value')
-            if name not in ('mMassHomepage', 'mMassForum', 'mMassTwitter', 'mMassCite', 'mMassDonate', 'mMassDownload'):
+            if name not in ('mMassHomepage', 'mMassForum', 'mMassTwitter', 'mMassCite', 'mMassDownload', 'mMassWhatsNew'):
                 links[name] = value
 # ----
 
@@ -1333,7 +1332,7 @@ def saveConfig(path=os.path.join(confdir, 'config.xml')):
     # links
     buff += '  <links>\n'
     for name in links:
-        if name not in ('mMassHomepage', 'mMassForum', 'mMassTwitter', 'mMassCite', 'mMassDonate', 'mMassDownload'):
+        if name not in ('mMassHomepage', 'mMassForum', 'mMassTwitter', 'mMassCite', 'mMassDownload', 'mMassWhatsNew'):
             buff += '    <link name="%s" value="%s" />\n' % (_escape(name), _escape(links[name]))
     buff += '  </links>\n\n'
     
