@@ -20,6 +20,31 @@ import wx
 import numpy
 
 
+# wxPython >= 4.2 (bundled with wxWidgets 3.2, as currently shipped by
+# Debian/Ubuntu) validates wx.DC coordinate arguments more strictly than
+# the wxPython 4.1.1 this project's environment.yml pins: these device
+# coordinate methods require plain ints, and reject both numpy scalar
+# types (numpy.float64, numpy.int64, etc.) and native Python floats
+# that older wx/numpy combinations silently truncated. mspy's plotting
+# code computes coordinates with numpy and plain arithmetic throughout
+# (in this module, in plot_objects.py, and in gui/panel_documents.py)
+# and passes the results straight into wx.DC draw calls, so coerce
+# them once at the wx.DC method level rather than at every call site.
+def _patch_wx_dc_for_numpy_coords():
+    methods = ('DrawLine', 'DrawText', 'DrawRotatedText', 'DrawPoint',
+               'DrawCircle', 'DrawRectangle', 'DrawEllipse')
+    for name in methods:
+        original = getattr(wx.DC, name)
+        def make_wrapper(original):
+            def wrapper(self, *args, **kwargs):
+                args = tuple(int(a) if isinstance(a, (float, numpy.generic)) else a for a in args)
+                return original(self, *args, **kwargs)
+            return wrapper
+        setattr(wx.DC, name, make_wrapper(original))
+
+_patch_wx_dc_for_numpy_coords()
+
+
 # MAIN PLOT CANVAS OBJECT
 # -----------------------
 
