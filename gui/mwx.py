@@ -714,10 +714,11 @@ class gaugePanel(wx.Dialog):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.label, 0, wx.BOTTOM, 5)
         sizer.Add(self.gauge, 0, wx.EXPAND, 0)
-        
+        panel.SetSizer(sizer)
+
         mainSizer = wx.BoxSizer(wx.VERTICAL)
-        mainSizer.Add(sizer, 0, wx.ALL, PANEL_SPACE_MAIN)
-        
+        mainSizer.Add(panel, 0, wx.ALL, PANEL_SPACE_MAIN)
+
         self.Layout()
         mainSizer.Fit(self)
         self.SetSizer(mainSizer)
