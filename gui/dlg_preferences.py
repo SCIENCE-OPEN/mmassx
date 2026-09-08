@@ -88,13 +88,14 @@ class dlgPreferences(wx.Dialog):
         mainSizer.Add(updateNow_butt, 0, wx.CENTER|wx.ALL, 10)
         
         # fit layout
-        mainSizer.Fit(panel)
         panel.SetSizer(mainSizer)
-        
+        mainSizer.Fit(panel)
+        panel.Layout()
+
         return panel
     # ----
-    
-    
+
+
     def makeCompassPanel(self):
         """CompassXport panel."""
         
@@ -132,9 +133,10 @@ class dlgPreferences(wx.Dialog):
         mainSizer.Add(grid, 0, wx.CENTER|wx.ALL, 10)
         
         # fit layout
-        mainSizer.Fit(panel)
         panel.SetSizer(mainSizer)
-        
+        mainSizer.Fit(panel)
+        panel.Layout()
+
         return panel
     # ----
     

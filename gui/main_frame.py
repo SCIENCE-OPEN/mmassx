@@ -103,6 +103,22 @@ class mainFrame(wx.Frame):
         icons.AddIcon(images.lib['icon128'])
         icons.AddIcon(images.lib['icon256'])
         self.SetIcons(icons)
+
+        # SetIcons above only attaches icon pixel data to this window; it
+        # has no effect on what identifies the window to a taskbar/dock,
+        # which on GTK is GLib's "prgname". wx.App() unconditionally sets
+        # that to the running script's own filename ("mmass.py"), so
+        # without this override every desktop environment's dock shows a
+        # generic icon and a "mmass.py" tooltip instead of matching this
+        # app to its .desktop entry.
+        if wx.Platform == '__WXGTK__':
+            try:
+                import ctypes
+                libgtk = ctypes.CDLL('libgtk-3.so.0')
+                libgtk.g_set_prgname.argtypes = [ctypes.c_char_p]
+                libgtk.g_set_prgname(b'mmassx')
+            except Exception:
+                pass
         
         # init basics
         self.documents = []
@@ -620,7 +636,6 @@ class mainFrame(wx.Frame):
         help.Append(ID_helpTwitter, "Twitter Account...", "")
         help.AppendSeparator()
         help.Append(ID_helpCite, "Papers to Cite...", "")
-        help.Append(ID_helpDonate, "Make a Donation...", "")
         help.AppendSeparator()
         help.Append(ID_helpUpdate, "Check for Update", "")
         if wx.Platform != '__WXMAC__':
@@ -632,7 +647,6 @@ class mainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_helpForum)
         self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_helpTwitter)
         self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_helpCite)
-        self.Bind(wx.EVT_MENU, self.onLibraryLink, id=ID_helpDonate)
         self.Bind(wx.EVT_MENU, self.onHelpUpdate, id=ID_helpUpdate)
         self.Bind(wx.EVT_MENU, self.onHelpAbout, id=ID_helpAbout)
         
@@ -3251,7 +3265,6 @@ class mainFrame(wx.Frame):
             ID_helpForum: 'mMassForum',
             ID_helpTwitter: 'mMassTwitter',
             ID_helpCite: 'mMassCite',
-            ID_helpDonate: 'mMassDonate',
             ID_linksBiomedMSTools: 'biomedmstools',
             ID_linksBLAST: 'blast',
             ID_linksClustalW: 'clustalw',

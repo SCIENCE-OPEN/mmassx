@@ -78,10 +78,7 @@ class panelAbout(frame):
         
         homepage_butt = wx.Button(panel, ID_helpHomepage, "Homepage", size=(150, -1))
         homepage_butt.Bind(wx.EVT_BUTTON, self.parent.onLibraryLink)
-        
-        donate_butt = wx.Button(panel, ID_helpDonate, "Make a Donation", size=(150, -1))
-        donate_butt.Bind(wx.EVT_BUTTON, self.parent.onLibraryLink)
-        
+
         cite_butt = wx.Button(panel, ID_helpCite, "How to Cite", size=(150, -1))
         cite_butt.Bind(wx.EVT_BUTTON, self.parent.onLibraryLink)
         
@@ -96,12 +93,15 @@ class panelAbout(frame):
         sizer.AddSpacer(20)
         sizer.Add(homepage_butt, 0, wx.CENTER|wx.LEFT|wx.RIGHT, 20)
         sizer.AddSpacer(10)
-        sizer.Add(donate_butt, 0, wx.CENTER|wx.LEFT|wx.RIGHT, 20)
-        sizer.AddSpacer(10)
         sizer.Add(cite_butt, 0, wx.CENTER|wx.LEFT|wx.RIGHT|wx.BOTTOM, 20)
         
         sizer.Fit(panel)
-        return sizer
+        panel.SetSizer(sizer)
+
+        outerSizer = wx.BoxSizer(wx.VERTICAL)
+        outerSizer.Add(panel, 1, wx.EXPAND)
+
+        return outerSizer
     # ----
     
     
