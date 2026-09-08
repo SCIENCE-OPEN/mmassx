@@ -103,6 +103,22 @@ class mainFrame(wx.Frame):
         icons.AddIcon(images.lib['icon128'])
         icons.AddIcon(images.lib['icon256'])
         self.SetIcons(icons)
+
+        # SetIcons above only attaches icon pixel data to this window; it
+        # has no effect on what identifies the window to a taskbar/dock,
+        # which on GTK is GLib's "prgname". wx.App() unconditionally sets
+        # that to the running script's own filename ("mmass.py"), so
+        # without this override every desktop environment's dock shows a
+        # generic icon and a "mmass.py" tooltip instead of matching this
+        # app to its .desktop entry.
+        if wx.Platform == '__WXGTK__':
+            try:
+                import ctypes
+                libgtk = ctypes.CDLL('libgtk-3.so.0')
+                libgtk.g_set_prgname.argtypes = [ctypes.c_char_p]
+                libgtk.g_set_prgname(b'mmassx')
+            except Exception:
+                pass
         
         # init basics
         self.documents = []
