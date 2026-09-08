@@ -16,9 +16,12 @@ from setuptools import setup, Extension
 
 
 # make include paths
-numpyInclude = numpy.get_include() + '/numpy'
+# calculations.c does `#include "arrayobject.h"` (needs the numpy/
+# subdir itself on the path) but arrayobject.h then does
+# `#include "numpy/ndarrayobject.h"` etc. (needs the parent of that
+# subdir on the path too), so both must be included.
+numpyInclude = numpy.get_include()
 pythonInclude = sys.prefix + '/include'
-gyInclude = 'C:\Xilinx\Vivado\2019.1\msys64\mingw64\lib\gcc\x86_64-w64-mingw32\6.2.0\include'
 
 # make setup
 setup(
@@ -29,7 +32,7 @@ setup(
     description = "Fast calculations for mspy.",
     ext_modules=[
         Extension('calculations', ['calculations.c'],
-            include_dirs=[numpyInclude, pythonInclude, gyInclude]
+            include_dirs=[numpyInclude, numpyInclude + '/numpy', pythonInclude]
             # ,libraries=['m']
         )
     ],

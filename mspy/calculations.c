@@ -1676,7 +1676,7 @@ PyArrayObject *array_md2py( m_arrayd *p_inarr )
     dim[1] = (npy_intp) p_inarr->cell;
     
     // make python array
-    p_outarr = (PyArrayObject *) PyArray_SimpleNew(nd, dim, PyArray_DOUBLE);
+    p_outarr = (PyArrayObject *) PyArray_SimpleNew(nd, dim, NPY_DOUBLE);
     if ( p_outarr == NULL ) {
         return NULL;
     }
