@@ -8,6 +8,16 @@
 
 This work continues [gyellen fork](https://github.com/gyellen/mMass), which is based on [xxao original v5.5.0](https://github.com/xxao/mMass).
 
+## Citation
+
+- if you use mMassX in your research, please cite:
+
+> Drahník, L. & mMassX contributors. mMassX: A continuation of the
+> mMass project for mass spectrometric data analysis. URL
+> https://github.com/SCIENCE-OPEN/mmassx.
+
+[citation.cff](CITATION.cff)
+
 ## Changelog
 
 [changelog.md](changelog.md)
@@ -102,7 +112,7 @@ $ git config core.autocrlf true
 
 ## Goodies
 
-- **An cache of ions** `~/.mmass/cache/ions/*.joblib` for current version of `configs/compounds.xml` is updated every time when is combination used in compound search window, this behaviour can be disabled in `config/config.xml`:
+- **an cache of ions** `~/.mmass/cache/ions/*.joblib` for current version of `configs/compounds.xml` is updated every time when is combination used in compound search window, this behaviour can be disabled in `config/config.xml`:
 
 ```
   </compoundsSearch>
