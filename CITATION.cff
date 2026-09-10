@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: "If you use mMassX in your research, please cite this software."
+
+title: "mMassX"
+type: software
+
+authors:
+  - given-names: "Lukáš"
+    family-names: "Drahník"
+    orcid: "https://orcid.org/0009-0006-6482-1811"
+  - name: "mMassX contributors"
+
+abstract: "mMassX is a continuation of the mMass project, extending the original software for mass spectrometric data analysis."
+
+license: "GPL-3.0"
+
+repository-code: "https://github.com/SCIENCE-OPEN/mmassx"
+url: "https://github.com/SCIENCE-OPEN/mmassx"
+
+references:
+  - type: article
+    authors:
+      - given-names: "Martin"
+        family-names: "Strohalm"
+      - given-names: "Daniel"
+        family-names: "Kavan"
+      - given-names: "Petr"
+        family-names: "Novák"
+      - given-names: "Michael"
+        family-names: "Volný"
+      - given-names: "Vladimír"
+        family-names: "Havlíček"
+    title: "mMass 3: A Cross-Platform Software Environment for Precise Analysis of Mass Spectrometric Data"
+    journal: "Analytical Chemistry"
+    year: 2010
+    volume: 82
+    issue: 11
+    start: 4648
+    end: 4651
+    doi: "10.1021/ac100818g"
