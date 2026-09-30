@@ -2,9 +2,9 @@
 
 ### v6.0.1 (25.5.2025)
 
-- Fixed issues arising from the upgrade of the project to Python 3
-
-Authors: Marta Kaliaeva, Lukáš Drahník
+- Fixed issues arising from the upgrade of the project to Python 3 (Authors: Lukáš Drahník, Marta Kaliaeva)
+- Added precomputing cache for ions (Authors: Lukáš Drahník)
+- Incorporated how to download the latest compounds from the KEGG and HMDB databases to the project, including preprocessing steps due to the program's current support limitations (Authors: Lukáš Kučera, Lukáš Drahník)
 
 ### v6.0.0 (29.4.2025)
 
