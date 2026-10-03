@@ -1,0 +1,31 @@
+name: Build Windows executable
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  build-windows-executable:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: ""
+          auto-activate-base: true
+
+      - name: Build
+        shell: cmd
+        run: build-mmassx.bat "%GITHUB_WORKSPACE%\dist"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-executable-run-${{ github.run_number }}-commit-${{ github.sha }}
+          path: "${{ github.workspace }}/dist/*.exe"
+          if-no-files-found: error

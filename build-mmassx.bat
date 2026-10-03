@@ -57,9 +57,22 @@ if not exist "%BUILD_DIR%\dist\*.exe" (
     exit /b 1
 )
 
-echo [7/7] Copying .exe files to %SOURCE_DIR%\dist ...
-robocopy "%BUILD_DIR%\dist" "%SOURCE_DIR%\dist" *.exe /NFL /NDL /NJH /NJS /NC /NS /NP
+echo [7/7] Copying .exe files...
 
-echo [OK] Build complete. Executable(s) copied to %SOURCE_DIR%\dist
-pause
-endlocal
+if "%~1"=="" (
+    set "DIST_DIR=%SOURCE_DIR%\dist"
+) else (
+    set "DIST_DIR=%~1"
+)
+
+if not exist "%DIST_DIR%" mkdir "%DIST_DIR%"
+
+echo [INFO] Copying .exe files to %DIST_DIR% ...
+
+robocopy "%BUILD_DIR%\dist" "%DIST_DIR%" *.exe /NFL /NDL /NJH /NJS /NC /NS /NP
+
+echo [OK] Build complete. Executable(s) copied to %DIST_DIR%
+
+endlocal 
+
+exit /b 0
