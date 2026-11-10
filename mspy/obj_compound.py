@@ -288,6 +288,12 @@ class compound:
     
     def isvalid(self, charge=0, agentFormula='H', agentCharge=1):
         """Check ion composition."""
+
+        # check charge carrier
+        try:
+            mod_basics._validate_charge_carrier(charge, agentCharge)
+        except ValueError:
+            return False
         
         # check agent formula
         if agentFormula != 'e' and not isinstance(agentFormula, compound):

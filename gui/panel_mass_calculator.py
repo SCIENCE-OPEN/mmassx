@@ -720,7 +720,11 @@ class panelMassCalculator(wx.MiniFrame):
                 return False
             
             # ionseries
-            config.massCalculator['ionseriesAgentCharge'] = int(self.ionseriesAgentCharge_value.GetValue())
+            ionseriesAgentCharge = int(self.ionseriesAgentCharge_value.GetValue())
+            if ionseriesAgent != 'e' and not ionseriesAgentCharge:
+                wx.Bell()
+                return False
+            config.massCalculator['ionseriesAgentCharge'] = ionseriesAgentCharge
             if self.ionseriesNegative_radio.GetValue():
                 config.massCalculator['ionseriesPolarity'] = -1
             else:

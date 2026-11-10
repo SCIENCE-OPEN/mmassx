@@ -74,6 +74,18 @@ def delta(measuredMass, countedMass, units='ppm'):
 # ----
 
 
+def _validate_charge_carrier(charge, agentCharge):
+    """Check that an ion charge can be supplied by whole charge carriers."""
+
+    if not charge:
+        return
+    if not agentCharge:
+        raise ValueError('Agent charge cannot be zero.')
+    if charge % agentCharge:
+        raise ValueError('Ion charge must be a multiple of agent charge.')
+# ----
+
+
 def mz(mass, charge, currentCharge=0, agentFormula='H', agentCharge=1, massType=0):
     """Calculate m/z value for given mass and charge.
         mass (tuple of (Mo, Av) or float) - current mass
@@ -84,6 +96,10 @@ def mz(mass, charge, currentCharge=0, agentFormula='H', agentCharge=1, massType=
         massType (0 or 1) - used mass type if mass value is float, 0 = monoisotopic, 1 = average
     """
     
+    # check charge carrier
+    _validate_charge_carrier(currentCharge, agentCharge)
+    _validate_charge_carrier(charge, agentCharge)
+
     # check agent formula
     if agentFormula != 'e' and not isinstance(agentFormula, obj_compound.compound):
         agentFormula = obj_compound.compound(agentFormula)
@@ -96,8 +112,8 @@ def mz(mass, charge, currentCharge=0, agentFormula='H', agentCharge=1, massType=
         agentMass = (agentMass[0]-agentCharge*ELECTRON_MASS, agentMass[1]-agentCharge*ELECTRON_MASS)
     
     # recalculate zero charge
-    agentCount = currentCharge/agentCharge
     if currentCharge != 0:
+        agentCount = currentCharge/agentCharge
         if type(mass) in (tuple, list):
             massMo = mass[0]*abs(currentCharge) - agentMass[0]*agentCount
             massAv = mass[1]*abs(currentCharge) - agentMass[1]*agentCount
