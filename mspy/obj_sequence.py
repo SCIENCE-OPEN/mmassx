@@ -400,7 +400,7 @@ class sequence:
                     self._composition[el] = count
         
         # remove zeros
-        for atom in self._composition.keys():
+        for atom in list(self._composition.keys()):
             if self._composition[atom] == 0:
                 del self._composition[atom]
         
