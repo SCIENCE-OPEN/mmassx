@@ -787,6 +787,8 @@ def loadConfig(path=os.path.join(confdir, 'config.xml')):
         
         if type(compoundsSearch['adducts']) != list:
             compoundsSearch['adducts'] = compoundsSearch['adducts'].split(';')
+        if type(compoundsSearch['isotopes']) != list:
+            compoundsSearch['isotopes'] = compoundsSearch['isotopes'].split(';')
     
     # peak differences
     peakDifferencesTags = document.getElementsByTagName('peakDifferences')
@@ -1140,6 +1142,7 @@ def saveConfig(path=os.path.join(confdir, 'config.xml')):
     buff += '    <param name="maxCharge" value="%d" type="int" />\n' % (compoundsSearch['maxCharge'])
     buff += '    <param name="radicals" value="%d" type="int" />\n' % (bool(compoundsSearch['radicals']))
     buff += '    <param name="adducts" value="%s" type="str" />\n' % (';'.join(compoundsSearch['adducts']))
+    buff += '    <param name="isotopes" value="%s" type="str" />\n' % (';'.join(compoundsSearch['isotopes']))
     buff += '  </compoundsSearch>\n\n'
     
     # peak differences

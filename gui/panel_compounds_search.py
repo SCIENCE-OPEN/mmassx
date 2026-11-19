@@ -102,10 +102,31 @@ import hashlib
 
 ION_CACHE_DIR = Path.home() / '.mmass' / 'cache' / 'ions'
 ION_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+CACHE_VERSION = 2
 
 def config_to_hash(name: str, adduct: str, charge: int, isotope: str, mass_type: int) -> str:
-    key = f"{name}|{adduct}|{charge}|{isotope or ''}|{mass_type}"
+    key = f"{CACHE_VERSION}|{name}|{adduct}|{charge}|{isotope or ''}|{mass_type}"
     return hashlib.sha1(key.encode("utf-8")).hexdigest()[:16]
+
+def get_isotope_combinations(isotopes):
+    """Return requested mixed carbon/nitrogen isotope labels."""
+    carbon = [isotope for isotope in isotopes if isotope.startswith('(13)C')]
+    nitrogen = [isotope for isotope in isotopes if isotope.startswith('(15)N')]
+    return [carbon_isotope + nitrogen_isotope
+            for carbon_isotope in carbon
+            for nitrogen_isotope in nitrogen]
+
+def get_signed_charges(max_charge):
+    """Expand a signed maximum charge into every requested charge state."""
+    if max_charge == 0:
+        raise ValueError('Maximum charge cannot be zero.')
+    polarity = -1 if max_charge < 0 else 1
+    return [charge * polarity for charge in range(1, abs(max_charge) + 1)]
+
+def get_adducts_for_polarity(adducts, polarity):
+    """Keep only adducts whose label agrees with the requested polarity."""
+    suffix = '-' if polarity < 0 else '+'
+    return [adduct for adduct in adducts if adduct.endswith(suffix)]
 
 def is_ion_cached(name, expression, adduct, charge, isotope, mass_type):
     hash_id = config_to_hash(name, adduct, charge, isotope, mass_type)
@@ -120,6 +141,7 @@ def save_ions_to_cache(name, expression, adduct, charge, isotope, mass_type, ion
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / f"{hash_id}.joblib"
     joblib.dump(ions, path)
+    (folder / f"{hash_id}.invalid").unlink(missing_ok=True)
 
 def mark_config_invalid(name, expression, adduct, charge, isotope, mass_type):
     if not HAS_JOBLIB:
@@ -129,9 +151,10 @@ def mark_config_invalid(name, expression, adduct, charge, isotope, mass_type):
     folder.mkdir(parents=True, exist_ok=True)
     path = folder / f"{hash_id}.invalid"
     path.touch()
+    (folder / f"{hash_id}.joblib").unlink(missing_ok=True)
 
-def load_compound_ions(name: str, adducts, charge, isotopes, mass_type, expression):
-    """Load matching ions from per-config cache files using hashed filenames."""
+def load_compound_ions(name: str, adducts, charges, isotopes, mass_type, expression):
+    """Load a complete set of requested ions from per-config cache files."""
 
     if not HAS_JOBLIB:
         return None
@@ -140,33 +163,40 @@ def load_compound_ions(name: str, adducts, charge, isotopes, mass_type, expressi
     if not folder.exists():
         return None
 
+    if isinstance(charges, int):
+        charges = [charges]
+
     ions = []
+    isotope_keys = [None] + list(isotopes) + get_isotope_combinations(isotopes)
 
-    for adduct in adducts:
-        isotope_list = isotopes if isotopes else [""]
-        for isotope in isotope_list:
-            h = config_to_hash(name, adduct, charge, isotope, mass_type)
-            joblib_path = folder / f"{h}.joblib"
-            invalid_path = folder / f"{h}.invalid"
+    for charge in charges:
+        for adduct in adducts:
+            for isotope in isotope_keys:
+                h = config_to_hash(name, adduct, charge, isotope, mass_type)
+                joblib_path = folder / f"{h}.joblib"
+                invalid_path = folder / f"{h}.invalid"
 
-            if invalid_path.exists():
-                print(f"[cache] Skipping {h}: marked invalid")
-                continue
+                if invalid_path.exists():
+                    if isotope is None:
+                        break
+                    continue
+                if not joblib_path.exists():
+                    return None
 
-            if joblib_path.exists():
                 try:
                     loaded = joblib.load(joblib_path)
-                    ions.extend(loaded)
+                    ions.extend(ion for ion in loaded if ion.isotope == isotope)
                 except Exception as e:
                     print(f"[{name}] Failed to load {joblib_path.name}: {e}")
+                    return None
 
-    return ions if ions else None
+    return ions
 
 
 # $$
 class CurrentCompound():
     # 0 name, 1 m/z, 2 z, 3 adduct, 4 formula, 5 error, 6 matches, 7 measured m/z
-    def __init__(self, name, mz, z, adduct, formula, isotope=None, error=None, measuredMz=None, matches = []):
+    def __init__(self, name, mz, z, adduct, formula, isotope=None, error=None, measuredMz=None, matches=None):
         self.name = name
         self.mz = mz
         self.z = z
@@ -175,7 +205,7 @@ class CurrentCompound():
         self.formula = formula
         self.error = error
         self.measuredMz = measuredMz
-        self.matches = matches
+        self.matches = [] if matches is None else matches
 
     def __reduce__(self):
         return (self.__class__, (self.name, self.mz, self.z, self.adduct, self.formula, self.isotope, self.error, self.measuredMz, self.matches))
@@ -784,7 +814,7 @@ class panelCompoundsSearch(wx.MiniFrame):
     def onStop(self, evt):
         """Cancel current processing."""
         
-        if self.processing and self.processing.isAlive():
+        if self.processing and self.processing.is_alive():
             mspy.mod_stopper.stop()
         else:
             wx.Bell()
@@ -1017,7 +1047,7 @@ class panelCompoundsSearch(wx.MiniFrame):
         print("Loading ions from cache with filtering based on GUI settings...")
 
         adducts = config.compoundsSearch['adducts']
-        charge = config.compoundsSearch['maxCharge']
+        charges = get_signed_charges(config.compoundsSearch['maxCharge'])
         isotopes = config.compoundsSearch['isotopes']
         massType = config.compoundsSearch['massType']
 
@@ -1025,23 +1055,18 @@ class panelCompoundsSearch(wx.MiniFrame):
         polarity = -1 if config.compoundsSearch['maxCharge'] < 0 else 1
         #maxCharge = abs(config.compoundsSearch['maxCharge']) + 1
         defaultAdduct = '[M-H]-' if polarity < 0 else '[M+H]+'
-        adducts = config.compoundsSearch['adducts'][:]
-        adducts.append(defaultAdduct) # always combine with the main ion
+        adducts = get_adducts_for_polarity(config.compoundsSearch['adducts'], polarity)
+        if defaultAdduct not in adducts:
+            adducts.append(defaultAdduct) # always combine with the main ion
 
         to_compute = {}
 
         for name in compounds:
             expression = compounds[name].expression
-            ions = load_compound_ions(name, adducts, polarity, isotopes, massType, expression)
+            ions = load_compound_ions(name, adducts, charges, isotopes, massType, expression)
 
-            if ions:
-                filtered = [
-                    ion for ion in ions
-                    if ion.adduct in adducts
-                    and ion.z == charge
-                    and (not isotopes or ion.isotope in isotopes or ion.isotope is None)
-                ]
-                self.currentCompounds.extend(filtered)
+            if ions is not None:
+                self.currentCompounds.extend(ions)
             else:
                 to_compute[name] = compounds[name]
 
@@ -1134,7 +1159,7 @@ class panelCompoundsSearch(wx.MiniFrame):
                 continue
             for annotation in item.matches:
                 annotation.label = item.name
-                if item.adduct == 'radical':
+                if item.adduct == 'M*':
                     annotation.label += ' (radical)'
                     annotation.radical = 1
                 elif item.adduct:
@@ -1172,6 +1197,8 @@ class panelCompoundsSearch(wx.MiniFrame):
                 config.compoundsSearch['massType'] = 1
             
             config.compoundsSearch['maxCharge'] = int(self.maxCharge_value.GetValue())
+            if config.compoundsSearch['maxCharge'] == 0:
+                raise ValueError('Maximum charge cannot be zero.')
             config.compoundsSearch['radicals'] = int(self.radicals_check.GetValue())
             
             config.compoundsSearch['adducts'] = []
@@ -1396,11 +1423,10 @@ class panelCompoundsSearch(wx.MiniFrame):
             polarity = -1 if config.compoundsSearch['maxCharge'] < 0 else 1
             maxCharge = abs(config.compoundsSearch['maxCharge']) + 1
             defaultAdduct = '[M-H]-' if polarity < 0 else '[M+H]+'
-            adducts = config.compoundsSearch['adducts'][:]
-            adducts.append(defaultAdduct)
+            adducts = get_adducts_for_polarity(config.compoundsSearch['adducts'], polarity)
+            if defaultAdduct not in adducts:
+                adducts.append(defaultAdduct)
             save_cache = config.compoundsSearch.get("saveCache", 1)
-
-            self.currentCompounds = []
 
             for name, compound in sorted(compounds.items()):
                 if not compound.isvalid():
@@ -1448,6 +1474,15 @@ class panelCompoundsSearch(wx.MiniFrame):
                             iso_formula = '%s(%s)' % (formula, FORMULAS[iso])
                             iso_comp = mspy.obj_compound.compound(iso_formula)
                             if not iso_comp.isvalid():
+                                if save_cache:
+                                    mark_config_invalid(
+                                        name,
+                                        compound.expression,
+                                        adduct,
+                                        z * polarity,
+                                        iso,
+                                        config.compoundsSearch['massType'],
+                                    )
                                 continue
                             mz = iso_comp.mz(z * polarity)[config.compoundsSearch['massType']]
                             ion = CurrentCompound(name=name, mz=mz, z=z * polarity, adduct=adduct, isotope=iso, formula=iso_comp.expression)
@@ -1460,6 +1495,15 @@ class panelCompoundsSearch(wx.MiniFrame):
                             combo_formula = '%s(%s)(%s)' % (formula, FORMULAS[iso1], FORMULAS[iso2])
                             combo_comp = mspy.obj_compound.compound(combo_formula)
                             if not combo_comp.isvalid():
+                                if save_cache:
+                                    mark_config_invalid(
+                                        name,
+                                        compound.expression,
+                                        adduct,
+                                        z * polarity,
+                                        iso1 + iso2,
+                                        config.compoundsSearch['massType'],
+                                    )
                                 continue
                             mz = combo_comp.mz(z * polarity)[config.compoundsSearch['massType']]
                             ion = CurrentCompound(name=name, mz=mz, z=z * polarity, adduct=adduct,
@@ -1469,10 +1513,18 @@ class panelCompoundsSearch(wx.MiniFrame):
                         self.currentCompounds.extend(ions)
 
                         if save_cache:
-                            save_ions_to_cache(name, compound.expression, adduct, z * polarity, None, config.compoundsSearch['massType'], ions)
+                            for ion in ions:
+                                save_ions_to_cache(
+                                    name,
+                                    compound.expression,
+                                    adduct,
+                                    z * polarity,
+                                    ion.isotope,
+                                    config.compoundsSearch['massType'],
+                                    [ion],
+                                )
 
         except mspy.mod_stopper.ForceQuit:
-            self.currentCompounds = []
             return    
     
     def calibrateByMatches(self, references):

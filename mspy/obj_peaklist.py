@@ -79,7 +79,7 @@ class peaklist:
             self._setRelativeIntensities()
         
         # lower than basepeak
-        elif self.basepeak:
+        elif self.basepeak and self.basepeak.intensity != 0:
             item.ri = item.intensity / self.basepeak.intensity
             self.peaks[i] = item
         
@@ -114,8 +114,7 @@ class peaklist:
     
     
     def __iter__(self):
-        self._index = 0
-        return self
+        return iter(self.peaks)
     # ----
     
     

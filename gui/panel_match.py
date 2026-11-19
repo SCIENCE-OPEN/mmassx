@@ -608,6 +608,7 @@ class panelMatch(wx.MiniFrame):
         try:
             
             # set columns
+            measuredCol = None
             if self.currentModule == 'massfilter':
                 massCol = 1
                 chargeCol = None
@@ -670,9 +671,6 @@ class panelMatch(wx.MiniFrame):
                             # $$
                             self.currentData[x][matchCol].append(match)
                             # $$
-                            if measuredCol is not None:
-                                self.currentData[x][measuredCol] = peak.mz
-
                             # errors and calibration points
                             label = 'Peak ' + digits % peak.mz
                             self.currentErrors.append([peak.mz, error])
@@ -685,6 +683,8 @@ class panelMatch(wx.MiniFrame):
                     error = match.delta(config.match['units'])
                     if item[errorCol] is None or abs(item[errorCol]) > abs(error):
                         item[errorCol] = error
+                        if measuredCol is not None:
+                            item[measuredCol] = match.mz
             
             # get match summary
             self.makeMatchSummary()

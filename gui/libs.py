@@ -716,7 +716,10 @@ def loadCompounds(path=os.path.join(config.confdir, 'compounds.xml'), clear=True
                 for compoundTag in compoundTags:
                     try:
                         name = compoundTag.getAttribute('name')
-                        compound = mspy.obj_compound.compound(compoundTag.getAttribute('formula'))
+                        formula = compoundTag.getAttribute('formula')
+                        if not name or not formula:
+                            continue
+                        compound = mspy.obj_compound.compound(formula)
                         compound.description = _getNodeText(compoundTag)
                         container[groupName][name] = compound
                     except:

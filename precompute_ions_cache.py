@@ -3,43 +3,38 @@ import sys
 import joblib
 import hashlib
 import argparse
-from time import time
 from pathlib import Path
 from xml.dom.minidom import parse
-from multiprocessing import Pool, cpu_count, Value, Lock
+from multiprocessing import Pool, cpu_count
 from mspy.obj_compound import compound as Compound
 from gui.panel_compounds_search import FORMULAS, CurrentCompound
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ---------- Configuration ----------
 COMPOUND_XML = os.path.join("configs", "compounds.xml")
 MASS_TYPE = 0  # 0 = monoisotopic, 1 = average
-MAX_CHARGE = 1
-RADICALS = True
-ADDUCTS = list(FORMULAS.keys())
+ADDUCTS = [name for name in FORMULAS if not name.startswith('(')]
 ISOTOPES = [iso for iso in FORMULAS if iso.startswith("(")]
-
-# ---------- Argument parsing ----------
-parser = argparse.ArgumentParser(description="Precompute ion configurations for compounds.")
-parser.add_argument('--home', action='store_true', help="Use ~/.mmass/cache as output directory")
-parser.add_argument('--group-name', type=str, default=None, help="Optional: limit to a specific group name in compounds.xml")
-args = parser.parse_args()
+CACHE_VERSION = 2
 
 # ---------- Output directory ----------
-OUTPUT_ROOT = Path.home() / '.mmass' / 'cache' / 'ions' if args.home else Path("cache/ions")
-OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+OUTPUT_ROOT = Path("cache/ions")
 
 # ---------- Utility Functions ----------
 def config_to_hash(name: str, adduct: str, charge: int, isotope: str, mass_type: int) -> str:
-    key = f"{name}|{adduct}|{charge}|{isotope or ''}|{mass_type}"
-    h = hashlib.sha1(key.encode("utf-8")).hexdigest()[:16]
-    log_path = OUTPUT_ROOT / 'config_hash_log.txt'
-    try:
-        with log_path.open("a", encoding="utf-8") as f:
-            f.write(f"{h} | {key}\n")
-    except Exception as e:
-        print(f"[config_to_hash] Failed to write log: {e}")
-    return h
+    key = f"{CACHE_VERSION}|{name}|{adduct}|{charge}|{isotope or ''}|{mass_type}"
+    return hashlib.sha1(key.encode("utf-8")).hexdigest()[:16]
+
+def configure_output_root(path):
+    """Set the output root in the parent process and spawned workers."""
+    global OUTPUT_ROOT
+    OUTPUT_ROOT = Path(path)
+    OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
+
+def build_parser():
+    parser = argparse.ArgumentParser(description="Precompute ion configurations for compounds.")
+    parser.add_argument('--home', action='store_true', help="Use ~/.mmass/cache as output directory")
+    parser.add_argument('--group-name', type=str, default=None, help="Optional: limit to a specific group name in compounds.xml")
+    return parser
 
 def get_safe_cpu_count(reserve=2):
     return max(1, (cpu_count() or 1) - reserve)
@@ -96,6 +91,7 @@ def generate_single_config_ions(name, compound, adduct, charge, isotope, mass_ty
         if not c.isvalid():
             out_dir.mkdir(parents=True, exist_ok=True)
             invalid_path.touch()
+            out_path.unlink(missing_ok=True)
             return
 
         if isotope:
@@ -108,6 +104,7 @@ def generate_single_config_ions(name, compound, adduct, charge, isotope, mass_ty
             else:
                 out_dir.mkdir(parents=True, exist_ok=True)
                 invalid_path.touch()
+                out_path.unlink(missing_ok=True)
                 return
         else:
             mz = c.mz(charge)[mass_type]
@@ -117,15 +114,18 @@ def generate_single_config_ions(name, compound, adduct, charge, isotope, mass_ty
         print(f"[{name}] Error generating ion for {adduct}, {isotope}: {e}")
         out_dir.mkdir(parents=True, exist_ok=True)
         invalid_path.touch()
+        out_path.unlink(missing_ok=True)
         return
 
     if result:
         out_dir.mkdir(parents=True, exist_ok=True)
         try:
             joblib.dump(result, out_path, compress=("zlib", 3))
+            invalid_path.unlink(missing_ok=True)
         except Exception as e:
             print(f"[{name}] Failed to save ions: {e}")
             invalid_path.touch()
+            out_path.unlink(missing_ok=True)
 
 def check_and_prepare_task(name, cmpd, adduct, charge, isotope, mass_type):
     hash_id = config_to_hash(name, adduct, charge, isotope, mass_type)
@@ -137,70 +137,58 @@ def check_and_prepare_task(name, cmpd, adduct, charge, isotope, mass_type):
         return (name, cmpd, adduct, charge, isotope, mass_type)
     return None
 
-def generate_tasks(compounds, adducts, charge, isotopes, mass_type, max_threads=32):
-    tasks, futures = [], []
-    total_compounds = len(compounds)
-    total_possible = total_compounds * len(adducts) * (len(isotopes) + 1)
-    print(f"Scanning approximately {total_possible} configs...")
+def generate_tasks(compounds, adducts, charge, isotopes, mass_type):
+    """Yield uncached configurations without retaining millions of futures."""
+    for name, cmpd in compounds.items():
+        for adduct in adducts:
+            for isotope in list(isotopes) + [None]:
+                task = check_and_prepare_task(
+                    name, cmpd, adduct, charge, isotope, mass_type
+                )
+                if task:
+                    yield task
 
-    with ThreadPoolExecutor(max_workers=max_threads) as executor:
-        for name, cmpd in compounds.items():
-            for adduct in adducts:
-                for iso in isotopes:
-                    futures.append(executor.submit(check_and_prepare_task, name, cmpd, adduct, charge, iso, mass_type))
-                futures.append(executor.submit(check_and_prepare_task, name, cmpd, adduct, charge, None, mass_type))
-
-        total_scanned = len(futures)
-        for i, future in enumerate(as_completed(futures), 1):
-            result = future.result()
-            if result:
-                tasks.append(result)
-            if i % 1000 == 0 or i == total_scanned:
-                print(f"Checked {i}/{total_scanned} configs. New tasks: {len(tasks)}", end='\r')
-
-    already_existing = total_possible - len(tasks)
-    print(f"\nSummary for charge {charge}:")
-    print(f"  Total configs:         {total_possible}")
-    print(f"  Already cached:        {already_existing}")
-    print(f"  New to generate:       {len(tasks)}")
-
-    return tasks
+def generate_task(args):
+    """Picklable multiprocessing entry point for one ion configuration."""
+    return generate_single_config_ions(*args)
 
 # ---------- Main ----------
-if __name__ == "__main__":
+def main(argv=None):
+    args = build_parser().parse_args(argv)
+    output_root = Path.home() / '.mmass' / 'cache' / 'ions' if args.home else Path("cache/ions")
+    configure_output_root(output_root)
+
     print("Reading compounds from XML...")
     compounds = get_all_compounds(COMPOUND_XML, args.group_name)
     if not compounds:
         sys.exit(1)
 
     mass_type = MASS_TYPE
-    adducts = ADDUCTS
     isotopes = ISOTOPES
     workers = get_safe_cpu_count(reserve=2)
     print(f"Using {workers} worker(s)\n")
 
     for polarity in [+1, -1]:
         charge = polarity
+        suffix = '+' if polarity > 0 else '-'
+        adducts = [adduct for adduct in ADDUCTS if adduct.endswith(suffix)]
         tasks = generate_tasks(compounds, adducts, charge, isotopes, mass_type)
-        total_tasks = len(tasks)
+        print(f"Generating missing ion configs for charge {charge}...")
+        completed = 0
+        with Pool(
+            processes=workers,
+            initializer=configure_output_root,
+            initargs=(str(OUTPUT_ROOT),),
+        ) as pool:
+            for completed, _ in enumerate(
+                pool.imap_unordered(generate_task, tasks, chunksize=20), 1
+            ):
+                if completed % 1000 == 0:
+                    print(f"Progress [{charge:+}]: {completed}", end='\r')
 
-        if total_tasks == 0:
-            print(f"No new tasks for charge {charge}")
-            continue
-
-        print(f"Generating {total_tasks} ion configs for charge {charge}...")
-        counter = Value('i', 0)
-        lock = Lock()
-
-        def wrapped_generate(*args):
-            with lock:
-                counter.value += 1
-                print(f"Progress [{charge:+}]: {counter.value}/{total_tasks}", end='\r')
-            return generate_single_config_ions(*args)
-
-        with Pool(processes=workers) as pool:
-            pool.starmap(wrapped_generate, tasks)
-
-        print(f"\nDone: {counter.value}/{total_tasks} generated for charge {charge}")
+        print(f"\nDone: {completed} generated for charge {charge}")
 
     print("\nAll done! Ion cache stored in:", OUTPUT_ROOT)
+
+if __name__ == "__main__":
+    main()

@@ -344,6 +344,8 @@ class scan:
         
         # get normalization params
         f = self.normalization()
+        if not f:
+            return
         
         # normalize profile
         if len(self.profile) > 0:

@@ -429,6 +429,10 @@ def normalize(signal):
     # check signal data
     if len(signal) == 0:
         return numpy.array([])
+
+    # avoid division by zero for an empty-intensity signal
+    if numpy.max(signal[:, 1]) == 0:
+        return signal.copy()
     
     # offset signal
     return calculations.signal_normalize(signal)
@@ -545,7 +549,7 @@ def savgol(signal, window, cycles=1, order=3):
     
     # precompute the offset values for better performance
     offsets = range(-halfWindow, halfWindow+1)
-    offsetData = zip(offsets, m)
+    offsetData = list(zip(offsets, m))
     
     # smooth the data
     while cycles:
