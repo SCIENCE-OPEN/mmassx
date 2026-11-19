@@ -51,6 +51,9 @@ def pattern(compound, fwhm=0.1, threshold=0.01, charge=0, agentFormula='H', agen
         model (gaussian, lorentzian, gausslorentzian) - peak shape function
     """
     
+    # check charge carrier
+    mod_basics._validate_charge_carrier(charge, agentCharge)
+
     # check compound
     if not isinstance(compound, obj_compound.compound):
         compound = obj_compound.compound(compound)
